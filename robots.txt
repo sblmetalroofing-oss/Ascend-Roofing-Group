@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ascendroofinggroup.com.au/sitemap.xml

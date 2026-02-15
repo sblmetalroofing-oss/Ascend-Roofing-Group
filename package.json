@@ -1,0 +1,10 @@
+{
+    "name": "ascend-roofing-group",
+    "version": "1.0.0",
+    "description": "Static website for Ascend Roofing Group",
+    "scripts": {
+        "build": "node build.js"
+    },
+    "author": "Ascend Roofing Group",
+    "license": "UNLICENSED"
+}

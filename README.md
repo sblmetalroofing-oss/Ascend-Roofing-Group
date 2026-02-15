@@ -13,16 +13,29 @@ Source code for the Ascend Roofing Group website, a static site for a Brisbane &
 - **`locations.html`**: Generated index of all service areas.
 - **`images/`**: Project assets.
 
-## How to Build
+## How to Build (Vercel / Node.js)
 
-The website is static HTML/CSS/JS. To regenerate the SEO suburb pages:
+This project is configured for seamless deployment on Vercel.
 
-1. Open PowerShell.
-2. Run the generation script:
-   ```powershell
-   .\generate_pages.ps1
+### Local Development
+1. Install Node.js.
+2. Run the build script:
+   ```bash
+   npm run build
+   # or
+   node build.js
    ```
-3. This will update `locations.html` and populate `service-areas/` with `roofing-[suburb].html` files based on `template.html` and `suburbs.json`.
+
+### Vercel Configuration
+- **Build Command**: `npm run build`
+- **Output Directory**: `.` (The root directory)
+- **Ignored Files**: `service-areas/`, `locations.html`, and `sitemap.xml` are generated during build and ignored by git.
+
+### Legacy Method
+You can still use the PowerShell script if preferred:
+```powershell
+.\generate_pages.ps1
+```
 
 ## Branding
 
