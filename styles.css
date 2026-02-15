@@ -1239,6 +1239,12 @@ textarea {
         grid-template-columns: repeat(2, 1fr);
     }
 
+    /* Fix for mobile/tablet background attachment issues */
+    .hero-bg {
+        background-attachment: scroll;
+        background-position: center center;
+    }
+
     .why-grid,
     .team-grid {
         grid-template-columns: repeat(2, 1fr);
