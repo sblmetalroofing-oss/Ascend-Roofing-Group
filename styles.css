@@ -181,8 +181,8 @@ textarea {
 }
 
 .btn-primary:hover {
-    background: #1d4ed8;
-    border-color: #1d4ed8;
+    background: #0056b3;
+    border-color: #0056b3;
     color: #fff;
 }
 
@@ -416,7 +416,7 @@ textarea {
 /* Brighter accent for Hero specifically, to pop against dark bg */
 .hero .text-accent {
     color: #60a5fa;
-    text-shadow: 0 0 20px rgba(37, 99, 235, 0.4);
+    text-shadow: 0 0 20px rgba(0, 123, 255, 0.4);
 }
 
 .hero-subtitle {
