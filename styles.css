@@ -57,6 +57,8 @@
 html {
     scroll-behavior: smooth;
     font-size: 16px;
+    /* iOS safe area support for notched devices */
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
 body {
@@ -66,6 +68,8 @@ body {
     line-height: 1.6;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
+    -webkit-text-size-adjust: 100%;
+    -webkit-overflow-scrolling: touch;
 }
 
 h1,
@@ -456,6 +460,7 @@ textarea {
 .hero-stat {
     display: flex;
     flex-direction: column;
+    white-space: nowrap;
 }
 
 .stat-number {
@@ -1239,12 +1244,6 @@ textarea {
         grid-template-columns: repeat(2, 1fr);
     }
 
-    /* Fix for mobile/tablet background attachment issues */
-    .hero-bg {
-        background-attachment: scroll;
-        background-position: center center;
-    }
-
     .why-grid,
     .team-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -1252,6 +1251,14 @@ textarea {
 
     .footer-grid {
         grid-template-columns: repeat(2, 1fr);
+    }
+
+    .hero-stats {
+        gap: 32px;
+    }
+
+    .about-grid {
+        gap: 40px;
     }
 }
 
@@ -1359,6 +1366,120 @@ textarea {
         flex-direction: column;
         gap: 16px;
         text-align: center;
+    }
+
+    /* Prevent iOS zoom on input focus (requires 16px min) */
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        font-size: 16px;
+    }
+
+    /* Fix hero stat number + symbol wrapping */
+    .stat-number {
+        font-size: 2.25rem;
+    }
+
+    .stat-plus {
+        font-size: 1.25rem;
+    }
+
+    /* Ensure buttons don't overflow on small screens */
+    .hero-actions {
+        flex-direction: column;
+    }
+
+    .hero-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Fix logo scaling on mobile */
+    .logo-img {
+        height: 50px;
+        transform: scale(1.2);
+    }
+
+    /* Improve touch targets */
+    .nav-link {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+    }
+
+    /* Mobile nav safe area */
+    .nav-menu {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+}
+
+/* ---- SMALL SCREENS (iPhone SE, iPhone Mini) ---- */
+@media (max-width: 480px) {
+    .section {
+        padding: 60px 0;
+    }
+
+    .section-header {
+        margin-bottom: 40px;
+    }
+
+    .container {
+        padding: 0 16px;
+    }
+
+    .hero {
+        padding: 120px 0 60px;
+    }
+
+    .hero h1 {
+        font-size: 2.25rem;
+        letter-spacing: -1px;
+    }
+
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+
+    .hero-badge {
+        font-size: 0.65rem;
+    }
+
+    .hero-stats {
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+    }
+
+    .service-card {
+        padding: 32px 24px;
+    }
+
+    .contact-form-wrapper {
+        padding: 24px 16px;
+    }
+
+    .testimonial-card {
+        padding: 32px 24px;
+    }
+
+    .info-card {
+        padding: 20px 16px;
+    }
+
+    .btn-lg {
+        padding: 16px 24px;
+        font-size: 0.85rem;
+    }
+
+    .footer {
+        padding: 48px 0 0;
+    }
+
+    .footer-bottom {
+        padding-bottom: calc(16px + env(safe-area-inset-bottom));
     }
 }
 
