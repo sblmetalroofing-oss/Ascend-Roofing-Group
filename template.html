@@ -55,6 +55,7 @@
             </ul>
         </div>
     </nav>
+    <div class="nav-overlay" id="navOverlay"></div>
 
     <!-- ===================== HERO ===================== -->
     <section class="hero" id="hero">
@@ -453,8 +454,7 @@
             </div>
             <div class="contact-grid">
                 <div class="contact-form-wrapper" data-reveal>
-                    <form class="contact-form" id="contactForm" action="https://formspree.io/f/YOUR_FORM_ID"
-                        method="POST" netlify>
+                    <form class="contact-form" id="contactForm" action="/api/submit-quote" method="POST">
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="name">Full Name</label>
@@ -584,6 +584,7 @@
                         <li><a href="#testimonials">Reviews</a></li>
                         <li><a href="#contact">Contact</a></li>
                         <li><a href="../terms.html">Terms & Conditions</a></li>
+                        <li><a href="../privacy.html">Privacy Policy</a></li>
                         <li><a href="../faq.html">FAQ</a></li>
                     </ul>
                 </div>

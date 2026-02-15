@@ -177,6 +177,7 @@ $LocationsIndex = @"
             </ul>
         </div>
     </nav>
+    <div class="nav-overlay" id="navOverlay"></div>
 
     <section class="locations-hero">
         <div class="container">
@@ -211,6 +212,9 @@ $LocationsIndex = @"
                         <li><a href="index.html#team">Our Team</a></li>
                         <li><a href="index.html#testimonials">Reviews</a></li>
                         <li><a href="index.html#contact">Contact</a></li>
+                        <li><a href="terms.html">Terms & Conditions</a></li>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                        <li><a href="faq.html">FAQ</a></li>
                     </ul>
                 </div>
                 <div class="footer-links">
@@ -225,7 +229,7 @@ $LocationsIndex = @"
                 </div>
                 <div class="footer-contact">
                     <h4>Get In Touch</h4>
-                    <p><a href="tel:0435222683">📞 0435 222 683</a></p>
+                    <p><a href="tel:0490196284">📞 0490 196 284</a></p>
                     <p><a href="mailto:admin@ascendroofinggroup.com.au">✉️ admin@ascendroofinggroup.com.au</a></p>
                     <p>📍 Brisbane & Gold Coast, QLD</p>
                 </div>

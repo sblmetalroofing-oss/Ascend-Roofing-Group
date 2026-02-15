@@ -32,6 +32,39 @@
     </script> -->
     <link rel="stylesheet" href="styles.css">
     <script defer src="/_vercel/speed-insights/script.js"></script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "RoofingContractor",
+        "name": "Ascend Roofing Group",
+        "url": "https://ascendroofinggroup.com.au",
+        "telephone": "+61490196284",
+        "email": "admin@ascendroofinggroup.com.au",
+        "description": "Family-owned metal roofing specialists serving Brisbane & Gold Coast. Premium Colorbond® steel roofing solutions.",
+        "areaServed": [
+            {"@type": "City", "name": "Brisbane"},
+            {"@type": "City", "name": "Gold Coast"},
+            {"@type": "City", "name": "Logan"},
+            {"@type": "City", "name": "Ipswich"},
+            {"@type": "City", "name": "Moreton Bay"}
+        ],
+        "serviceType": [
+            "New Roof Installations",
+            "Roof Replacements",
+            "Roof Repairs",
+            "Insulation Upgrades",
+            "Gutters & Downpipes",
+            "Skylights & Whirlybirds"
+        ],
+        "openingHours": "Mo-Fr 07:30-15:30",
+        "priceRange": "$$",
+        "founder": [
+            {"@type": "Person", "name": "Steve"},
+            {"@type": "Person", "name": "Jyett"}
+        ],
+        "sameAs": []
+    }
+    </script>
 </head>
 
 <body>
@@ -56,6 +89,7 @@
             </ul>
         </div>
     </nav>
+    <div class="nav-overlay" id="navOverlay"></div>
 
     <!-- ===================== HERO ===================== -->
     <section class="hero" id="hero">
@@ -220,15 +254,17 @@
                 <!-- Item 1 -->
                 <div class="gallery-item" data-reveal>
                     <img src="./images/DJI_20240427080531_0013_D_edited_edited.jpg"
-                        alt="Broadbeach Waters Roof Replacement">
+                        alt="Colorbond metal roof replacement in Broadbeach Waters, Gold Coast — aerial drone view by Ascend Roofing Group">
                 </div>
                 <!-- Item 2 -->
                 <div class="gallery-item" data-reveal>
-                    <img src="./images/20231130_153142.jpg" alt="Burleigh Heads Installation">
+                    <img src="./images/20231130_153142.jpg"
+                        alt="New Colorbond steel roof installation in Burleigh Heads — completed by Ascend Roofing Group">
                 </div>
                 <!-- Item 3 -->
                 <div class="gallery-item" data-reveal>
-                    <img src="./images/IMG_4703.JPG" alt="Southport Commercial Roofing">
+                    <img src="./images/IMG_4703.JPG"
+                        alt="Commercial metal roofing project in Southport — Ascend Roofing Group">
                 </div>
             </div>
         </div>
@@ -473,8 +509,7 @@
             </div>
             <div class="contact-grid">
                 <div class="contact-form-wrapper" data-reveal>
-                    <form class="contact-form" id="contactForm" action="https://formspree.io/f/YOUR_FORM_ID"
-                        method="POST" netlify>
+                    <form class="contact-form" id="contactForm" action="/api/submit-quote" method="POST">
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="name">Full Name</label>
@@ -604,6 +639,7 @@
                         <li><a href="#testimonials">Reviews</a></li>
                         <li><a href="#contact">Contact</a></li>
                         <li><a href="terms.html">Terms & Conditions</a></li>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
                         <li><a href="faq.html">FAQ</a></li>
                     </ul>
                 </div>
@@ -619,7 +655,7 @@
                 </div>
                 <div class="footer-contact">
                     <h4>Get In Touch</h4>
-                    <p><a href="tel:0435222683">📞 0435 222 683</a></p>
+                    <p><a href="tel:0490196284">📞 0490 196 284</a></p>
                     <p><a href="mailto:admin@ascendroofinggroup.com.au">✉️ admin@ascendroofinggroup.com.au</a></p>
                     <p>📍 Brisbane & Gold Coast, QLD</p>
                 </div>

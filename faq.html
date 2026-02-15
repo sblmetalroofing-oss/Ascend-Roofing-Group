@@ -20,6 +20,54 @@
         rel="stylesheet">
     <link rel="icon" href="./images/ROOFING GROUP.png" type="image/png">
     <link rel="stylesheet" href="styles.css">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "What roofing materials are most suitable for Australian homes?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Common materials include Colorbond Steel (ideal for coastal areas due to its corrosion resistance) and Zincalume (known for strength and resistance to the elements). We can recommend the best material for your home."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How often should I have my roof inspected?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "We recommend annual inspections to catch early signs of damage and post-storm inspections to check for immediate damage caused by extreme weather events."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How can I tell if my roof needs repair or replacement?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Signs include leaks or water stains, missing or cracked tiles, rusted metal roofing, sagging rooflines, blocked gutters, and higher energy bills due to insulation issues."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What is the cost of a roof replacement in Australia?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "The cost depends on roof size and pitch, materials used (Colorbond, Trimdek, Kliplok, Custom orb), labour costs, and any structural repairs needed. We provide free quotes."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What is the lifespan of my roof?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Colorbond Steel lasts 30-50 years with proper maintenance. Zincalume lasts 30-45 years. Regular maintenance can extend your roof's life."
+                }
+            }
+        ]
+    }
+    </script>
 </head>
 
 <body>
@@ -44,6 +92,7 @@
             </ul>
         </div>
     </nav>
+    <div class="nav-overlay" id="navOverlay"></div>
 
     <!-- ===================== FAQ CONTENT ===================== -->
     <section class="section" style="padding-top: 120px;">
@@ -157,6 +206,7 @@
                         <li><a href="index.html#testimonials">Reviews</a></li>
                         <li><a href="index.html#contact">Contact</a></li>
                         <li><a href="terms.html">Terms & Conditions</a></li>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
                         <li><a href="faq.html">FAQ</a></li>
                     </ul>
                 </div>
@@ -185,44 +235,6 @@
     </footer>
 
     <script src="script.js"></script>
-    <style>
-        .faq-item {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 30px;
-            margin-bottom: 24px;
-            transition: var(--transition);
-        }
-
-        .faq-item:hover {
-            border-color: var(--accent);
-            transform: translateY(-2px);
-        }
-
-        .faq-item h3 {
-            color: var(--text-primary);
-            margin-bottom: 16px;
-            font-size: 1.25rem;
-        }
-
-        .faq-item p {
-            color: var(--text-secondary);
-            margin-bottom: 16px;
-            line-height: 1.6;
-        }
-
-        .faq-item ul {
-            list-style-type: disc;
-            margin-left: 20px;
-            margin-bottom: 16px;
-            color: var(--text-secondary);
-        }
-
-        .faq-item li {
-            margin-bottom: 8px;
-        }
-    </style>
 </body>
 
 </html>

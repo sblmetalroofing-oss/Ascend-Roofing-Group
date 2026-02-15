@@ -2,8 +2,6 @@
    ASCEND ROOFING GROUP — STYLES
    Dark Architectural Theme
    ============================================ */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
-
 :root {
     /* -- Dark Architectural Palette -- */
     --bg-body: #0a0a0a;
@@ -360,7 +358,6 @@ textarea {
     background: linear-gradient(to bottom, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.85) 100%),
         url('./images/20240307_171821.jpg');
     background-size: cover;
-    background-attachment: fixed;
     background-position: center center;
     z-index: -1;
 }
@@ -1370,4 +1367,96 @@ textarea {
     color: var(--accent-color);
     margin-top: 40px;
     margin-bottom: 16px;
+}
+
+.terms-content p {
+    margin-bottom: 16px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+/* ---- FAQ PAGE ---- */
+.faq-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 30px;
+    margin-bottom: 24px;
+    transition: var(--transition);
+}
+
+.faq-item:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+}
+
+.faq-item h3 {
+    color: var(--text-primary);
+    margin-bottom: 16px;
+    font-size: 1.25rem;
+}
+
+.faq-item p {
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+    line-height: 1.6;
+}
+
+.faq-item ul {
+    list-style-type: disc;
+    margin-left: 20px;
+    margin-bottom: 16px;
+    color: var(--text-secondary);
+}
+
+.faq-item li {
+    margin-bottom: 8px;
+}
+
+/* ---- MOBILE NAV OVERLAY ---- */
+.nav-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    backdrop-filter: blur(4px);
+}
+
+.nav-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* ---- CUSTOM 404 PAGE ---- */
+.error-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 24px;
+}
+
+.error-page h1 {
+    font-size: clamp(4rem, 10vw, 8rem);
+    font-weight: 900;
+    color: var(--accent-color);
+    line-height: 1;
+    margin-bottom: 16px;
+}
+
+.error-page h2 {
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+}
+
+.error-page p {
+    color: var(--text-muted);
+    margin-bottom: 32px;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
 }

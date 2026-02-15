@@ -2,41 +2,51 @@ import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+// Sanitize user input to prevent XSS in HTML emails
+function sanitize(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#x27;');
+}
+
 export default async function handler(req, res) {
-    // Environment Variable Fix: Ensure BUSINESS_EMAIL is set to admin@ascendroofinggroup.com.au
     if (req.method !== 'POST') {
         return res.status(405).json({ message: 'Method Not Allowed' });
     }
 
     const { name, email, phone, service, message } = req.body;
 
-    // Debug Logs
-    console.log('--- Debugging Quote Submission ---');
-    console.log('RESEND_API_KEY Present:', !!process.env.RESEND_API_KEY);
-    console.log('BUSINESS_EMAIL:', process.env.BUSINESS_EMAIL || '(Not Set - using default)');
-    console.log('FROM_EMAIL:', process.env.FROM_EMAIL || '(Not Set - using default)');
-    console.log('----------------------------------');
+    // Sanitize all inputs
+    const safeName = sanitize(name);
+    const safeEmail = sanitize(email);
+    const safePhone = sanitize(phone);
+    const safeService = sanitize(service);
+    const safeMessage = sanitize(message);
 
     try {
         if (!process.env.RESEND_API_KEY) {
             console.warn('RESEND_API_KEY is not set. Logging data instead.');
-            console.log('Form Data:', req.body);
+            console.log('Form Data:', { name: safeName, email: safeEmail, phone: safePhone, service: safeService, message: safeMessage });
             return res.status(200).json({ success: true, message: 'Form submitted successfully (Simulation)' });
         }
 
         const { data, error } = await resend.emails.send({
             from: process.env.FROM_EMAIL || 'Ascend Website <onboarding@resend.dev>',
-            to: process.env.BUSINESS_EMAIL || 'delivered@resend.dev', // Default to Resend's test address
+            to: process.env.BUSINESS_EMAIL || 'delivered@resend.dev',
             reply_to: email,
-            subject: `New Quote Request: ${name}`,
+            subject: `New Quote Request: ${safeName}`,
             html: `
         <h2>New Quote Request</h2>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Phone:</strong> ${phone}</p>
-        <p><strong>Service:</strong> ${service}</p>
+        <p><strong>Name:</strong> ${safeName}</p>
+        <p><strong>Email:</strong> ${safeEmail}</p>
+        <p><strong>Phone:</strong> ${safePhone}</p>
+        <p><strong>Service:</strong> ${safeService}</p>
         <p><strong>Message:</strong></p>
-        <p>${message}</p>
+        <p>${safeMessage}</p>
       `
         });
 
