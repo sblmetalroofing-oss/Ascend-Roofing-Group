@@ -135,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ---- CONTACT FORM HANDLER ----
     const contactForm = document.getElementById('contactForm');
     if (contactForm) {
-        contactForm.addEventListener('submit', (e) => {
+        contactForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const btn = document.getElementById('submitBtn');
@@ -148,20 +148,37 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             btn.disabled = true;
 
-            // Simulate form submission
-            setTimeout(() => {
-                const wrapper = contactForm.parentElement;
-                wrapper.innerHTML = `
-                    <div class="form-success">
-                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <polyline points="9 12 12 15 16 9"/>
-                        </svg>
-                        <h3>Quote Request Sent!</h3>
-                        <p>Thanks for reaching out. We'll get back to you within 24 hours.</p>
-                    </div>
-                `;
-            }, 1500);
+            const formData = new FormData(contactForm);
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+                const response = await fetch('/api/submit-quote', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    const wrapper = contactForm.parentElement;
+                    wrapper.innerHTML = `
+                        <div class="form-success">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <polyline points="9 12 12 15 16 9"/>
+                            </svg>
+                            <h3>Quote Request Sent!</h3>
+                            <p>Thanks for reaching out, ${data.name.split(' ')[0]}. We'll get back to you within 24 hours.</p>
+                        </div>
+                    `;
+                } else {
+                    throw new Error('Network response was not ok');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+                alert('Something went wrong. Please call us directly at 0435 222 683.');
+            }
         });
     }
 
