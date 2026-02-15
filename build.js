@@ -22,9 +22,9 @@ const PROJECT_IMAGES = [
 ];
 
 const TEMPLATE_PLACEHOLDERS = [
-    "./images/17964553073761123.avif",
-    "./images/18055540900925803.avif",
-    "./images/17845590288288225.avif"
+    "../images/17964553073761123.avif",
+    "../images/18055540900925803.avif",
+    "../images/17845590288288225.avif"
 ];
 
 // Utilities
