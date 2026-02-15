@@ -9,6 +9,13 @@ export default async function handler(req, res) {
 
     const { name, email, phone, service, message } = req.body;
 
+    // Debug Logs
+    console.log('--- Debugging Quote Submission ---');
+    console.log('RESEND_API_KEY Present:', !!process.env.RESEND_API_KEY);
+    console.log('BUSINESS_EMAIL:', process.env.BUSINESS_EMAIL || '(Not Set - using default)');
+    console.log('FROM_EMAIL:', process.env.FROM_EMAIL || '(Not Set - using default)');
+    console.log('----------------------------------');
+
     try {
         if (!process.env.RESEND_API_KEY) {
             console.warn('RESEND_API_KEY is not set. Logging data instead.');
