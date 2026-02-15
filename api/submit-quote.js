@@ -17,7 +17,7 @@ export default async function handler(req, res) {
         }
 
         const { data, error } = await resend.emails.send({
-            from: 'Ascend Website <onboarding@resend.dev>',
+            from: process.env.FROM_EMAIL || 'Ascend Website <onboarding@resend.dev>',
             to: process.env.BUSINESS_EMAIL || 'delivered@resend.dev', // Default to Resend's test address
             reply_to: email,
             subject: `New Quote Request: ${name}`,
