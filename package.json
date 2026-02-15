@@ -3,7 +3,8 @@
     "version": "1.0.0",
     "description": "Static website for Ascend Roofing Group",
     "scripts": {
-        "build": "node build.js"
+        "build": "node build.js",
+        "serve": "npx serve ."
     },
     "author": "Ascend Roofing Group",
     "license": "UNLICENSED"
