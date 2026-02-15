@@ -43,3 +43,35 @@ You can still use the PowerShell script if preferred:
 - **Primary Color**: White (`#ffffff`)
 - **Accent Color**: Blue (`#2563EB`)
 - **Font**: Inter & Space Grotesk
+
+## Development Workflow
+
+We use a standard Git workflow with Vercel Environments:
+
+### 1. Development (The Playground)
+Always make your changes on the `dev` branch first.
+- **Goal**: Test new features safely without breaking the live site.
+- **URL**: `ascend-roofing-group-git-dev-[username].vercel.app` (Check Vercel Dashboard for exact link)
+
+**How to update Dev:**
+```bash
+git checkout dev
+# Make your changes...
+git add .
+git commit -m "Description of changes"
+git push origin dev
+```
+*Vercel automatically deploys the `dev` branch to a Preview Environment.*
+
+### 2. Production (The Live Site)
+Merge `dev` into `main` only when you are happy with the changes.
+- **Goal**: Stability. This is what customers see.
+- **URL**: `ascend-roofing-group.vercel.app`
+
+**How to update Prod:**
+```bash
+git checkout main
+git merge dev
+git push origin main
+```
+*Vercel automatically deploys the `main` branch to Production.*
