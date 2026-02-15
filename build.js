@@ -171,6 +171,7 @@ async function build() {
             font-family: var(--font-heading);
         }
     </style>
+    <script defer src="/_vercel/speed-insights/script.js"></script>
 </head>
 <body>
     <!-- ===================== NAVIGATION ===================== -->
