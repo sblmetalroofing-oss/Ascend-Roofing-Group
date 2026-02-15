@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error('Error:', error);
                 btn.innerHTML = originalHTML;
                 btn.disabled = false;
-                alert('Something went wrong. Please call us directly at 0435 222 683.');
+                alert('Something went wrong. Please call us directly at 0490 196 284.');
             }
         });
     }
