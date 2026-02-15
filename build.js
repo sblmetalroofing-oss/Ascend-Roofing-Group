@@ -229,6 +229,7 @@ async function build() {
                         <li><a href="index.html#testimonials">Reviews</a></li>
                         <li><a href="index.html#contact">Contact</a></li>
                         <li><a href="terms.html">Terms & Conditions</a></li>
+                        <li><a href="faq.html">FAQ</a></li>
                     </ul>
                 </div>
                 <div class="footer-links">
