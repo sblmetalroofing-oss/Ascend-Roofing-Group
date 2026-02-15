@@ -2,6 +2,7 @@
     "name": "ascend-roofing-group",
     "version": "1.0.0",
     "description": "Static website for Ascend Roofing Group",
+    "type": "module",
     "scripts": {
         "build": "node build.js",
         "serve": "npx serve ."
