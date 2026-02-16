@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Subcontractor Pack | Ascend Roofing Group</title>
+    <meta name="description"
+        content="Submit your business information, banking details, and insurance documents to Ascend Roofing Group.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="icon" href="./images/ROOFING GROUP.png" type="image/png">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .subby-hero {
+            padding: 160px 0 60px;
+            text-align: center;
+            background: linear-gradient(rgba(10, 10, 10, 0.85), rgba(10, 10, 10, 0.95)),
+                url('./images/20240307_171821.jpg') no-repeat center center/cover;
+            color: #ffffff;
+        }
+
+        .subby-hero h1 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 800;
+            margin-bottom: 16px;
+            color: #ffffff;
+        }
+
+        .subby-hero p {
+            color: rgba(255, 255, 255, 0.7);
+            max-width: 600px;
+            margin: 0 auto;
+            font-size: 1.1rem;
+        }
+
+        .subby-form-section {
+            padding: 80px 0 120px;
+            background: var(--bg-body);
+        }
+
+        .subby-form-container {
+            max-width: 720px;
+            margin: 0 auto;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 64px;
+        }
+
+        .subby-form-container h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        .subby-form-container .form-subtitle {
+            color: var(--text-muted);
+            margin-bottom: 40px;
+            font-size: 0.95rem;
+        }
+
+        .form-section-title {
+            font-family: var(--font-heading);
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent-color);
+            margin-top: 40px;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .form-section-title:first-of-type {
+            margin-top: 0;
+        }
+
+        .subby-form .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .subby-form .form-group {
+            margin-bottom: 24px;
+        }
+
+        .subby-form .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-main);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .subby-form .form-group input,
+        .subby-form .form-group select {
+            width: 100%;
+            padding: 16px 20px;
+            background: var(--bg-secondary);
+            border: 1px solid transparent;
+            border-radius: 0;
+            color: var(--text-main);
+            font-size: 16px;
+            transition: var(--transition);
+            outline: none;
+            font-family: inherit;
+        }
+
+        .subby-form .form-group input:focus,
+        .subby-form .form-group select:focus {
+            background: var(--bg-body);
+            border-color: var(--accent-color);
+        }
+
+        .subby-form .form-group input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .subby-form .form-group input.error {
+            border-color: #dc2626;
+        }
+
+        .error-message {
+            color: #dc2626;
+            font-size: 0.75rem;
+            margin-top: 6px;
+            display: none;
+        }
+
+        .error-message.visible {
+            display: block;
+        }
+
+        /* File Upload Styles */
+        .file-upload-wrapper {
+            margin-top: 12px;
+        }
+
+        .file-upload-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 24px;
+            background: var(--accent-color);
+            color: #fff;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid var(--accent-color);
+        }
+
+        .file-upload-label:hover {
+            background: #0056b3;
+            border-color: #0056b3;
+        }
+
+        .file-upload-label svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .file-upload-input {
+            display: none;
+        }
+
+        .file-upload-items {
+            margin-top: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .file-upload-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .file-info svg {
+            width: 20px;
+            height: 20px;
+            color: var(--accent-color);
+            flex-shrink: 0;
+        }
+
+        .file-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .file-name {
+            font-size: 0.85rem;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .file-size {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .file-remove {
+            padding: 6px 12px;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .file-remove:hover {
+            background: #dc2626;
+            border-color: #dc2626;
+            color: #fff;
+        }
+
+        /* Submit */
+        .subby-submit {
+            margin-top: 40px;
+        }
+
+        .subby-submit .btn {
+            width: 100%;
+            padding: 20px;
+            font-size: 1rem;
+        }
+
+        .subby-submit .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Success state */
+        .subby-form-success {
+            text-align: center;
+            padding: 60px 20px;
+            display: none;
+        }
+
+        .subby-form-success svg {
+            margin-bottom: 20px;
+            color: var(--accent-color);
+        }
+
+        .subby-form-success h3 {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .subby-form-success p {
+            color: var(--text-muted);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .subby-form-container {
+                padding: 32px 24px;
+            }
+
+            .subby-form .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .subby-form-container {
+                padding: 24px 16px;
+            }
+
+            .subby-hero {
+                padding: 120px 0 40px;
+            }
+
+            .subby-form-section {
+                padding: 40px 0 80px;
+            }
+
+            .file-upload-label {
+                padding: 12px 18px;
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ===================== NAVIGATION ===================== -->
+    <nav class="navbar" id="navbar">
+        <div class="container nav-container">
+            <a href="index.html" class="nav-logo">
+                <img src="./images/ROOFING GROUP.png" alt="Ascend Roofing Group Logo" class="logo-img">
+            </a>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+                <span></span><span></span><span></span>
+            </button>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="index.html#services" class="nav-link">Services</a></li>
+                <li><a href="index.html#gallery" class="nav-link">Projects</a></li>
+                <li><a href="index.html#about" class="nav-link">About</a></li>
+                <li><a href="locations.html" class="nav-link">Locations</a></li>
+                <li><a href="index.html#testimonials" class="nav-link">Reviews</a></li>
+                <li><a href="index.html#contact" class="nav-link nav-cta">Get a Quote</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="nav-overlay" id="navOverlay"></div>
+
+    <!-- ===================== HERO ===================== -->
+    <section class="subby-hero">
+        <div class="container">
+            <h1>Subcontractor <span class="text-accent">Pack</span></h1>
+            <p>Submit your business information, banking details, and insurance documents to work with Ascend Roofing
+                Group.</p>
+        </div>
+    </section>
+
+    <!-- ===================== FORM ===================== -->
+    <section class="subby-form-section">
+        <div class="container">
+            <div class="subby-form-container">
+                <form class="subby-form" id="subbyForm">
+
+                    <h3 class="form-section-title">Personal Details</h3>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName">First Name *</label>
+                            <input type="text" id="firstName" name="firstName" required placeholder="Enter first name">
+                            <div class="error-message" id="firstName-error"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Last Name *</label>
+                            <input type="text" id="lastName" name="lastName" required placeholder="Enter last name">
+                            <div class="error-message" id="lastName-error"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="email">Email *</label>
+                            <input type="email" id="email" name="email" required placeholder="your.email@example.com">
+                            <div class="error-message" id="email-error"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone *</label>
+                            <input type="tel" id="phone" name="phone" required placeholder="0412 345 678">
+                            <div class="error-message" id="phone-error"></div>
+                        </div>
+                    </div>
+
+                    <h3 class="form-section-title">Business Information</h3>
+
+                    <div class="form-group">
+                        <label for="businessName">Business/Company Name *</label>
+                        <input type="text" id="businessName" name="businessName" required
+                            placeholder="Your Business Name Pty Ltd">
+                        <div class="error-message" id="businessName-error"></div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="abn">ABN (Optional)</label>
+                            <input type="text" id="abn" name="abn" placeholder="12 345 678 901">
+                            <div class="error-message" id="abn-error"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="businessAddress">Business Address (Optional)</label>
+                            <input type="text" id="businessAddress" name="businessAddress"
+                                placeholder="123 Business St, Brisbane QLD">
+                            <div class="error-message" id="businessAddress-error"></div>
+                        </div>
+                    </div>
+
+                    <h3 class="form-section-title">Banking Details</h3>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="bsb">BSB *</label>
+                            <input type="text" id="bsb" name="bsb" required placeholder="123-456" maxlength="7"
+                                pattern="[0-9]{3}-?[0-9]{3}">
+                            <div class="error-message" id="bsb-error"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="accountNumber">Account Number *</label>
+                            <input type="text" id="accountNumber" name="accountNumber" required
+                                placeholder="12345678">
+                            <div class="error-message" id="accountNumber-error"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="accountName">Account Name *</label>
+                        <input type="text" id="accountName" name="accountName" required
+                            placeholder="Business Name Pty Ltd">
+                        <div class="error-message" id="accountName-error"></div>
+                    </div>
+
+                    <h3 class="form-section-title">Insurance Documents</h3>
+
+                    <div class="form-group">
+                        <label for="publicLiability">Public Liability Insurance *</label>
+                        <div class="file-upload-wrapper">
+                            <label for="publicLiability" class="file-upload-label">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="17 8 12 3 7 8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                </svg>
+                                Choose File
+                            </label>
+                            <input type="file" id="publicLiability" name="publicLiability"
+                                class="file-upload-input" accept=".pdf,.jpg,.jpeg,.png" required>
+                            <div class="file-upload-items" id="publicLiability-items"></div>
+                        </div>
+                        <div class="error-message" id="publicLiability-error"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="workersComp">Workers Compensation Insurance *</label>
+                        <div class="file-upload-wrapper">
+                            <label for="workersComp" class="file-upload-label">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="17 8 12 3 7 8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                </svg>
+                                Choose File
+                            </label>
+                            <input type="file" id="workersComp" name="workersComp" class="file-upload-input"
+                                accept=".pdf,.jpg,.jpeg,.png" required>
+                            <div class="file-upload-items" id="workersComp-items"></div>
+                        </div>
+                        <div class="error-message" id="workersComp-error"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="otherCerts">Other Certificates (Optional)</label>
+                        <div class="file-upload-wrapper">
+                            <label for="otherCerts" class="file-upload-label">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="17 8 12 3 7 8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                </svg>
+                                Choose File
+                            </label>
+                            <input type="file" id="otherCerts" name="otherCerts" class="file-upload-input"
+                                accept=".pdf,.jpg,.jpeg,.png">
+                            <div class="file-upload-items" id="otherCerts-items"></div>
+                        </div>
+                        <div class="error-message" id="otherCerts-error"></div>
+                    </div>
+
+                    <div class="subby-submit">
+                        <button type="submit" class="btn btn-primary btn-full" id="subbySubmitBtn">Submit
+                            Subcontractor Pack</button>
+                    </div>
+                </form>
+
+                <div class="subby-form-success" id="subbyFormSuccess">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                        <polyline points="22 4 12 14.01 9 11.01" />
+                    </svg>
+                    <h3>Submission Successful</h3>
+                    <p>Thank you! Your subcontractor pack has been submitted. We'll review your information and be in
+                        touch soon.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== FOOTER ===================== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="index.html" class="nav-logo">
+                        <img src="./images/ROOFING GROUP.png" alt="Ascend Roofing Group Logo" class="logo-img">
+                    </a>
+                    <p>Family-owned metal roofing specialists serving Brisbane &amp; the Gold Coast with premium
+                        Colorbond® steel solutions.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html#services">Services</a></li>
+                        <li><a href="index.html#about">About Us</a></li>
+                        <li><a href="locations.html">Locations</a></li>
+                        <li><a href="index.html#team">Our Team</a></li>
+                        <li><a href="index.html#testimonials">Reviews</a></li>
+                        <li><a href="index.html#contact">Contact</a></li>
+                        <li><a href="terms.html">Terms & Conditions</a></li>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                        <li><a href="faq.html">FAQ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Services</h4>
+                    <ul>
+                        <li><a href="index.html#services">New Roof Installations</a></li>
+                        <li><a href="index.html#services">Roof Replacements</a></li>
+                        <li><a href="index.html#services">Roof Repairs</a></li>
+                        <li><a href="index.html#services">Insulation Upgrades</a></li>
+                        <li><a href="index.html#services">Gutters & Downpipes</a></li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h4>Get In Touch</h4>
+                    <p><a href="tel:0490196284">📞 0490 196 284</a></p>
+                    <p><a href="mailto:admin@ascendroofinggroup.com.au">✉️ admin@ascendroofinggroup.com.au</a></p>
+                    <p>📍 Brisbane & Gold Coast, QLD</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Ascend Roofing Group Pty Ltd. All rights reserved.</p>
+                <p>QBCC Licensed | ABN Registered</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // ===================== FILE UPLOAD HANDLING =====================
+        (function () {
+            const fileInputs = document.querySelectorAll('.file-upload-input');
+
+            fileInputs.forEach(input => {
+                input.addEventListener('change', function (e) {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    const maxSize = 5 * 1024 * 1024; // 5MB
+                    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+                    const itemsContainer = document.getElementById(`${input.id}-items`);
+                    const errorElement = document.getElementById(`${input.id}-error`);
+
+                    // Clear previous error
+                    errorElement.textContent = '';
+                    errorElement.classList.remove('visible');
+                    input.classList.remove('error');
+
+                    // Validate file size
+                    if (file.size > maxSize) {
+                        errorElement.textContent = 'File size must be less than 5MB';
+                        errorElement.classList.add('visible');
+                        input.classList.add('error');
+                        input.value = '';
+                        return;
+                    }
+
+                    // Validate file type
+                    if (!allowedTypes.includes(file.type)) {
+                        errorElement.textContent = 'Only PDF, JPG, and PNG files are allowed';
+                        errorElement.classList.add('visible');
+                        input.classList.add('error');
+                        input.value = '';
+                        return;
+                    }
+
+                    // Display file info
+                    itemsContainer.innerHTML = `
+                        <div class="file-upload-item">
+                            <div class="file-info">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                                    <polyline points="13 2 13 9 20 9"></polyline>
+                                </svg>
+                                <div class="file-details">
+                                    <div class="file-name">${file.name}</div>
+                                    <div class="file-size">${(file.size / 1024).toFixed(1)} KB</div>
+                                </div>
+                            </div>
+                            <button type="button" class="file-remove" data-input="${input.id}">Remove</button>
+                        </div>
+                    `;
+
+                    // Add remove functionality
+                    const removeBtn = itemsContainer.querySelector('.file-remove');
+                    removeBtn.addEventListener('click', function () {
+                        input.value = '';
+                        itemsContainer.innerHTML = '';
+                    });
+                });
+            });
+        })();
+
+        // ===================== BSB AUTO-FORMATTING =====================
+        (function () {
+            const bsbInput = document.getElementById('bsb');
+            bsbInput.addEventListener('input', function (e) {
+                let value = e.target.value.replace(/[^0-9]/g, '');
+                if (value.length > 3) {
+                    value = value.substring(0, 3) + '-' + value.substring(3, 6);
+                }
+                e.target.value = value;
+            });
+        })();
+
+        // ===================== FORM SUBMISSION =====================
+        (function () {
+            const form = document.getElementById('subbyForm');
+            const submitBtn = document.getElementById('subbySubmitBtn');
+            const formContainer = document.querySelector('.subby-form');
+            const successMessage = document.getElementById('subbyFormSuccess');
+
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                // Disable submit button
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Submitting...';
+
+                // Collect form data
+                const formData = new FormData(form);
+                const data = {};
+
+                // Get text fields
+                for (const [key, value] of formData.entries()) {
+                    if (!value) continue;
+                    if (key.includes('Liability') || key.includes('Comp') || key.includes('Certs')) continue;
+                    data[key] = value;
+                }
+
+                // Get files and convert to base64
+                const fileInputs = ['publicLiability', 'workersComp', 'otherCerts'];
+                data.files = {};
+
+                for (const inputId of fileInputs) {
+                    const input = document.getElementById(inputId);
+                    const file = input.files[0];
+                    if (file) {
+                        try {
+                            const base64 = await fileToBase64(file);
+                            data.files[inputId] = {
+                                name: file.name,
+                                type: file.type,
+                                size: file.size,
+                                data: base64
+                            };
+                        } catch (error) {
+                            console.error('Error reading file:', error);
+                        }
+                    }
+                }
+
+                // Submit to API
+                try {
+                    const response = await fetch('/api/submit-subby-pack', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok && result.success) {
+                        // Show success message
+                        formContainer.style.display = 'none';
+                        successMessage.style.display = 'block';
+                    } else {
+                        throw new Error(result.message || 'Submission failed');
+                    }
+                } catch (error) {
+                    console.error('Submission error:', error);
+                    alert('There was an error submitting your pack. Please try again or contact us directly.');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Submit Subcontractor Pack';
+                }
+            });
+
+            // Helper function to convert file to base64
+            function fileToBase64(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = error => reject(error);
+                });
+            }
+        })();
+    </script>
+</body>
+
+</html>
