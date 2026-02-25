@@ -1674,3 +1674,123 @@ textarea {
     padding: 0 18px 16px;
   }
 }
+
+/* ============================================
+   BREADCRUMBS
+   ============================================ */
+.breadcrumbs {
+  padding: 100px 0 0;
+  background: var(--bg-body);
+}
+.breadcrumb-list {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  list-style: none;
+  padding: 12px 20px;
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.breadcrumb-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.breadcrumb-list li:not(:last-child)::after {
+  content: '›';
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+.breadcrumb-list a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.breadcrumb-list a:hover {
+  color: var(--accent-light);
+  text-decoration: underline;
+}
+.breadcrumb-list li[aria-current="page"] {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* ============================================
+   NEARBY SUBURBS
+   ============================================ */
+.nearby-suburbs {
+  background: var(--bg-secondary);
+}
+.nearby-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.nearby-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+.nearby-card:hover {
+  border-color: var(--accent);
+  background: rgba(var(--accent-rgb, 255,170,0), 0.05);
+  transform: translateY(-2px);
+}
+.nearby-card svg {
+  color: var(--accent);
+  flex-shrink: 0;
+  margin-left: auto;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.nearby-card:hover svg {
+  opacity: 1;
+}
+.nearby-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+.nearby-region {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.nearby-cta {
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .nearby-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .nearby-card {
+    padding: 12px 14px;
+  }
+  .nearby-name {
+    font-size: 0.85rem;
+  }
+  .breadcrumb-list {
+    font-size: 0.8rem;
+    padding: 10px 14px;
+  }
+}
+@media (max-width: 480px) {
+  .nearby-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

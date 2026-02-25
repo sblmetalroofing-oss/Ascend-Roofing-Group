@@ -1,122 +1,179 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Configuration
 const CONFIG = {
-    templatePath: path.join(__dirname, 'template.html'),
-    suburbsPath: path.join(__dirname, 'suburbs.json'),
-    outputDir: path.join(__dirname, 'service-areas'),
-    locationsPath: path.join(__dirname, 'locations.html'),
-    sitemapPath: path.join(__dirname, 'sitemap.xml'),
-    baseUrl: 'https://ascendroofinggroup.com.au'
+  templatePath: path.join(__dirname, "template.html"),
+  suburbsPath: path.join(__dirname, "suburbs.json"),
+  outputDir: path.join(__dirname, "service-areas"),
+  locationsPath: path.join(__dirname, "locations.html"),
+  sitemapPath: path.join(__dirname, "sitemap.xml"),
+  baseUrl: "https://ascendroofinggroup.com.au",
 };
 
 // Project Images (for randomization)
 const PROJECT_IMAGES = [
-    "20231130_153142.jpg",
-    "20240307_171821.jpg",
-    "DJI_20240427080531_0013_D_edited_edited.jpg",
-    "IMG_4703.JPG",
-    "dji_fly_20250220_134822_0091_1740023538708_photo_edited.png",
-    "dji_fly_20250313_141642_0183_1741839576383_photo.JPEG"
+  "20231130_153142.jpg",
+  "20240307_171821.jpg",
+  "DJI_20240427080531_0013_D_edited_edited.jpg",
+  "IMG_4703.JPG",
+  "dji_fly_20250220_134822_0091_1740023538708_photo_edited.png",
+  "dji_fly_20250313_141642_0183_1741839576383_photo.JPEG",
 ];
 
 const TEMPLATE_PLACEHOLDERS = [
-    "../images/17964553073761123.avif",
-    "../images/18055540900925803.avif",
-    "../images/17845590288288225.avif"
+  "../images/17964553073761123.avif",
+  "../images/18055540900925803.avif",
+  "../images/17845590288288225.avif",
 ];
 
 // Utilities
 function getSlug(name) {
-    return name.toLowerCase()
-        .replace(/ /g, '-')
-        .replace(/[^a-z0-9-]/g, '');
+  return name
+    .toLowerCase()
+    .replace(/ /g, "-")
+    .replace(/[^a-z0-9-]/g, "");
 }
 
 function getRandomImages(count) {
-    const shuffled = [...PROJECT_IMAGES].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, count);
+  const shuffled = [...PROJECT_IMAGES].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, count);
 }
 
 // Main Build Function
 async function build() {
-    console.log('Starting Build Process...');
+  console.log("Starting Build Process...");
 
-    // 1. Ensure Output Directory Exists
-    if (!fs.existsSync(CONFIG.outputDir)) {
-        fs.mkdirSync(CONFIG.outputDir, { recursive: true });
+  // 1. Ensure Output Directory Exists
+  if (!fs.existsSync(CONFIG.outputDir)) {
+    fs.mkdirSync(CONFIG.outputDir, { recursive: true });
+  }
+
+  // 2. Read Source Files
+  const templateContent = fs.readFileSync(CONFIG.templatePath, "utf8");
+  const suburbs = JSON.parse(fs.readFileSync(CONFIG.suburbsPath, "utf8"));
+
+  console.log(`Found ${suburbs.length} suburbs.`);
+
+  const regions = {};
+  let sitemapUrls = [];
+
+  // Pre-build region lookup for nearby suburbs
+  const regionMap = {};
+  suburbs.forEach((s) => {
+    if (!regionMap[s.region]) regionMap[s.region] = [];
+    regionMap[s.region].push(s);
+  });
+  const allRegions = Object.keys(regionMap);
+
+  // Function to get nearby suburbs (same region first, then adjacent)
+  function getNearbySuburbs(currentSuburb, count = 6) {
+    const sameRegion = regionMap[currentSuburb.region].filter(
+      (s) => s.name !== currentSuburb.name,
+    );
+
+    // Shuffle same-region suburbs deterministically based on suburb name
+    const seed = currentSuburb.name
+      .split("")
+      .reduce((a, c) => a + c.charCodeAt(0), 0);
+    const shuffled = [...sameRegion].sort((a, b) => {
+      const ha = (a.name.charCodeAt(0) * 31 + seed) % 1000;
+      const hb = (b.name.charCodeAt(0) * 31 + seed) % 1000;
+      return ha - hb;
+    });
+
+    let nearby = shuffled.slice(0, count);
+
+    // If not enough in same region, pull from other regions
+    if (nearby.length < count) {
+      const others = suburbs
+        .filter(
+          (s) =>
+            s.name !== currentSuburb.name && s.region !== currentSuburb.region,
+        )
+        .slice(0, count - nearby.length);
+      nearby = nearby.concat(others);
     }
 
-    // 2. Read Source Files
-    const templateContent = fs.readFileSync(CONFIG.templatePath, 'utf8');
-    const suburbs = JSON.parse(fs.readFileSync(CONFIG.suburbsPath, 'utf8'));
+    return nearby.slice(0, count);
+  }
 
-    console.log(`Found ${suburbs.length} suburbs.`);
+  // Function to generate nearby suburbs HTML
+  function generateNearbyHtml(nearbyList) {
+    return nearbyList
+      .map((s) => {
+        const slug = getSlug(s.name);
+        return `<a href="roofing-${slug}.html" class="nearby-card" title="Roofing ${s.name}"><span class="nearby-name">${s.name}</span><span class="nearby-region">${s.region} ${s.postcode}</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17l9.2-9.2M17 17V7.8H7.8"/></svg></a>`;
+      })
+      .join("\n                ");
+  }
 
-    const regions = {};
-    let sitemapUrls = [];
+  // 3. Generate Suburb Pages
+  suburbs.forEach((suburb) => {
+    const slug = getSlug(suburb.name);
+    const filename = `roofing-${slug}.html`;
+    const filePath = path.join(CONFIG.outputDir, filename);
 
-    // 3. Generate Suburb Pages
-    suburbs.forEach(suburb => {
-        const slug = getSlug(suburb.name);
-        const filename = `roofing-${slug}.html`;
-        const filePath = path.join(CONFIG.outputDir, filename);
+    // Generate nearby suburbs HTML
+    const nearbySuburbs = getNearbySuburbs(suburb, 6);
+    const nearbyHtml = generateNearbyHtml(nearbySuburbs);
 
-        // Replace Content
-        let content = templateContent
-            .replace(/\{\{SUBURB\}\}/g, suburb.name)
-            .replace(/\{\{REGION\}\}/g, suburb.region)
-            .replace(/\{\{POSTCODE\}\}/g, suburb.postcode)
-            .replace(/\{\{SLUG\}\}/g, slug);
+    // Replace Content
+    let content = templateContent
+      .replace(/\{\{SUBURB\}\}/g, suburb.name)
+      .replace(/\{\{REGION\}\}/g, suburb.region)
+      .replace(/\{\{POSTCODE\}\}/g, suburb.postcode)
+      .replace(/\{\{SLUG\}\}/g, slug)
+      .replace(/\{\{NEARBY_SUBURBS\}\}/g, nearbyHtml);
 
-        // Randomize Images
-        const selectedImages = getRandomImages(3);
-        TEMPLATE_PLACEHOLDERS.forEach((placeholder, index) => {
-            // Use regex with 'g' flag if the placeholder appears multiple times, 
-            // though here we expect 1:1 mapping for the 3 slots.
-            // Using split/join for global replacement of the specific string.
-            content = content.split(placeholder).join(`../images/${selectedImages[index]}`);
-        });
-
-        // Write File
-        fs.writeFileSync(filePath, content);
-
-        // Collect Data for Locations & Sitemap
-        if (!regions[suburb.region]) {
-            regions[suburb.region] = [];
-        }
-        regions[suburb.region].push({ name: suburb.name, filename: filename });
-
-        sitemapUrls.push(`${CONFIG.baseUrl}/service-areas/${filename}`);
+    // Randomize Images
+    const selectedImages = getRandomImages(3);
+    TEMPLATE_PLACEHOLDERS.forEach((placeholder, index) => {
+      content = content
+        .split(placeholder)
+        .join(`../images/${selectedImages[index]}`);
     });
 
-    console.log('Generated all suburb pages.');
+    // Write File
+    fs.writeFileSync(filePath, content);
 
-    // 4. Generate Locations Index
-    let locationsGridHtml = '';
+    // Collect Data for Locations & Sitemap
+    if (!regions[suburb.region]) {
+      regions[suburb.region] = [];
+    }
+    regions[suburb.region].push({ name: suburb.name, filename: filename });
 
-    // Sort Regions
-    const sortedRegions = Object.keys(regions).sort();
+    sitemapUrls.push(`${CONFIG.baseUrl}/service-areas/${filename}`);
+  });
 
-    sortedRegions.forEach(region => {
-        locationsGridHtml += `<div class='region-group'><h2 class='region-title'>${region}</h2><div class='locations-grid'>`;
+  console.log("Generated all suburb pages.");
 
-        // Sort Suburbs within Region
-        const sortedSuburbs = regions[region].sort((a, b) => a.name.localeCompare(b.name));
+  // 4. Generate Locations Index
+  let locationsGridHtml = "";
 
-        sortedSuburbs.forEach(item => {
-            locationsGridHtml += `<a href='service-areas/${item.filename}' class='location-link' title='Roofing ${item.name}'>${item.name}</a>`;
-        });
+  // Sort Regions
+  const sortedRegions = Object.keys(regions).sort();
 
-        locationsGridHtml += `</div></div>`;
+  sortedRegions.forEach((region) => {
+    locationsGridHtml += `<div class='region-group'><h2 class='region-title'>${region}</h2><div class='locations-grid'>`;
+
+    // Sort Suburbs within Region
+    const sortedSuburbs = regions[region].sort((a, b) =>
+      a.name.localeCompare(b.name),
+    );
+
+    sortedSuburbs.forEach((item) => {
+      locationsGridHtml += `<a href='service-areas/${item.filename}' class='location-link' title='Roofing ${item.name}'>${item.name}</a>`;
     });
 
-    const locationsTemplate = `<!DOCTYPE html>
+    locationsGridHtml += `</div></div>`;
+  });
+
+  const locationsTemplate = `<!DOCTYPE html>
 <html lang="en-AU">
 <head>
     <meta charset="UTF-8">
@@ -263,11 +320,11 @@ async function build() {
 </body>
 </html>`;
 
-    fs.writeFileSync(CONFIG.locationsPath, locationsTemplate);
-    console.log('Generated locations.html index.');
+  fs.writeFileSync(CONFIG.locationsPath, locationsTemplate);
+  console.log("Generated locations.html index.");
 
-    // 5. Generate Sitemap
-    const sitemapContent = `<?xml version="1.0" encoding="UTF-8"?>
+  // 5. Generate Sitemap
+  const sitemapContent = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
         <loc>${CONFIG.baseUrl}/</loc>
@@ -279,18 +336,24 @@ async function build() {
         <priority>0.8</priority>
         <changefreq>weekly</changefreq>
     </url>
-    ${sitemapUrls.map(url => `
+    ${sitemapUrls
+      .map(
+        (url) => `
     <url>
         <loc>${url}</loc>
         <priority>0.6</priority>
         <changefreq>monthly</changefreq>
-    </url>`).join('')}
+    </url>`,
+      )
+      .join("")}
 </urlset>`;
 
-    fs.writeFileSync(CONFIG.sitemapPath, sitemapContent);
-    console.log(`Sitemap generated at ${CONFIG.sitemapPath} with ${sitemapUrls.length + 2} URLs.`);
+  fs.writeFileSync(CONFIG.sitemapPath, sitemapContent);
+  console.log(
+    `Sitemap generated at ${CONFIG.sitemapPath} with ${sitemapUrls.length + 2} URLs.`,
+  );
 
-    console.log('Build Complete!');
+  console.log("Build Complete!");
 }
 
-build().catch(err => console.error(err));
+build().catch((err) => console.error(err));
