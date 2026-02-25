@@ -2,3 +2,10 @@ User-agent: *
 Allow: /
 
 Sitemap: https://ascendroofinggroup.com.au/sitemap.xml
+
+# Crawl-delay (optional, be polite)
+Crawl-delay: 1
+
+# Block API routes from indexing
+Disallow: /api/
+Disallow: /_vercel/

@@ -112,6 +112,30 @@ async function build() {
       .join("\n                ");
   }
 
+  // Meta description variations for unique content across pages
+  const META_DESCRIPTIONS = [
+    `Looking for roofing in {{SUBURB}}? Ascend Roofing Group provides premium Colorbond® replacements, repairs, and new roofs in {{SUBURB}} {{POSTCODE}}. Call 0490 196 284.`,
+    `Expert roof replacement in {{SUBURB}} {{POSTCODE}}. Family-owned Ascend Roofing Group delivers quality Colorbond® steel roofing with free quotes and no hidden fees. QBCC licensed.`,
+    `Need a roofer in {{SUBURB}}? We specialise in Colorbond® metal roofing across {{REGION}}. 14+ years experience, 1,200+ roofs completed. Get your free quote today.`,
+    `{{SUBURB}} roofing specialists. Ascend Roofing Group offers complete roof replacements, storm repairs, and new installations in {{SUBURB}} {{POSTCODE}}. Trusted across {{REGION}}.`,
+    `Professional roofing services in {{SUBURB}} {{POSTCODE}}. From full Colorbond® re-roofs to gutters and insulation — Ascend Roofing Group has {{REGION}} covered. Call now.`,
+    `Top-rated roofers serving {{SUBURB}} and {{REGION}}. Premium Colorbond® roof replacements and repairs with transparent pricing. QBCC licensed, fully insured. 0490 196 284.`,
+    `Ascend Roofing Group — your local {{SUBURB}} roofing experts. Quality Colorbond® installations, fast turnarounds, and honest pricing across {{REGION}}. Free on-site quotes.`,
+    `Roof replacement in {{SUBURB}}? Get a free quote from Ascend Roofing Group. We install premium Colorbond® steel roofing across {{REGION}} with a focus on quality and value.`,
+  ];
+
+  // Deterministic meta description selection based on suburb name
+  function getMetaDescription(suburb) {
+    const hash = suburb.name
+      .split("")
+      .reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const index = hash % META_DESCRIPTIONS.length;
+    return META_DESCRIPTIONS[index]
+      .replace(/\{\{SUBURB\}\}/g, suburb.name)
+      .replace(/\{\{REGION\}\}/g, suburb.region)
+      .replace(/\{\{POSTCODE\}\}/g, suburb.postcode);
+  }
+
   // 3. Generate Suburb Pages
   suburbs.forEach((suburb) => {
     const slug = getSlug(suburb.name);
@@ -121,6 +145,7 @@ async function build() {
     // Generate nearby suburbs HTML
     const nearbySuburbs = getNearbySuburbs(suburb, 6);
     const nearbyHtml = generateNearbyHtml(nearbySuburbs);
+    const metaDesc = getMetaDescription(suburb);
 
     // Replace Content
     let content = templateContent
@@ -128,7 +153,8 @@ async function build() {
       .replace(/\{\{REGION\}\}/g, suburb.region)
       .replace(/\{\{POSTCODE\}\}/g, suburb.postcode)
       .replace(/\{\{SLUG\}\}/g, slug)
-      .replace(/\{\{NEARBY_SUBURBS\}\}/g, nearbyHtml);
+      .replace(/\{\{NEARBY_SUBURBS\}\}/g, nearbyHtml)
+      .replace(/\{\{META_DESCRIPTION\}\}/g, metaDesc);
 
     // Randomize Images
     const selectedImages = getRandomImages(3);
@@ -323,24 +349,46 @@ async function build() {
   fs.writeFileSync(CONFIG.locationsPath, locationsTemplate);
   console.log("Generated locations.html index.");
 
-  // 5. Generate Sitemap
+  // 5. Generate Sitemap with lastmod dates
+  const today = new Date().toISOString().split("T")[0];
   const sitemapContent = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
         <loc>${CONFIG.baseUrl}/</loc>
+        <lastmod>${today}</lastmod>
         <priority>1.0</priority>
         <changefreq>weekly</changefreq>
     </url>
     <url>
         <loc>${CONFIG.baseUrl}/locations.html</loc>
-        <priority>0.8</priority>
+        <lastmod>${today}</lastmod>
+        <priority>0.9</priority>
         <changefreq>weekly</changefreq>
+    </url>
+    <url>
+        <loc>${CONFIG.baseUrl}/faq.html</loc>
+        <lastmod>${today}</lastmod>
+        <priority>0.6</priority>
+        <changefreq>monthly</changefreq>
+    </url>
+    <url>
+        <loc>${CONFIG.baseUrl}/terms.html</loc>
+        <lastmod>${today}</lastmod>
+        <priority>0.3</priority>
+        <changefreq>yearly</changefreq>
+    </url>
+    <url>
+        <loc>${CONFIG.baseUrl}/privacy.html</loc>
+        <lastmod>${today}</lastmod>
+        <priority>0.3</priority>
+        <changefreq>yearly</changefreq>
     </url>
     ${sitemapUrls
       .map(
         (url) => `
     <url>
         <loc>${url}</loc>
+        <lastmod>${today}</lastmod>
         <priority>0.6</priority>
         <changefreq>monthly</changefreq>
     </url>`,
