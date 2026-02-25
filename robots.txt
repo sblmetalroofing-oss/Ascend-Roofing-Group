@@ -1,7 +1,7 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://ascendroofinggroup.com.au/sitemap.xml
+Sitemap: https://www.ascendroofinggroup.com.au/sitemap.xml
 
 # Crawl-delay (optional, be polite)
 Crawl-delay: 1

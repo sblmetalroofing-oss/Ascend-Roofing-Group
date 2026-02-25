@@ -12,7 +12,7 @@ const CONFIG = {
   outputDir: path.join(__dirname, "service-areas"),
   locationsPath: path.join(__dirname, "locations.html"),
   sitemapPath: path.join(__dirname, "sitemap.xml"),
-  baseUrl: "https://ascendroofinggroup.com.au",
+  baseUrl: "https://www.ascendroofinggroup.com.au",
 };
 
 // Project Images (for randomization)
