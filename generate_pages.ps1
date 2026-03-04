@@ -60,6 +60,56 @@ foreach ($Suburb in $SuburbsJson) {
     $Content = $Content.Replace("{{REGION}}", $Suburb.region)
     $Content = $Content.Replace("{{POSTCODE}}", $Suburb.postcode)
     $Content = $Content.Replace("{{SLUG}}", $Slug)
+
+    # Content Spinning Arrays
+    $HeroSubtitles = @(
+        "Family-owned roofing specialists providing top-quality Colorbond® installations and repairs for homes in <strong>$($Suburb.name) $($Suburb.postcode)</strong> and surrounding areas.",
+        "Your local experts in metal roofing. We deliver durable and stunning Colorbond® solutions tailored exactly for properties in <strong>$($Suburb.name) $($Suburb.postcode)</strong>.",
+        "With over a decade of experience, we provide trusted roof replacements, repairs, and fresh installations for homeowners across <strong>$($Suburb.name)</strong>.",
+        "As $($Suburb.region)'s premier roofing team, we pride ourselves on exceptional craftsmanship and premium materials for every project in <strong>$($Suburb.name) $($Suburb.postcode)</strong>."
+    )
+    
+    $AboutUsP1 = @(
+        "Ascend Roofing Group is a proudly family-owned and operated business serving $($Suburb.name) and the wider $($Suburb.region) region. With over 14 years of hands-on experience in the roofing industry, we've built our reputation on quality workmanship, honest advice, and delivering results that stand the test of time.",
+        "When it comes to metal roofing in $($Suburb.name), Ascend Roofing Group is the name you can trust. Over the last 14+ years, our family business has dedicated itself to providing top-tier Colorbond® installations and unmatched customer service throughout the $($Suburb.region) area.",
+        "Looking for reliable roofers in $($Suburb.name)? Ascend Roofing Group brings over 14 years of dedicated expertise to every job. As a family-run company, we focus on high-quality materials, transparent communication, and ensuring your roof is built to last in the Queensland climate."
+    )
+
+    $AboutUsP2 = @(
+        "We understand the specific needs of homes in $($Suburb.name). Whether you need a full roof replacement or minor repairs, our team treats every project with the same dedication and attention to detail.",
+        "No matter the size of the project in $($Suburb.name) - from fixing a stubborn leak to a complete roof transformation - our experienced tradespeople approach the work with maximum care and precision.",
+        "Every property in $($Suburb.name) is unique, which is why we offer tailored roofing solutions. We take the time to inspect, quote accurately, and deliver a finished product that significantly boosts your home's curbside appeal and protection."
+    )
+
+    $ServicesList = @(
+        "<div class='service-card' data-reveal><div class='service-icon'><svg viewBox='0 0 48 48' fill='none' stroke='currentColor' stroke-width='2'><path d='M24 6L4 22h8v18h24V22h8L24 6z'/><path d='M18 40V28h12v12'/></svg></div><h3>New Roofs in $($Suburb.name)</h3><p>Building a new home in $($Suburb.name)? We install premium Colorbond® steel roofing designed to last.</p></div>",
+        "<div class='service-card' data-reveal><div class='service-icon'><svg viewBox='0 0 48 48' fill='none' stroke='currentColor' stroke-width='2'><path d='M8 18L24 6l16 12'/><path d='M12 22v18h24V22'/><path d='M6 40h36'/><path d='M20 32h8M24 28v8'/></svg></div><h3>Roof Replacements</h3><p>Upgrade your old $($Suburb.name) roof. Complete tear-off and replacement with modern metal roofing.</p></div>",
+        "<div class='service-card' data-reveal><div class='service-icon'><svg viewBox='0 0 48 48' fill='none' stroke='currentColor' stroke-width='2'><path d='M10 24L24 12l14 12'/><path d='M14 28v12h20V28'/><circle cx='34' cy='18' r='6'/><path d='M31 18l2 2 4-4'/></svg></div><h3>Leak Repairs</h3><p>Fast, reliable repairs for leaks and storm damage in the $($Suburb.name) $($Suburb.postcode) area.</p></div>",
+        "<div class='service-card' data-reveal><div class='service-icon'><svg viewBox='0 0 48 48' fill='none' stroke='currentColor' stroke-width='2'><rect x='8' y='16' width='32' height='24' rx='2'/><path d='M8 22h32'/><path d='M8 28h32'/><path d='M8 34h32'/><path d='M16 16V12M32 16V12'/></svg></div><h3>Insulation Upgrades</h3><p>Keep your $($Suburb.name) home cooler. Energy-efficient insulation solutions installed under your roof.</p></div>",
+        "<div class='service-card' data-reveal><div class='service-icon'><svg viewBox='0 0 48 48' fill='none' stroke='currentColor' stroke-width='2'><path d='M12 8v32'/><path d='M12 40c4-8 4-16 0-24'/><path d='M12 40c-4-8-4-16 0-24'/><path d='M8 40h8'/><path d='M28 14h12v26H28z'/><path d='M28 22h12'/><path d='M28 30h12'/></svg></div><h3>Gutters & Downpipes</h3><p>Seamless gutter and downpipe installation to protect your property from heavy rainfall.</p></div>",
+        "<div class='service-card' data-reveal><div class='service-icon'><svg viewBox='0 0 48 48' fill='none' stroke='currentColor' stroke-width='2'><circle cx='24' cy='24' r='8'/><path d='M24 4v8M24 36v8M4 24h8M36 24h8M8.93 8.93l5.66 5.66M33.41 33.41l5.66 5.66M8.93 39.07l5.66-5.66M33.41 14.59l5.66-5.66'/></svg></div><h3>Skylights & Whirlybirds</h3><p>Natural lighting and ventilation solutions for homes and businesses in $($Suburb.region).</p></div>"
+    )
+
+    $TestimonialsList = @(
+        "<div class='testimonial-card' data-reveal><div class='testimonial-stars'>★★★★★</div><p>`"Ascend Roofing replaced our entire roof in just three days. The team was professional, tidy, and the new Colorbond roof looks absolutely stunning. Couldn't be happier!`"</p><div class='testimonial-author'><div class='author-avatar'>MK</div><div><strong>Mark K.</strong><span>Homeowner</span></div></div></div>",
+        "<div class='testimonial-card' data-reveal><div class='testimonial-stars'>★★★★★</div><p>`"After the last big storm we needed urgent repairs. Steve and his team were out the next day and had everything sealed up perfectly. Great communication from start to finish.`"</p><div class='testimonial-author'><div class='author-avatar'>SR</div><div><strong>Sarah R.</strong><span>Local Resident</span></div></div></div>",
+        "<div class='testimonial-card' data-reveal><div class='testimonial-stars'>★★★★★</div><p>`"We got three quotes and Ascend was the most transparent and competitive. No hidden fees, honest advice, and the workmanship is top-notch. Highly recommend this family business.`"</p><div class='testimonial-author'><div class='author-avatar'>DL</div><div><strong>David L.</strong><span>Property Manager</span></div></div></div>",
+        "<div class='testimonial-card' data-reveal><div class='testimonial-stars'>★★★★★</div><p>`"Absolutely thrilled with the new roof. The guys worked incredibly hard and left the site spotless. Would definitely use Ascend Roofing Group again.`"</p><div class='testimonial-author'><div class='author-avatar'>JB</div><div><strong>Jessica B.</strong><span>Homeowner</span></div></div></div>",
+        "<div class='testimonial-card' data-reveal><div class='testimonial-stars'>★★★★★</div><p>`"Prompt, polite, and well priced. They fixed a leak that two other companies couldn't find. Excellent service.`"</p><div class='testimonial-author'><div class='author-avatar'>TP</div><div><strong>Tom P.</strong><span>Property Owner</span></div></div></div>",
+        "<div class='testimonial-card' data-reveal><div class='testimonial-stars'>★★★★★</div><p>`"From the initial quote to the final inspection, everything was seamless. High-quality Colorbond installation and friendly staff.`"</p><div class='testimonial-author'><div class='author-avatar'>NW</div><div><strong>Nathan W.</strong><span>Homeowner</span></div></div></div>"
+    )
+
+    $ShuffledServices = $ServicesList | Sort-Object { Get-Random }
+    $ServicesGridHtml = $ShuffledServices -join ""
+    
+    $ShuffledTestimonials = $TestimonialsList | Sort-Object { Get-Random } | Select-Object -First 3
+    $TestimonialsGridHtml = $ShuffledTestimonials -join ""
+
+    $Content = $Content.Replace("{{HERO_SUBTITLE}}", ($HeroSubtitles | Get-Random))
+    $Content = $Content.Replace("{{ABOUT_US_P1}}", ($AboutUsP1 | Get-Random))
+    $Content = $Content.Replace("{{ABOUT_US_P2}}", ($AboutUsP2 | Get-Random))
+    $Content = $Content.Replace("{{SERVICES_GRID}}", $ServicesGridHtml)
+    $Content = $Content.Replace("{{TESTIMONIALS_GRID}}", $TestimonialsGridHtml)
     
     # Randomize images for this page
     $SelectedImages = $ProjectImages | Get-Random -Count 3

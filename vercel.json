@@ -1,8 +1,15 @@
 {
-    "crons": [
-        {
-            "path": "/api/cron/check-expiring-insurance",
-            "schedule": "0 23 * * *"
-        }
-    ]
+  "redirects": [
+    {
+      "source": "/roofing-(.*)\\.html",
+      "destination": "/service-areas/roofing-$1.html",
+      "permanent": true
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/check-expiring-insurance",
+      "schedule": "0 23 * * *"
+    }
+  ]
 }
