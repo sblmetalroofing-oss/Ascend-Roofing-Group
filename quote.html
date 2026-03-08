@@ -1097,26 +1097,108 @@
             function fmtNum(n) { return Math.round(n).toLocaleString('en-AU'); }
         })();
     </script>
-    <script>
-        function initQuoteAutocomplete() {
-            const addressInput = document.getElementById('quoteAddress');
-            if (addressInput) {
-                const autocomplete = new google.maps.places.Autocomplete(addressInput, {
-                    componentRestrictions: { country: 'au' },
-                    fields: ['address_components', 'geometry', 'icon', 'formatted_address', 'name'],
-                    types: ['address']
-                });
-                // When the user selects an address from the dropdown, populate the input
-                autocomplete.addListener('place_changed', function() {
-                    const place = autocomplete.getPlace();
-                    if (place.formatted_address) {
-                        addressInput.value = place.formatted_address;
-                    }
-                });
-            }
+    <!-- Secure Custom Address Autocomplete via Vercel Backend -->
+    <style>
+        .autocomplete-wrapper { position: relative; }
+        .autocomplete-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-top: none;
+            z-index: 99;
+            max-height: 250px;
+            overflow-y: auto;
+            border-radius: 0 0 8px 8px;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
+        .autocomplete-results.active { display: block; }
+        .autocomplete-item {
+            padding: 12px 16px;
+            color: var(--text-main);
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .autocomplete-item:last-child { border-bottom: none; }
+        .autocomplete-item:hover { background: rgba(0, 123, 255, 0.1); }
+        .autocomplete-main-text { font-weight: 700; color: #fff; }
+        .autocomplete-sub-text { font-size: 0.8rem; color: var(--text-muted); display: block; margin-top: 2px;}
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const addressInput = document.getElementById('quoteAddress');
+            if (!addressInput) return;
+
+            // Wrap input for dropdown positioning
+            const wrapper = document.createElement('div');
+            wrapper.className = 'autocomplete-wrapper';
+            addressInput.parentNode.insertBefore(wrapper, addressInput);
+            wrapper.appendChild(addressInput);
+
+            // Create dropdown container
+            const resultsContainer = document.createElement('div');
+            resultsContainer.className = 'autocomplete-results';
+            wrapper.appendChild(resultsContainer);
+
+            let debounceTimer;
+
+            addressInput.addEventListener('input', (e) => {
+                clearTimeout(debounceTimer);
+                const query = e.target.value.trim();
+
+                if (query.length < 3) {
+                    resultsContainer.classList.remove('active');
+                    return;
+                }
+
+                debounceTimer = setTimeout(async () => {
+                    try {
+                        const res = await fetch(`/api/places-autocomplete?input=${encodeURIComponent(query)}`);
+                        if (!res.ok) throw new Error('Failed to fetch addresses');
+                        
+                        const data = await res.json();
+                        
+                        if (data.predictions && data.predictions.length > 0) {
+                            resultsContainer.innerHTML = '';
+                            data.predictions.forEach(prediction => {
+                                const mainText = prediction.structured_formatting ? prediction.structured_formatting.main_text : prediction.description;
+                                const secondaryText = prediction.structured_formatting ? prediction.structured_formatting.secondary_text : '';
+                                
+                                const item = document.createElement('div');
+                                item.className = 'autocomplete-item';
+                                item.innerHTML = `<span class="autocomplete-main-text">${mainText}</span><span class="autocomplete-sub-text">${secondaryText}</span>`;
+                                
+                                item.addEventListener('click', () => {
+                                    addressInput.value = prediction.description;
+                                    resultsContainer.classList.remove('active');
+                                });
+                                
+                                resultsContainer.appendChild(item);
+                            });
+                            resultsContainer.classList.add('active');
+                        } else {
+                            resultsContainer.classList.remove('active');
+                        }
+                    } catch (err) {
+                        console.error('Autocomplete error:', err);
+                        resultsContainer.classList.remove('active');
+                    }
+                }, 300); // 300ms debounce
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!wrapper.contains(e.target)) {
+                    resultsContainer.classList.remove('active');
+                }
+            });
+        });
     </script>
-    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAtuH3SKAhvh-XI2sONazBTcEc6LycF4Zc&libraries=places&callback=initQuoteAutocomplete"></script>
 </body>
 
 </html>
