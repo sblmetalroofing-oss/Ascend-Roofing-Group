@@ -110,6 +110,24 @@ foreach ($Suburb in $SuburbsJson) {
     $Content = $Content.Replace("{{ABOUT_US_P2}}", ($AboutUsP2 | Get-Random))
     $Content = $Content.Replace("{{SERVICES_GRID}}", $ServicesGridHtml)
     $Content = $Content.Replace("{{TESTIMONIALS_GRID}}", $TestimonialsGridHtml)
+
+    # === FIX: Populate meta description with unique, SEO-optimised text ===
+    $MetaDescriptions = @(
+        "Ascend Roofing Group provides premium Colorbond(R) metal roofing in $($Suburb.name) $($Suburb.postcode). Expert roof replacements, repairs and new installs. QBCC licensed. Free quotes - call 0490 196 284.",
+        "Need a roofer in $($Suburb.name)? Ascend Roofing Group offers professional Colorbond(R) roof replacements, repairs and new installations. 14+ years experience. Free quote today.",
+        "$($Suburb.name) roofing experts. Family-owned Ascend Roofing Group delivers durable Colorbond(R) steel roofing solutions. QBCC licensed and insured. Serving $($Suburb.name) $($Suburb.postcode) and surrounds."
+    )
+    $Content = $Content.Replace("{{META_DESCRIPTION}}", ($MetaDescriptions | Get-Random))
+
+    # === FIX: Generate nearby suburbs links for internal linking ===
+    $SameRegionSuburbs = $SuburbsJson | Where-Object { $_.region -eq $Suburb.region -and $_.name -ne $Suburb.name }
+    $NearbySelection = $SameRegionSuburbs | Get-Random -Count ([Math]::Min(8, $SameRegionSuburbs.Count))
+    $NearbyHtml = ""
+    foreach ($Near in $NearbySelection) {
+        $NearSlug = Get-Slug -Name $Near.name
+        $NearbyHtml += "<a href='roofing-$NearSlug.html' class='nearby-suburb-link'>$($Near.name)</a>"
+    }
+    $Content = $Content.Replace("{{NEARBY_SUBURBS}}", $NearbyHtml)
     
     # Randomize images for this page
     $SelectedImages = $ProjectImages | Get-Random -Count 3

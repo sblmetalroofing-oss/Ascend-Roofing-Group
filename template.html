@@ -4,12 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Roofing {{SUBURB}} | {{REGION}} Metal Roofing Specialists</title>
+    <title>{{SUBURB}} Roofing & Colorbond® Specialists | Ascend Roofing Group</title>
     <meta name="description"
         content="{{META_DESCRIPTION}}">
     <meta name="keywords"
         content="roofing {{SUBURB}}, metal roofing {{SUBURB}}, roof replacement {{SUBURB}} {{POSTCODE}}, Colorbond roofing {{REGION}}, Ascend Roofing Group">
-    <meta property="og:title" content="Roofing {{SUBURB}} | {{REGION}} Metal Roofing Specialists">
+    <meta property="og:title" content="{{SUBURB}} Roofing & Colorbond® Specialists | Ascend Roofing Group">
     <meta property="og:description"
         content="Family-owned metal roofing experts serving {{SUBURB}}. Quality Colorbond® steel roofing solutions.">
     <meta property="og:type" content="website">
@@ -253,15 +253,15 @@
             <div class="gallery-grid">
                 <!-- Item 1 -->
                 <div class="gallery-item" data-reveal>
-                    <img src="../images/17964553073761123.avif" alt="Metal Roof Installation {{SUBURB}}">
+                    <img src="./images/17964553073761123.avif" alt="Metal Roof Installation {{SUBURB}}" loading="lazy" decoding="async">
                 </div>
                 <!-- Item 2 -->
                 <div class="gallery-item" data-reveal>
-                    <img src="../images/18055540900925803.avif" alt="New Build {{SUBURB}}">
+                    <img src="./images/18055540900925803.avif" alt="New Build {{SUBURB}}" loading="lazy" decoding="async">
                 </div>
                 <!-- Item 3 -->
                 <div class="gallery-item" data-reveal>
-                    <img src="../images/17845590288288225.avif" alt="Commercial Roofing {{REGION}}">
+                    <img src="./images/17845590288288225.avif" alt="Commercial Roofing {{REGION}}" loading="lazy" decoding="async">
                 </div>
             </div>
         </div>
@@ -524,6 +524,22 @@
                             <input type="email" id="email" name="email" placeholder="john@example.com" required>
                         </div>
                         <div class="form-group">
+                            <label for="address">Property Address</label>
+                            <input type="text" id="address" name="address" placeholder="{{SUBURB}}, QLD {{POSTCODE}}" autocomplete="street-address">
+                        </div>
+                        <div class="form-group">
+                            <label for="roof_type">Current Roof Type</label>
+                            <select id="roof_type" name="roof_type">
+                                <option value="" disabled selected>Select roof type...</option>
+                                <option value="tile">Roof Tiles</option>
+                                <option value="colorbond">Existing Colorbond®</option>
+                                <option value="asbestos">Asbestos / Fibro</option>
+                                <option value="corrugated">Corrugated Iron</option>
+                                <option value="flat">Flat / Membrane Roof</option>
+                                <option value="unsure">Not Sure</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
                             <label for="service">Service Required</label>
                             <select id="service" name="service" required>
                                 <option value="" disabled selected>Select a service...</option>
@@ -669,14 +685,14 @@
                         <li><a href="#services">Gutters & Downpipes</a></li>
                     </ul>
                 </div>
-                <div class="footer-links">
+<div class="footer-links">
                     <h4>Top Areas</h4>
                     <ul>
-                        <li><a href="roofing-brisbane.html">Brisbane</a></li>
-                        <li><a href="roofing-gold-coast.html">Gold Coast</a></li>
+                        <li><a href="roofing-brisbane-city.html">Brisbane</a></li>
+                        <li><a href="roofing-surfers-paradise.html">Gold Coast</a></li>
                         <li><a href="roofing-logan.html">Logan</a></li>
                         <li><a href="roofing-ipswich.html">Ipswich</a></li>
-                        <li><a href="roofing-redland-bay.html">Redland Bay</a></li>
+                        <li><a href="roofing-north-lakes.html">Moreton Bay</a></li>
                     </ul>
                 </div>
                 <div class="footer-contact">
