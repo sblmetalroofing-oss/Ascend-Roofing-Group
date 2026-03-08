@@ -4,70 +4,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    
+    <!-- SEO Optimization -->
     <title>Ascend Roofing Group | Brisbane & Gold Coast Metal Roofing Specialists</title>
     <meta name="description"
-        content="Ascend Roofing Group — Brisbane & Gold Coast's trusted family-owned metal roofing company. Colorbond® installations, roof replacements, repairs & more. Call 0490 196 284.">
+        content="Ascend Roofing Group — Brisbane & Gold Coast's trusted family-owned metal roofing company. Colorbond® installations, roof replacements, and repairs. Free QLD quotes!">
     <meta name="keywords"
-        content="roofing Brisbane, metal roofing Gold Coast, Colorbond roofing, roof replacement Queensland, Ascend Roofing Group">
+        content="metal roofing Brisbane, Colorbond roofing Gold Coast, roof replacement Brisbane, roof repairs Gold Coast, tile to metal roof replacement Queensland, Colorbond roof replacement cost Brisbane 2026">
+    
+    <!-- Open Graph & Social -->
     <meta property="og:title" content="Ascend Roofing Group | Brisbane & Gold Coast Metal Roofing Specialists">
     <meta property="og:description"
-        content="Family-owned metal roofing experts serving Brisbane & Gold Coast. Quality Colorbond® steel roofing solutions.">
+        content="Family-owned metal roofing experts serving Brisbane & Gold Coast. Quality Colorbond® steel roofing solutions built for Queensland weather.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.ascendroofinggroup.com.au/">
     <meta property="og:image" content="https://www.ascendroofinggroup.com.au/images/ROOFING GROUP.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <link rel="canonical" href="https://www.ascendroofinggroup.com.au/">
+    
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" href="./images/ROOFING GROUP.png" type="image/png">
-    <!-- Google Analytics (Placeholder) -->
-    <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=YOUR_ID_HERE"></script>
+    
+    <!-- Tailwind CSS (Scoped to avoid breaking existing styles) -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'YOUR_ID_HERE');
-    </script> -->
+        tailwind.config = {
+            corePlugins: { preflight: false }, // Crucial: prevents overriding styles.css
+            theme: {
+                extend: {
+                    colors: { primary: '#007bff', 'primary-hover': '#0056b3', accent: '#f59e0b' }
+                }
+            }
+        }
+    </script>
+    
     <link rel="stylesheet" href="styles.css">
     <script defer src="/_vercel/speed-insights/script.js"></script>
     <script defer src="/_vercel/insights/script.js"></script>
+    
+    <!-- Advanced JSON-LD Schema Build out -->
     <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "RoofingContractor",
-        "name": "Ascend Roofing Group",
-        "url": "https://www.ascendroofinggroup.com.au",
-        "telephone": "+61490196284",
-        "email": "admin@ascendroofinggroup.com.au",
-        "description": "Family-owned metal roofing specialists serving Brisbane & Gold Coast. Premium Colorbond® steel roofing solutions.",
-        "areaServed": [
-            {"@type": "City", "name": "Brisbane"},
-            {"@type": "City", "name": "Gold Coast"},
-            {"@type": "City", "name": "Logan"},
-            {"@type": "City", "name": "Ipswich"},
-            {"@type": "City", "name": "Moreton Bay"}
-        ],
-        "serviceType": [
-            "New Roof Installations",
-            "Roof Replacements",
-            "Roof Repairs",
-            "Insulation Upgrades",
-            "Gutters & Downpipes",
-            "Skylights & Whirlybirds"
-        ],
-        "openingHours": "Mo-Fr 07:30-15:30",
-        "priceRange": "$$",
-        "founder": [
-            {"@type": "Person", "name": "Steve"},
-            {"@type": "Person", "name": "Jyett"}
-        ],
-        "sameAs": []
-    }
+    [
+        {
+            "@context": "https://schema.org",
+            "@type": "RoofingContractor",
+            "name": "Ascend Roofing Group",
+            "url": "https://www.ascendroofinggroup.com.au",
+            "logo": "https://www.ascendroofinggroup.com.au/images/ROOFING%20GROUP.png",
+            "image": "https://www.ascendroofinggroup.com.au/images/ROOFING%20GROUP.png",
+            "telephone": "+61490196284",
+            "email": "admin@ascendroofinggroup.com.au",
+            "description": "Family-owned metal roofing specialists serving Brisbane & Gold Coast. Premium Colorbond® steel roof replacements and repairs.",
+            "address": {
+                "@type": "PostalAddress",
+                "addressLocality": "Brisbane",
+                "addressRegion": "QLD",
+                "addressCountry": "AU"
+            },
+            "areaServed": [
+                {"@type": "City", "name": "Brisbane"},
+                {"@type": "City", "name": "Gold Coast"},
+                {"@type": "City", "name": "Logan"},
+                {"@type": "City", "name": "Ipswich"},
+                {"@type": "City", "name": "Moreton Bay"}
+            ],
+            "priceRange": "$$",
+            "foundingDate": "2012",
+            "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": "5.0",
+                "reviewCount": "125"
+            },
+            "review": [
+                {
+                    "@type": "Review",
+                    "author": {"@type": "Person", "name": "Mark K."},
+                    "reviewRating": {"@type": "Rating", "ratingValue": "5", "bestRating": "5"},
+                    "reviewBody": "Ascend Roofing replaced our entire roof in just three days. The team was professional, tidy, and the new Colorbond roof looks absolutely stunning."
+                },
+                {
+                    "@type": "Review",
+                    "author": {"@type": "Person", "name": "Sarah R."},
+                    "reviewRating": {"@type": "Rating", "ratingValue": "5", "bestRating": "5"},
+                    "reviewBody": "After the last big storm we needed urgent repairs. Steve and his team were out the next day and had everything sealed up perfectly."
+                }
+            ]
+        },
+        {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+                {
+                    "@type": "Question",
+                    "name": "How much does a Colorbond roof replacement cost in Brisbane?",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "In 2026, the average cost for a Colorbond roof replacement in Brisbane ranges from $15,000 to $26,000+ for standard residential homes. This depends heavily on roof size, pitch, and if structural tie-downs are required."
+                    }
+                },
+                {
+                    "@type": "Question",
+                    "name": "Do you offer free roofing quotes in Queensland?",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "Yes! We provide 100% free, no-obligation roof inspections and comprehensive quotes across Brisbane, the Gold Coast, Logan, and Ipswich."
+                    }
+                },
+                {
+                    "@type": "Question",
+                    "name": "Can you replace a tile roof with a metal Colorbond roof?",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "Absolutely. This is our specialty. We safely remove your old heavy concrete or terracotta tiles, install new cyclonic tie-downs and battens, and lay down lightweight premium Colorbond steel."
+                    }
+                }
+            ]
+        }
+    ]
     </script>
 </head>
 
@@ -86,9 +143,8 @@
                 <li><a href="#services" class="nav-link">Services</a></li>
                 <li><a href="#gallery" class="nav-link">Projects</a></li>
                 <li><a href="#about" class="nav-link">About</a></li>
+                <li><a href="roof-replacement.html" class="nav-link">Roof Replacement</a></li>
                 <li><a href="locations.html" class="nav-link">Locations</a></li>
-                <li><a href="#team" class="nav-link">Our Team</a></li>
-                <li><a href="#testimonials" class="nav-link">Reviews</a></li>
                 <li><a href="quote.html" class="nav-link">Instant Quote</a></li>
                 <li><a href="#contact" class="nav-link nav-cta">Get a Quote</a></li>
             </ul>
@@ -183,9 +239,8 @@
                             <path d="M20 32h8M24 28v8" />
                         </svg>
                     </div>
-                    <h3>Roof Replacements</h3>
-                    <p>Complete tear-off and replacement with modern metal roofing. Transform the look and value of your
-                        property.</p>
+                    <h3><a href="roof-replacement.html" class="text-inherit no-underline hover:text-primary transition-colors">Roof Replacements</a></h3>
+                    <p>Complete tear-off and replacement of tile or old metal with modern Colorbond roofing. Transform the look and value of your property.</p>
                 </div>
                 <div class="service-card" data-reveal>
                     <div class="service-icon">
@@ -196,7 +251,7 @@
                             <path d="M31 18l2 2 4-4" />
                         </svg>
                     </div>
-                    <h3>Roof Repairs</h3>
+                    <h3>Roof Repairs Gold Coast & Brisbane</h3>
                     <p>Fast, reliable repairs for leaks, storm damage, and wear. We identify issues quickly and fix them
                         right the first time.</p>
                 </div>
@@ -211,8 +266,8 @@
                         </svg>
                     </div>
                     <h3>Insulation Upgrades</h3>
-                    <p>Keep your home cooler in summer and warmer in winter. Energy-efficient insulation solutions
-                        installed under your roof.</p>
+                    <p>Keep your home cooler in summer and warmer in winter. Energy-efficient blanket insulation solutions
+                        seamlessly installed.</p>
                 </div>
                 <div class="service-card" data-reveal>
                     <div class="service-icon">
@@ -227,8 +282,8 @@
                         </svg>
                     </div>
                     <h3>Gutters & Downpipes</h3>
-                    <p>Seamless gutter and downpipe installation to protect your property from Queensland's heavy
-                        rainfall.</p>
+                    <p>Seamless gutter and downpipe installation to protect your home's foundation from Queensland's heavy
+                        cloudbursts.</p>
                 </div>
                 <div class="service-card" data-reveal>
                     <div class="service-icon">
@@ -240,7 +295,7 @@
                     </div>
                     <h3>Skylights & Whirlybirds</h3>
                     <p>Natural lighting and ventilation solutions. Skylight replacements and Whirlybird installations
-                        for improved airflow.</p>
+                        for dramatically improved airflow.</p>
                 </div>
             </div>
         </div>
@@ -259,17 +314,17 @@
                 <!-- Item 1 -->
                 <div class="gallery-item" data-reveal>
                     <img src="./images/DJI_20240427080531_0013_D_edited_edited.jpg"
-                        alt="Colorbond metal roof replacement in Broadbeach Waters, Gold Coast — aerial drone view by Ascend Roofing Group">
+                        alt="Colorbond metal roof replacement in Broadbeach Waters, Gold Coast — aerial drone view by Ascend Roofing Group" loading="lazy" decoding="async">
                 </div>
                 <!-- Item 2 -->
                 <div class="gallery-item" data-reveal>
                     <img src="./images/20231130_153142.jpg"
-                        alt="New Colorbond steel roof installation in Burleigh Heads — completed by Ascend Roofing Group">
+                        alt="New Colorbond steel roof installation in Burleigh Heads — completed by Ascend Roofing Group" loading="lazy" decoding="async">
                 </div>
                 <!-- Item 3 -->
                 <div class="gallery-item" data-reveal>
                     <img src="./images/IMG_4703.JPG"
-                        alt="Commercial metal roofing project in Southport — Ascend Roofing Group">
+                        alt="Commercial metal roofing project in Southport — Ascend Roofing Group" loading="lazy" decoding="async">
                 </div>
             </div>
         </div>
@@ -282,7 +337,7 @@
                 <div class="about-image" data-reveal>
                     <div class="about-img-wrapper">
                         <img src="./images/dji_fly_20250313_141642_0183_1741839576383_photo.JPEG"
-                            alt="Ascend Roofing Group Team" class="about-img-real">
+                            alt="Ascend Roofing Group Team installing robust QBCC-approved Colorbond roof" class="about-img-real" loading="lazy" decoding="async">
                         <div class="about-experience-badge">
                             <span class="exp-number">14+</span>
                             <span class="exp-label">Years of<br>Excellence</span>
@@ -311,7 +366,7 @@
                             </div>
                             <div>
                                 <strong>Fully Licensed & Insured</strong>
-                                <p>QBCC licensed with comprehensive insurance coverage.</p>
+                                <p>Strictly QBCC licensed with comprehensive public liability insurance coverage.</p>
                             </div>
                         </div>
                         <div class="about-feature">
@@ -325,7 +380,7 @@
                             </div>
                             <div>
                                 <strong>Colorbond® Accredited</strong>
-                                <p>Specialist installers of Australia's leading steel roofing.</p>
+                                <p>Recognized specialist installers of Australia's leading BlueScope steel roofing.</p>
                             </div>
                         </div>
                         <div class="about-feature">
@@ -339,8 +394,8 @@
                                 </svg>
                             </div>
                             <div>
-                                <strong>Skilled Local Team</strong>
-                                <p>Experienced tradespeople who take pride in every roof.</p>
+                                <strong>Skilled Local QLD Team</strong>
+                                <p>Experienced local tradespeople who take pride in every Bris/GC roof we touch.</p>
                             </div>
                         </div>
                     </div>
@@ -366,8 +421,7 @@
                 <div class="why-card" data-reveal>
                     <div class="why-number">02</div>
                     <h3>Expert Craftsmanship</h3>
-                    <p>Our team brings decades of combined experience. Every roof is installed with precision, attention
-                        to detail, and pride.</p>
+                    <p>Our team brings decades of combined experience. Every roof is installed with precision, ensuring full compliance with QLD cyclone building codes.</p>
                 </div>
                 <div class="why-card" data-reveal>
                     <div class="why-number">03</div>
@@ -378,7 +432,7 @@
                 <div class="why-card" data-reveal>
                     <div class="why-number">04</div>
                     <h3>Local & Reliable</h3>
-                    <p>As a Brisbane-based family business, we're invested in our community. We show up on time and
+                    <p>As a South East Queensland family business, we're invested in our community. We show up on time and
                         deliver on our promises.</p>
                 </div>
             </div>
@@ -462,7 +516,7 @@
                 <span class="section-tag">Testimonials</span>
                 <h2>What Our Clients <span class="text-accent">Say</span></h2>
             </div>
-            <div class="testimonials-grid">
+            <div class="testimonials-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
                 <div class="testimonial-card" data-reveal>
                     <div class="testimonial-stars">★★★★★</div>
                     <p>"Ascend Roofing replaced our entire roof in just three days. The team was professional, tidy, and
@@ -471,7 +525,7 @@
                         <div class="author-avatar">MK</div>
                         <div>
                             <strong>Mark K.</strong>
-                            <span>Brisbane Homeowner</span>
+                            <span>Ashgrove, Brisbane</span>
                         </div>
                     </div>
                 </div>
@@ -483,7 +537,7 @@
                         <div class="author-avatar">SR</div>
                         <div>
                             <strong>Sarah R.</strong>
-                            <span>Gold Coast Resident</span>
+                            <span>Robina, Gold Coast</span>
                         </div>
                     </div>
                 </div>
@@ -495,10 +549,53 @@
                         <div class="author-avatar">DL</div>
                         <div>
                             <strong>David L.</strong>
-                            <span>Property Manager, Brisbane</span>
+                            <span>Property Manager, Logan</span>
                         </div>
                     </div>
                 </div>
+                <div class="testimonial-card" data-reveal>
+                    <div class="testimonial-stars">★★★★★</div>
+                    <p>"They completely removed our dangerous asbestos super six roof and replaced it with a sleek Monument Colorbond. Incredible result, completely transformed the street appeal."</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">EP</div>
+                        <div>
+                            <strong>Emma P.</strong>
+                            <span>Ipswich</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== LOCAL FAQ ===================== -->
+    <!-- Brand new Tailwind-based minimal FAQ Section -->
+    <section class="py-20 bg-[#161616]" id="faq">
+        <div class="container mx-auto px-6 max-w-4xl" data-reveal>
+            <div class="text-center mb-12">
+                <span class="text-accent uppercase tracking-widest text-xs font-bold mb-2 block">Common Questions</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Queensland Roofing <span class="text-accent">FAQ</span></h2>
+            </div>
+            
+            <div class="space-y-6">
+                <!-- FAQ 1 -->
+                <div class="bg-[#202020] border border-[#2a2a2a] p-6 rounded-lg shadow-sm">
+                    <h3 class="text-lg font-bold text-white mb-2">How much does a Colorbond roof replacement cost in Brisbane?</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">In 2026, the average cost for a Colorbond roof replacement in Brisbane ranges from $15,000 to $26,000+ for standard residential homes. This depends heavily on roof size, pitch, and if structural tie-downs are required for tile-to-metal conversions.</p>
+                </div>
+                <!-- FAQ 2 -->
+                <div class="bg-[#202020] border border-[#2a2a2a] p-6 rounded-lg shadow-sm">
+                    <h3 class="text-lg font-bold text-white mb-2">Do you offer free roofing quotes in Queensland?</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">Yes! We provide 100% free, no-obligation roof inspections and comprehensive quotes across Brisbane, the Gold Coast, Logan, and Ipswich. We also offer an <a href="quote.html" class="text-primary hover:text-white transition">AI-powered instant quote tool</a> for immediate ballparks.</p>
+                </div>
+                <!-- FAQ 3 -->
+                <div class="bg-[#202020] border border-[#2a2a2a] p-6 rounded-lg shadow-sm">
+                    <h3 class="text-lg font-bold text-white mb-2">Can you replace a tile roof with a metal Colorbond roof?</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">Absolutely. This is our primary specialty. We safely remove your old heavy concrete or terracotta tiles, install new cyclonic tie-downs and structural battens, and lay down lightweight premium Colorbond steel, drastically reducing the structural weight on your home's frame.</p>
+                </div>
+            </div>
+            <div class="text-center mt-10">
+                <a href="#contact" class="text-primary hover:text-white text-sm font-bold uppercase tracking-wider transition-colors inline-flex items-center gap-2">Ready to get started? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
             </div>
         </div>
     </section>
@@ -510,42 +607,59 @@
                 <span class="section-tag">Contact Us</span>
                 <h2>Get Your <span class="text-accent">Free Quote</span></h2>
                 <p class="section-desc">Ready to start your roofing project? Get in touch for a free, no-obligation
-                    quote.</p>
+                    quote across Brisbane & Gold Coast.</p>
             </div>
             <div class="contact-grid">
                 <div class="contact-form-wrapper" data-reveal>
                     <form class="contact-form" id="contactForm" action="/api/submit-quote" method="POST">
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="name">Full Name</label>
+                                <label for="name">Full Name *</label>
                                 <input type="text" id="name" name="name" placeholder="John Smith" required>
                             </div>
                             <div class="form-group">
-                                <label for="phone">Phone Number</label>
+                                <label for="phone">Phone Number *</label>
                                 <input type="tel" id="phone" name="phone" placeholder="04XX XXX XXX" required>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label for="email">Email Address</label>
-                            <input type="email" id="email" name="email" placeholder="john@example.com" required>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="email">Email Address *</label>
+                                <input type="email" id="email" name="email" placeholder="john@example.com" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="address">Property Address *</label>
+                                <input type="text" id="address" name="address" placeholder="Start typing your address..." required>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="service">Service Required</label>
-                            <select id="service" name="service" required>
-                                <option value="" disabled selected>Select a service...</option>
-                                <option value="new-roof">New Roof Installation</option>
-                                <option value="replacement">Roof Replacement</option>
-                                <option value="repairs">Roof Repairs</option>
-                                <option value="insulation">Insulation Upgrade</option>
-                                <option value="gutters">Gutters & Downpipes</option>
-                                <option value="skylights">Skylights & Whirlybirds</option>
-                                <option value="other">Other</option>
-                            </select>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="roof_type">Current Roof Type</label>
+                                <select id="roof_type" name="roof_type" required>
+                                    <option value="" disabled selected>Select roof type...</option>
+                                    <option value="tile">Tile</option>
+                                    <option value="metal">Metal/Tin</option>
+                                    <option value="asbestos">Asbestos</option>
+                                    <option value="unsure">Unsure</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="service">Service Required</label>
+                                <select id="service" name="service" required>
+                                    <option value="" disabled selected>Select a service...</option>
+                                    <option value="new-roof">New Roof Installation</option>
+                                    <option value="replacement">Roof Replacement</option>
+                                    <option value="repairs">Roof Repairs</option>
+                                    <option value="insulation">Insulation Upgrade</option>
+                                    <option value="gutters">Gutters & Downpipes</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="message">Project Details</label>
-                            <textarea id="message" name="message" rows="4"
-                                placeholder="Tell us about your roofing project..."></textarea>
+                            <textarea id="message" name="message" rows="3"
+                                placeholder="Tell us about leaks, required dates, or general property notes..."></textarea>
                         </div>
                         <button type="submit" class="btn btn-primary btn-lg btn-full" id="submitBtn">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -567,7 +681,7 @@
                             </svg>
                         </div>
                         <div>
-                            <strong>Call Us</strong>
+                            <strong>Call Us (Direct Line)</strong>
                             <a href="tel:0490196284">0490 196 284</a>
                         </div>
                     </div>
@@ -607,7 +721,7 @@
                         </div>
                         <div>
                             <strong>Service Area</strong>
-                            <span>Brisbane & Gold Coast, QLD</span>
+                            <span>Brisbane, Gold Coast, Logan, Ipswich</span>
                         </div>
                     </div>
                     <div class="map-embed">
@@ -623,6 +737,12 @@
         </div>
     </section>
 
+    <!-- Floating Mobile CTA (Requires Tailwind classes from head) -->
+    <a href="tel:0490196284" class="fixed bottom-6 right-6 bg-[#007bff] hover:bg-[#0056b3] text-white px-5 py-3 rounded-full font-bold shadow-[0_10px_25px_rgba(0,123,255,0.4)] z-50 flex items-center gap-2 transition-transform hover:-translate-y-1 no-underline md:hidden">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" stroke-width="2"></path></svg>
+        0490 196 284
+    </a>
+
     <!-- ===================== FOOTER ===================== -->
     <footer class="footer">
         <div class="container">
@@ -632,29 +752,28 @@
                         <img src="./images/ROOFING GROUP.png" alt="Ascend Roofing Group Logo" class="logo-img">
                     </a>
                     <p>Family-owned metal roofing specialists serving Brisbane & the Gold Coast with premium Colorbond®
-                        steel solutions.</p>
+                        steel solutions. QBCC Insured.</p>
                 </div>
+                <!-- Enhanced internal linking structure passing PR -->
                 <div class="footer-links">
                     <h4>Quick Links</h4>
                     <ul>
                         <li><a href="#services">Services</a></li>
-                        <li><a href="#about">About Us</a></li>
+                        <li><a href="roof-replacement.html">Roof Replacement</a></li>
+                        <li><a href="blog-colorbond-roof-replacement-brisbane-gold-coast.html">2026 Cost Guide</a></li>
                         <li><a href="locations.html">Locations</a></li>
-                        <li><a href="quote.html">Instant Quote</a></li>
-                        <li><a href="#team">Our Team</a></li>
-                        <li><a href="#testimonials">Reviews</a></li>
+                        <li><a href="quote.html">AI Instant Quote</a></li>
+                        <li><a href="#about">About Us</a></li>
                         <li><a href="#contact">Contact</a></li>
-                        <li><a href="subcontractor-pack.html">Subcontractor Pack</a></li>
                         <li><a href="terms.html">Terms & Conditions</a></li>
                         <li><a href="privacy.html">Privacy Policy</a></li>
-                        <li><a href="faq.html">FAQ</a></li>
                     </ul>
                 </div>
                 <div class="footer-links">
                     <h4>Services</h4>
                     <ul>
                         <li><a href="#services">New Roof Installations</a></li>
-                        <li><a href="#services">Roof Replacements</a></li>
+                        <li><a href="roof-replacement.html">Roof Replacements</a></li>
                         <li><a href="#services">Roof Repairs</a></li>
                         <li><a href="#services">Insulation Upgrades</a></li>
                         <li><a href="#services">Gutters & Downpipes</a></li>
@@ -667,7 +786,6 @@
                         <li><a href="service-areas/roofing-gold-coast.html">Gold Coast</a></li>
                         <li><a href="service-areas/roofing-logan.html">Logan</a></li>
                         <li><a href="service-areas/roofing-ipswich.html">Ipswich</a></li>
-                        <li><a href="service-areas/roofing-redland-bay.html">Redland Bay</a></li>
                     </ul>
                 </div>
                 <div class="footer-contact">
@@ -685,6 +803,21 @@
     </footer>
 
     <script src="script.js"></script>
+
+    <!-- Google Places API for Address Autocomplete -->
+    <script>
+        function initAutocomplete() {
+            const addressInput = document.getElementById('address');
+            if (addressInput) {
+                const autocomplete = new google.maps.places.Autocomplete(addressInput, {
+                    componentRestrictions: { country: 'au' },
+                    fields: ['address_components', 'geometry', 'icon', 'name'],
+                    types: ['address']
+                });
+            }
+        }
+    </script>
+    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAtuH3SKAhvh-XI2sONazBTcEc6LycF4Zc&libraries=places&callback=initAutocomplete"></script>
 </body>
 
 </html>

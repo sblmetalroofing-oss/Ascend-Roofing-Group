@@ -1097,6 +1097,26 @@
             function fmtNum(n) { return Math.round(n).toLocaleString('en-AU'); }
         })();
     </script>
+    <script>
+        function initQuoteAutocomplete() {
+            const addressInput = document.getElementById('quoteAddress');
+            if (addressInput) {
+                const autocomplete = new google.maps.places.Autocomplete(addressInput, {
+                    componentRestrictions: { country: 'au' },
+                    fields: ['address_components', 'geometry', 'icon', 'formatted_address', 'name'],
+                    types: ['address']
+                });
+                // When the user selects an address from the dropdown, populate the input
+                autocomplete.addListener('place_changed', function() {
+                    const place = autocomplete.getPlace();
+                    if (place.formatted_address) {
+                        addressInput.value = place.formatted_address;
+                    }
+                });
+            }
+        }
+    </script>
+    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAtuH3SKAhvh-XI2sONazBTcEc6LycF4Zc&libraries=places&callback=initQuoteAutocomplete"></script>
 </body>
 
 </html>
