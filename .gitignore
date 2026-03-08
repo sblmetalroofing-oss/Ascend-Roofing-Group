@@ -1,4 +1,4 @@
-# System Files
+﻿# System Files
 .DS_Store
 Thumbs.db
 desktop.ini
@@ -7,9 +7,6 @@ desktop.ini
 node_modules/
 
 # Build Artifacts
-service-areas/
-locations.html
-sitemap.xml
 
 # Logs
 npm-debug.log*
