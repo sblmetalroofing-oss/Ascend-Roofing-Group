@@ -353,10 +353,10 @@ async function build() {
             <ul class="nav-menu" id="navMenu">
                 <li><a href="index.html" class="nav-link">Home</a></li>
                 <li><a href="index.html#services" class="nav-link">Services</a></li>
-                <li><a href="index.html#gallery" class="nav-link">Projects</a></li>
-                <li><a href="index.html#about" class="nav-link">About</a></li>
+                <li><a href="roof-replacement.html" class="nav-link">Roof Replacement</a></li>
                 <li><a href="locations.html" class="nav-link active">Locations</a></li>
-                <li><a href="index.html#testimonials" class="nav-link">Reviews</a></li>
+                <li><a href="quote.html" class="nav-link">Instant Quote</a></li>
+                <li><a href="blog/" class="nav-link">Blog</a></li>
                 <li><a href="index.html#contact" class="nav-link nav-cta">Get a Quote</a></li>
             </ul>
         </div>
@@ -402,11 +402,12 @@ async function build() {
                 <div class="footer-links">
                     <h4>Services</h4>
                     <ul>
-                        <li><a href="index.html#services">New Roof Installations</a></li>
-                        <li><a href="index.html#services">Roof Replacements</a></li>
-                        <li><a href="index.html#services">Roof Repairs</a></li>
-                        <li><a href="index.html#services">Insulation Upgrades</a></li>
-                        <li><a href="index.html#services">Gutters & Downpipes</a></li>
+                        <li><a href="new-roof-installation-brisbane.html">New Roof Installations</a></li>
+                        <li><a href="roof-replacement.html">Roof Replacements</a></li>
+                        <li><a href="roof-repairs-brisbane.html">Roof Repairs</a></li>
+                        <li><a href="roof-insulation-brisbane.html">Insulation Upgrades</a></li>
+                        <li><a href="gutters-downpipes-brisbane.html">Gutters &amp; Downpipes</a></li>
+                        <li><a href="blog/">Roofing Blog</a></li>
                     </ul>
                 </div>
                 <div class="footer-contact">
