@@ -152,7 +152,7 @@ textarea {
 }
 
 .text-accent {
-  color: var(--accent-color);
+  color: var(--accent-color) !important;
 }
 
 .section-desc {
