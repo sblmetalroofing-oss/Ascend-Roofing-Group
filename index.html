@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     
     <!-- SEO Optimization -->
-    <title>Metal Roofing Brisbane &amp; Gold Coast | Colorbond® Specialists | Ascend Roofing Group</title>
+    <title>Roof Replacement Brisbane &amp; Gold Coast | Metal Roofing &amp; Colorbond® Specialists | Ascend Roofing Group</title>
     <meta name="description"
         content="Ascend Roofing Group — Brisbane & Gold Coast's trusted family-owned metal roofing company. Colorbond® installations, roof replacements, and repairs. Free QLD quotes!">
     <meta name="keywords"
@@ -836,75 +836,24 @@
         .autocomplete-sub-text { font-size: 0.8rem; color: var(--text-muted); display: block; margin-top: 2px;}
     </style>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        function initAutocomplete() {
             const addressInput = document.getElementById('address');
             if (!addressInput) return;
-
-            // Wrap input for dropdown positioning
-            const wrapper = document.createElement('div');
-            wrapper.className = 'autocomplete-wrapper';
-            addressInput.parentNode.insertBefore(wrapper, addressInput);
-            wrapper.appendChild(addressInput);
-
-            // Create dropdown container
-            const resultsContainer = document.createElement('div');
-            resultsContainer.className = 'autocomplete-results';
-            wrapper.appendChild(resultsContainer);
-
-            let debounceTimer;
-
-            addressInput.addEventListener('input', (e) => {
-                clearTimeout(debounceTimer);
-                const query = e.target.value.trim();
-
-                if (query.length < 3) {
-                    resultsContainer.classList.remove('active');
-                    return;
-                }
-
-                debounceTimer = setTimeout(async () => {
-                    try {
-                        const res = await fetch(`/api/places-autocomplete?input=${encodeURIComponent(query)}`);
-                        if (!res.ok) throw new Error('Failed to fetch addresses');
-                        
-                        const data = await res.json();
-                        
-                        if (data.predictions && data.predictions.length > 0) {
-                            resultsContainer.innerHTML = '';
-                            data.predictions.forEach(prediction => {
-                                const mainText = prediction.structured_formatting ? prediction.structured_formatting.main_text : prediction.description;
-                                const secondaryText = prediction.structured_formatting ? prediction.structured_formatting.secondary_text : '';
-                                
-                                const item = document.createElement('div');
-                                item.className = 'autocomplete-item';
-                                item.innerHTML = `<span class="autocomplete-main-text">${mainText}</span><span class="autocomplete-sub-text">${secondaryText}</span>`;
-                                
-                                item.addEventListener('click', () => {
-                                    addressInput.value = prediction.description;
-                                    resultsContainer.classList.remove('active');
-                                });
-                                
-                                resultsContainer.appendChild(item);
-                            });
-                            resultsContainer.classList.add('active');
-                        } else {
-                            resultsContainer.classList.remove('active');
-                        }
-                    } catch (err) {
-                        console.error('Autocomplete error:', err);
-                        resultsContainer.classList.remove('active');
-                    }
-                }, 300); // 300ms debounce
+            const autocomplete = new google.maps.places.Autocomplete(addressInput, {
+                componentRestrictions: { country: 'au' },
+                types: ['address'],
+                fields: ['formatted_address']
             });
-
-            // Close dropdown when clicking outside
-            document.addEventListener('click', (e) => {
-                if (!wrapper.contains(e.target)) {
-                    resultsContainer.classList.remove('active');
-                }
+            autocomplete.addListener('place_changed', () => {
+                const place = autocomplete.getPlace();
+                if (place.formatted_address) addressInput.value = place.formatted_address;
             });
-        });
+            addressInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') e.preventDefault();
+            });
+        }
     </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAtuH3SKAhvh-XI2sONazBTcEc6LycF4Zc&libraries=places&callback=initAutocomplete" async defer></script>
 </body>
 
 </html>
