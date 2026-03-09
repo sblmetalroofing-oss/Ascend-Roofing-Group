@@ -710,6 +710,44 @@
                                 Ipswich, Moreton Bay)</span>
                         </div>
 
+                        <!-- First + Last Name -->
+                        <div class="qf-group">
+                            <label for="quoteFirstName">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="12" cy="7" r="4"/>
+                                </svg>
+                                First Name
+                            </label>
+                            <input type="text" id="quoteFirstName" name="first_name" placeholder="John" required
+                                autocomplete="given-name">
+                        </div>
+
+                        <div class="qf-group">
+                            <label for="quoteLastName">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="12" cy="7" r="4"/>
+                                </svg>
+                                Last Name
+                            </label>
+                            <input type="text" id="quoteLastName" name="last_name" placeholder="Smith" required
+                                autocomplete="family-name">
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="qf-group">
+                            <label for="quotePhone">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.38 2 2 0 0 1 3.6 1.21h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6.06 6.06l1.27-1.27a2 2 0 0 1 2.11-.45c.907.34 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+                                </svg>
+                                Phone Number
+                            </label>
+                            <input type="tel" id="quotePhone" name="phone" placeholder="04XX XXX XXX" required
+                                autocomplete="tel">
+                        </div>
+
+                        <!-- Job Type -->
                         <div class="qf-group">
                             <label for="quoteJobType">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -727,12 +765,12 @@
                             </select>
                         </div>
 
+                        <!-- Email -->
                         <div class="qf-group">
                             <label for="quoteEmail">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                     stroke-width="2">
-                                    <path
-                                        d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                                     <polyline points="22,6 12,13 2,6" />
                                 </svg>
                                 Email <span class="qf-optional">(optional)</span>
@@ -957,12 +995,23 @@
                 hideError();
                 hideResults();
 
-                const address = document.getElementById('quoteAddress').value.trim();
-                const jobType = document.getElementById('quoteJobType').value;
-                const email = document.getElementById('quoteEmail').value.trim();
+                const address   = document.getElementById('quoteAddress').value.trim();
+                const firstName = document.getElementById('quoteFirstName').value.trim();
+                const lastName  = document.getElementById('quoteLastName').value.trim();
+                const phone     = document.getElementById('quotePhone').value.trim();
+                const jobType   = document.getElementById('quoteJobType').value;
+                const email     = document.getElementById('quoteEmail').value.trim();
 
                 if (!address || address.length < 5) {
                     showError('Please enter a valid street address (at least 5 characters).');
+                    return;
+                }
+                if (!firstName || !lastName) {
+                    showError('Please enter your first and last name.');
+                    return;
+                }
+                if (!phone) {
+                    showError('Please enter your phone number.');
                     return;
                 }
                 if (!jobType) {
@@ -976,7 +1025,7 @@
                     const resp = await fetch('/api/roof-quote', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ address, job_type: jobType, email }),
+                        body: JSON.stringify({ address, first_name: firstName, last_name: lastName, phone, job_type: jobType, email }),
                     });
 
                     const data = await resp.json();
@@ -1176,75 +1225,36 @@
         .autocomplete-main-text { font-weight: 700; color: #fff; }
         .autocomplete-sub-text { font-size: 0.8rem; color: var(--text-muted); display: block; margin-top: 2px;}
     </style>
+    <!-- Google Places Autocomplete API -->
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        // Initialise Google Places autocomplete once the Maps JS API is ready
+        function initAutocomplete() {
             const addressInput = document.getElementById('quoteAddress');
             if (!addressInput) return;
 
-            // Wrap input for dropdown positioning
-            const wrapper = document.createElement('div');
-            wrapper.className = 'autocomplete-wrapper';
-            addressInput.parentNode.insertBefore(wrapper, addressInput);
-            wrapper.appendChild(addressInput);
-
-            // Create dropdown container
-            const resultsContainer = document.createElement('div');
-            resultsContainer.className = 'autocomplete-results';
-            wrapper.appendChild(resultsContainer);
-
-            let debounceTimer;
-
-            addressInput.addEventListener('input', (e) => {
-                clearTimeout(debounceTimer);
-                const query = e.target.value.trim();
-
-                if (query.length < 3) {
-                    resultsContainer.classList.remove('active');
-                    return;
-                }
-
-                debounceTimer = setTimeout(async () => {
-                    try {
-                        const res = await fetch(`/api/places-autocomplete?input=${encodeURIComponent(query)}`);
-                        if (!res.ok) throw new Error('Failed to fetch addresses');
-                        
-                        const data = await res.json();
-                        
-                        if (data.predictions && data.predictions.length > 0) {
-                            resultsContainer.innerHTML = '';
-                            data.predictions.forEach(prediction => {
-                                const mainText = prediction.structured_formatting ? prediction.structured_formatting.main_text : prediction.description;
-                                const secondaryText = prediction.structured_formatting ? prediction.structured_formatting.secondary_text : '';
-                                
-                                const item = document.createElement('div');
-                                item.className = 'autocomplete-item';
-                                item.innerHTML = `<span class="autocomplete-main-text">${mainText}</span><span class="autocomplete-sub-text">${secondaryText}</span>`;
-                                
-                                item.addEventListener('click', () => {
-                                    addressInput.value = prediction.description;
-                                    resultsContainer.classList.remove('active');
-                                });
-                                
-                                resultsContainer.appendChild(item);
-                            });
-                            resultsContainer.classList.add('active');
-                        } else {
-                            resultsContainer.classList.remove('active');
-                        }
-                    } catch (err) {
-                        console.error('Autocomplete error:', err);
-                        resultsContainer.classList.remove('active');
-                    }
-                }, 300); // 300ms debounce
+            const autocomplete = new google.maps.places.Autocomplete(addressInput, {
+                componentRestrictions: { country: 'au' },
+                types: ['address'],
+                fields: ['formatted_address', 'geometry', 'address_components']
             });
 
-            // Close dropdown when clicking outside
-            document.addEventListener('click', (e) => {
-                if (!wrapper.contains(e.target)) {
-                    resultsContainer.classList.remove('active');
+            // When user selects an address, populate the field
+            autocomplete.addListener('place_changed', () => {
+                const place = autocomplete.getPlace();
+                if (place.formatted_address) {
+                    addressInput.value = place.formatted_address;
                 }
             });
-        });
+
+            // Prevent form submit on Enter inside the autocomplete
+            addressInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') e.preventDefault();
+            });
+        }
+    </script>
+    <script
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCCE4emCXLFCQqhGLaLJq_CWWOB1aNwFEQ&libraries=places&callback=initAutocomplete"
+        async defer>
     </script>
 </body>
 
