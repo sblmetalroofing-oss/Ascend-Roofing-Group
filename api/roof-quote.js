@@ -35,6 +35,9 @@ const CONFIG = {
   GOOGLE_STATIC_MAP_URL:
     "https://maps.googleapis.com/maps/api/staticmap",
 
+  // Frontend API key for client-visible URLs (restricted to website referrers)
+  FRONTEND_API_KEY: "AIzaSyAtuH3SKAhvh-XI2sONazBTcEc6LycF4Zc",
+
   // Location notes
   LOCATION_NOTES: {
     coastal:
@@ -266,13 +269,13 @@ function parseGoogleSolarResponse(data, lat, lng, apiKey) {
     const condition = "unknown";
     const material = "Unknown";
 
-    // Satellite image via Google Maps Static API
+    // Satellite image via Google Maps Static API (use frontend key to avoid leaking server key)
     const imageParams = new URLSearchParams({
       center: `${lat},${lng}`,
       zoom: "20",
       size: "600x400",
       maptype: "satellite",
-      key: apiKey,
+      key: CONFIG.FRONTEND_API_KEY,
     });
     const imageUrl = `${CONFIG.GOOGLE_STATIC_MAP_URL}?${imageParams}`;
 
@@ -395,15 +398,18 @@ function getLocationNote(postcode, coastal = false) {
 
 // ─── Lead Capture ─────────────────────────────────────────
 
-async function captureLead(email, address, jobType, quote) {
+async function captureLead({ email, firstName, lastName, phone, address, jobType, quote }) {
   const jobLabel = CONFIG.JOB_TYPE_LABELS[jobType] || jobType;
   const quoteRange = quote.available
     ? `$${Math.round(quote.range_low).toLocaleString()} – $${Math.round(quote.range_high).toLocaleString()} AUD`
     : "Manual quote required";
+  const fullName = `${firstName} ${lastName}`.trim();
 
   console.log(`\n${"=".repeat(60)}`);
   console.log(`  📧 NEW ROOF QUOTE LEAD — ${new Date().toISOString()}`);
   console.log(`${"=".repeat(60)}`);
+  console.log(`  Name:     ${fullName}`);
+  console.log(`  Phone:    ${phone}`);
   console.log(`  Email:    ${email}`);
   console.log(`  Address:  ${address}`);
   console.log(`  Job Type: ${jobLabel}`);
@@ -419,10 +425,18 @@ async function captureLead(email, address, jobType, quote) {
           process.env.FROM_EMAIL || "Ascend Website <onboarding@resend.dev>",
         to: process.env.BUSINESS_EMAIL || "admin@ascendroofinggroup.com.au",
         replyTo: email,
-        subject: `🏠 New Roof Quote Lead: ${sanitize(address)}`,
+        subject: `🏠 New Roof Quote Lead: ${sanitize(fullName)} — ${sanitize(address)}`,
         html: `
                     <h2>New AI Roof Quote Lead</h2>
                     <table style="border-collapse:collapse; width:100%; max-width:500px;">
+                        <tr>
+                            <td style="padding:8px; border:1px solid #ddd; font-weight:bold;">Name</td>
+                            <td style="padding:8px; border:1px solid #ddd;">${sanitize(fullName)}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:8px; border:1px solid #ddd; font-weight:bold;">Phone</td>
+                            <td style="padding:8px; border:1px solid #ddd;">${sanitize(phone)}</td>
+                        </tr>
                         <tr>
                             <td style="padding:8px; border:1px solid #ddd; font-weight:bold;">Email</td>
                             <td style="padding:8px; border:1px solid #ddd;">${sanitize(email)}</td>
@@ -456,10 +470,22 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method Not Allowed" });
   }
 
-  const { address, job_type: jobType, email } = req.body || {};
+  const {
+    address,
+    job_type: jobType,
+    email,
+    first_name: firstName,
+    last_name: lastName,
+    phone,
+    lat: clientLat,
+    lng: clientLng,
+  } = req.body || {};
   const cleanAddress = (address || "").trim();
   const cleanJobType = (jobType || "").trim();
   const cleanEmail = (email || "").trim();
+  const cleanFirstName = (firstName || "").trim();
+  const cleanLastName = (lastName || "").trim();
+  const cleanPhone = (phone || "").trim();
 
   // Validate
   const validationError = validateInputs(
@@ -471,20 +497,42 @@ export default async function handler(req, res) {
     return res.status(422).json({ error: validationError });
   }
 
-  // Step 1: Geocode
-  const geoResult = await geocodeAddress(cleanAddress);
-  if (geoResult.error) {
-    return res.status(404).json({
-      error: geoResult.error,
-      suggestion:
-        "Please enter a valid street address in South East Queensland.",
-    });
+  // Step 1: Use client coordinates if provided (from Google autocomplete),
+  // otherwise fall back to Nominatim geocoding
+  let lat, lng, postcode;
+
+  if (clientLat && clientLng) {
+    lat = parseFloat(clientLat);
+    lng = parseFloat(clientLng);
+    // Extract postcode from address string (e.g. "QLD 4118")
+    const pcMatch = cleanAddress.match(/\b(4\d{3})\b/);
+    postcode = pcMatch ? pcMatch[1] : "";
+    console.log(
+      `Using client coordinates: (${lat}, ${lng}) postcode=${postcode}`,
+    );
+  } else {
+    const geoResult = await geocodeAddress(cleanAddress);
+    if (geoResult.error) {
+      return res.status(404).json({
+        error: geoResult.error,
+        suggestion:
+          "Please enter a valid street address in South East Queensland.",
+      });
+    }
+    lat = geoResult.lat;
+    lng = geoResult.lng;
+    postcode = geoResult.postcode;
+    console.log(
+      `Geocoded: ${geoResult.formatted_address} → (${lat}, ${lng}) postcode=${postcode}`,
+    );
   }
 
-  const { lat, lng, postcode, formatted_address: formattedAddress } = geoResult;
-  console.log(
-    `Geocoded: ${formattedAddress} → (${lat}, ${lng}) postcode=${postcode}`,
-  );
+  // Verify SEQ postcode
+  if (postcode && !isSEQPostcode(postcode)) {
+    return res.status(422).json({
+      error: `Postcode ${postcode} is outside our primary service area. We service Brisbane, Gold Coast, Logan, Ipswich, and Moreton Bay regions.`,
+    });
+  }
 
   // Step 2: Google Solar roof data
   const roofData = await getRoofData(lat, lng);
@@ -493,7 +541,6 @@ export default async function handler(req, res) {
   const quote = calculateQuote(roofData, cleanJobType, postcode);
 
   // Step 4: Build response
-  // Use original address for display (Nominatim often drops house numbers)
   const response = {
     success: true,
     address: cleanAddress,
@@ -511,9 +558,17 @@ export default async function handler(req, res) {
     response.scheduler_url = schedulerUrl;
   }
 
-  // Step 5: Lead capture
-  if (cleanEmail) {
-    await captureLead(cleanEmail, formattedAddress, cleanJobType, quote);
+  // Step 5: Lead capture (always capture leads with contact info)
+  if (cleanEmail || cleanPhone) {
+    await captureLead({
+      email: cleanEmail,
+      firstName: cleanFirstName,
+      lastName: cleanLastName,
+      phone: cleanPhone,
+      address: cleanAddress,
+      jobType: cleanJobType,
+      quote,
+    });
   }
 
   return res.status(200).json(response);

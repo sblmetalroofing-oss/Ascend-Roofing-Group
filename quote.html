@@ -966,7 +966,6 @@
     </section>
 
     <!-- ===================== FOOTER ===================== -->
-    <!-- ===================== FOOTER ===================== -->
     <footer class="footer">
         <div class="container">
             <div class="footer-grid">
@@ -1075,7 +1074,16 @@
                     const resp = await fetch('/api/roof-quote', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ address, first_name: firstName, last_name: lastName, phone, job_type: jobType, email }),
+                        body: JSON.stringify({
+                            address,
+                            first_name: firstName,
+                            last_name: lastName,
+                            phone,
+                            job_type: jobType,
+                            email,
+                            lat: window.__quoteAutoLat || null,
+                            lng: window.__quoteAutoLng || null,
+                        }),
                     });
 
                     const data = await resp.json();
@@ -1139,12 +1147,12 @@
 
                 const details = [
                     { label: 'Roof Area', value: roof.has_data && roof.area_sqm ? `${roof.area_sqm.toLocaleString()} m²` : 'Not available', icon: '📐' },
-                    { label: 'Roof Pitch', value: roof.pitch ? cap(roof.pitch) + (roof.pitch_degrees ? ` (${roof.pitch_degrees}°)` : '') : 'Unknown', icon: '📏' },
-                    { label: 'Condition', value: roof.condition ? cap(roof.condition) : 'Unknown', icon: condIcon(roof.condition) },
-                    { label: 'Material', value: roof.material || 'Unknown', icon: '🏗️' },
+                    { label: 'Roof Pitch', value: roof.pitch ? cap(roof.pitch) + (roof.pitch_degrees ? ` (${roof.pitch_degrees}°)` : '') : null, icon: '📏' },
+                    { label: 'Condition', value: roof.condition && roof.condition !== 'unknown' ? cap(roof.condition) : null, icon: condIcon(roof.condition) },
+                    { label: 'Material', value: roof.material && roof.material !== 'Unknown' ? roof.material : null, icon: '🏗️' },
                     { label: 'Job Type', value: jobType || 'N/A', icon: '🔧' },
                     { label: 'Data Source', value: roof.source || 'Manual inspection required', icon: '🛰️' },
-                ];
+                ].filter(d => d.value !== null);
 
                 details.forEach(d => {
                     const el = document.createElement('div');
@@ -1244,44 +1252,15 @@
             function fmtNum(n) { return Math.round(n).toLocaleString('en-AU'); }
         })();
     </script>
-    <!-- Secure Custom Address Autocomplete via Vercel Backend -->
-    <style>
-        .autocomplete-wrapper { position: relative; }
-        .autocomplete-results {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-top: none;
-            z-index: 99;
-            max-height: 250px;
-            overflow-y: auto;
-            border-radius: 0 0 8px 8px;
-            display: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-        .autocomplete-results.active { display: block; }
-        .autocomplete-item {
-            padding: 12px 16px;
-            color: var(--text-main);
-            cursor: pointer;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 0.9rem;
-            transition: background 0.2s;
-        }
-        .autocomplete-item:last-child { border-bottom: none; }
-        .autocomplete-item:hover { background: rgba(0, 123, 255, 0.1); }
-        .autocomplete-main-text { font-weight: 700; color: #fff; }
-        .autocomplete-sub-text { font-size: 0.8rem; color: var(--text-muted); display: block; margin-top: 2px;}
-    </style>
-    <!-- Google Places Autocomplete API -->
     <script>
         // Initialise Google Places autocomplete once the Maps JS API is ready
         function initAutocomplete() {
             const addressInput = document.getElementById('quoteAddress');
             if (!addressInput) return;
+
+            // Reset stored coordinates
+            window.__quoteAutoLat = null;
+            window.__quoteAutoLng = null;
 
             const autocomplete = new google.maps.places.Autocomplete(addressInput, {
                 componentRestrictions: { country: 'au' },
@@ -1289,17 +1268,32 @@
                 fields: ['formatted_address', 'geometry', 'address_components']
             });
 
-            // When user selects an address, populate the field
+            // When user selects an address, store lat/lng for backend
             autocomplete.addListener('place_changed', () => {
                 const place = autocomplete.getPlace();
                 if (place.formatted_address) {
                     addressInput.value = place.formatted_address;
                 }
+                if (place.geometry && place.geometry.location) {
+                    window.__quoteAutoLat = place.geometry.location.lat();
+                    window.__quoteAutoLng = place.geometry.location.lng();
+                }
             });
 
-            // Prevent form submit on Enter inside the autocomplete
+            // Clear stored coordinates when user manually edits the address
+            addressInput.addEventListener('input', () => {
+                window.__quoteAutoLat = null;
+                window.__quoteAutoLng = null;
+            });
+
+            // Prevent form submit on Enter inside the autocomplete dropdown
             addressInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') e.preventDefault();
+                if (e.key === 'Enter') {
+                    const pacContainer = document.querySelector('.pac-container');
+                    if (pacContainer && pacContainer.style.display !== 'none') {
+                        e.preventDefault();
+                    }
+                }
             });
         }
     </script>
