@@ -493,9 +493,10 @@ export default async function handler(req, res) {
   const quote = calculateQuote(roofData, cleanJobType, postcode);
 
   // Step 4: Build response
+  // Use original address for display (Nominatim often drops house numbers)
   const response = {
     success: true,
-    address: formattedAddress,
+    address: cleanAddress,
     coordinates: { lat, lng },
     postcode,
     job_type: CONFIG.JOB_TYPE_LABELS[cleanJobType] || cleanJobType,

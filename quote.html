@@ -201,6 +201,10 @@
             cursor: not-allowed;
         }
 
+        .qf-submit [hidden] {
+            display: none !important;
+        }
+
         .qf-submit.is-loading {
             background: var(--bg-secondary);
             border-color: var(--border-color);
@@ -1099,6 +1103,7 @@
 
             // ── Render Results ────────────────────────
             function renderResults(data) {
+                hideError();
                 document.getElementById('resultsAddress').textContent = data.address;
 
                 // Image
