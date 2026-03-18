@@ -38,7 +38,7 @@ const CONFIG = {
   // Location notes
   LOCATION_NOTES: {
     coastal:
-      "🌊 Coastal location detected — we recommend Colorbond® Ultra for superior corrosion resistance in salt-air environments.",
+      "🌊 Coastal location detected — we recommend Colorbond® steel rated for coastal environments to ensure long-term corrosion resistance.",
     seq_default:
       "🏠 Recommended Colorbond® steel for superior SEQ storm durability and cyclone-rated fastening systems.",
   },
@@ -238,24 +238,26 @@ function parseGoogleSolarResponse(data, lat, lng, apiKey) {
       ? Math.round(parseFloat(wholeRoof.areaMeters2) * 10) / 10
       : 0;
 
-    // Pitch — weighted average across roof segments
+    // Pitch — use the largest roof segment (main roof) rather than
+    // a weighted average, which can be skewed by flat carports/garages
     const segments = solar.roofSegmentStats || [];
     let pitchDegrees = null;
     let pitch = "unknown";
 
     if (segments.length > 0) {
-      let totalArea = 0;
-      let weightedPitch = 0;
+      let largestArea = 0;
+      let mainPitch = 0;
       for (const seg of segments) {
         const segArea =
           seg.stats && seg.stats.areaMeters2 ? seg.stats.areaMeters2 : 0;
-        const segPitch =
-          typeof seg.pitchDegrees === "number" ? seg.pitchDegrees : 0;
-        weightedPitch += segPitch * segArea;
-        totalArea += segArea;
+        if (segArea > largestArea) {
+          largestArea = segArea;
+          mainPitch =
+            typeof seg.pitchDegrees === "number" ? seg.pitchDegrees : 0;
+        }
       }
-      if (totalArea > 0) {
-        pitchDegrees = Math.round((weightedPitch / totalArea) * 10) / 10;
+      if (largestArea > 0) {
+        pitchDegrees = Math.round(mainPitch * 10) / 10;
         pitch = pitchDegrees > 25 ? "high" : pitchDegrees > 15 ? "medium" : "low";
       }
     }
