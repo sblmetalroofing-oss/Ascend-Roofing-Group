@@ -29,15 +29,11 @@ const CONFIG = {
   SEQ_POSTCODE_MIN: 4000,
   SEQ_POSTCODE_MAX: 4600,
 
-  // Vexcel API
-  VEXCEL_AUTH_URL: "https://api.vexcelgroup.com/v2/auth/login",
-  VEXCEL_PROPERTY_EXTRACT_URL:
-    "https://api.vexcelgroup.com/v2/property/extract",
-  VEXCEL_PROPERTY_GENERATE_URL:
-    "https://api.vexcelgroup.com/v2/property/generate",
-
-  // Roof condition mapping (Vexcel scores 1-4 → labels)
-  ROOF_CONDITION_MAP: { 1: "poor", 2: "poor", 3: "fair", 4: "good" },
+  // Google Solar API
+  GOOGLE_SOLAR_API_URL:
+    "https://solar.googleapis.com/v1/buildingInsights:findClosest",
+  GOOGLE_STATIC_MAP_URL:
+    "https://maps.googleapis.com/maps/api/staticmap",
 
   // Location notes
   LOCATION_NOTES: {
@@ -187,154 +183,111 @@ async function geocodeAddress(address) {
   }
 }
 
-// ─── Vexcel API Integration ───────────────────────────────
+// ─── Google Solar API Integration ─────────────────────────
 
-async function vexcelAuthenticate() {
-  const username = process.env.VEXCEL_USERNAME;
-  const password = process.env.VEXCEL_PASSWORD;
-
-  if (!username || !password) {
-    console.warn("Vexcel credentials not configured — skipping API call");
-    return null;
-  }
-
-  try {
-    const resp = await fetch(CONFIG.VEXCEL_AUTH_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
-    });
-
-    if (!resp.ok) {
-      console.error(`Vexcel auth failed with status ${resp.status}`);
-      return null;
-    }
-
-    const data = await resp.json();
-    const token = data.token || data.access_token;
-    if (token) {
-      console.log("Vexcel authentication successful");
-      return token;
-    }
-    console.error("Vexcel auth response missing token:", data);
-    return null;
-  } catch (err) {
-    console.error("Vexcel authentication error:", err);
-    return null;
-  }
+function getGoogleApiKey() {
+  return process.env.GOOGLE_MAPS_API_KEY || "";
 }
 
 async function getRoofData(lat, lng) {
-  const token = await vexcelAuthenticate();
-  if (!token) {
-    return fallbackRoofData("Vexcel API credentials not configured");
+  const apiKey = getGoogleApiKey();
+  if (!apiKey) {
+    return fallbackRoofData("Google Maps API key not configured");
   }
 
-  const headers = { Authorization: `Bearer ${token}` };
-  const params = new URLSearchParams({ lat: String(lat), lon: String(lng) });
+  const params = new URLSearchParams({
+    "location.latitude": String(lat),
+    "location.longitude": String(lng),
+    requiredQuality: "MEDIUM",
+    key: apiKey,
+  });
 
   try {
-    // Try cached data first
-    let resp = await fetch(`${CONFIG.VEXCEL_PROPERTY_EXTRACT_URL}?${params}`, {
-      headers,
+    const resp = await fetch(`${CONFIG.GOOGLE_SOLAR_API_URL}?${params}`, {
+      headers: { Accept: "application/json" },
     });
 
     if (resp.ok) {
-      return parseVexcelResponse(await resp.json());
+      return parseGoogleSolarResponse(await resp.json(), lat, lng, apiKey);
     }
 
-    // Fallback: on-demand generation
-    if (resp.status === 404 || resp.status === 204) {
-      console.log("No cached Vexcel data — trying on-demand generation");
-      resp = await fetch(`${CONFIG.VEXCEL_PROPERTY_GENERATE_URL}?${params}`, {
-        headers,
-      });
-      if (resp.ok) {
-        return parseVexcelResponse(await resp.json());
-      }
+    if (resp.status === 404) {
+      return fallbackRoofData("No building data available at this location");
     }
 
-    console.warn(`Vexcel API returned status ${resp.status}`);
-    return fallbackRoofData(`Vexcel API returned status ${resp.status}`);
+    console.warn(`Google Solar API returned status ${resp.status}`);
+    const errBody = await resp.text();
+    console.warn("Response body:", errBody);
+    return fallbackRoofData(`Google Solar API returned status ${resp.status}`);
   } catch (err) {
-    console.error("Vexcel API request error:", err);
+    console.error("Google Solar API request error:", err);
     return fallbackRoofData(String(err));
   }
 }
 
-function parseVexcelResponse(data) {
+function parseGoogleSolarResponse(data, lat, lng, apiKey) {
   try {
-    let structures = data.structures || data.buildings || [];
-    if (!Array.isArray(structures) || structures.length === 0) {
-      if (JSON.stringify(data).toLowerCase().includes("roof_area")) {
-        structures = [data];
-      } else {
-        return fallbackRoofData("No structures found in API response");
+    const solar = data.solarPotential;
+    if (!solar) {
+      return fallbackRoofData("No solar potential data in API response");
+    }
+
+    // Area — use wholeRoofStats (actual roof area accounting for tilt)
+    const wholeRoof = solar.wholeRoofStats || {};
+    const areaSqm = wholeRoof.areaMeters2
+      ? Math.round(parseFloat(wholeRoof.areaMeters2) * 10) / 10
+      : 0;
+
+    // Pitch — weighted average across roof segments
+    const segments = solar.roofSegmentStats || [];
+    let pitchDegrees = null;
+    let pitch = "unknown";
+
+    if (segments.length > 0) {
+      let totalArea = 0;
+      let weightedPitch = 0;
+      for (const seg of segments) {
+        const segArea =
+          seg.stats && seg.stats.areaMeters2 ? seg.stats.areaMeters2 : 0;
+        const segPitch =
+          typeof seg.pitchDegrees === "number" ? seg.pitchDegrees : 0;
+        weightedPitch += segPitch * segArea;
+        totalArea += segArea;
+      }
+      if (totalArea > 0) {
+        pitchDegrees = Math.round((weightedPitch / totalArea) * 10) / 10;
+        pitch = pitchDegrees > 25 ? "high" : pitchDegrees > 15 ? "medium" : "low";
       }
     }
 
-    const structure = structures[0];
-    const roof = structure.roof || structure;
+    // Condition & material — not provided by Google Solar API
+    const condition = "unknown";
+    const material = "Unknown";
 
-    // Area
-    const areaSqft =
-      roof.roof_area_sqft || roof.area_sqft || roof.total_area_sqft || 0;
-    let areaSqm = roof.roof_area_sqm || roof.area_sqm || roof.total_area_sqm;
-    if (!areaSqm && areaSqft) {
-      areaSqm = Math.round(parseFloat(areaSqft) * 0.0929 * 10) / 10;
-    }
-    areaSqm = areaSqm ? parseFloat(areaSqm) : 0;
-
-    // Condition
-    const condScore =
-      roof.condition_score || roof.roof_condition_score || roof.condition;
-    let condition = "unknown";
-    if (typeof condScore === "number") {
-      condition = CONFIG.ROOF_CONDITION_MAP[Math.round(condScore)] || "unknown";
-    } else if (typeof condScore === "string") {
-      condition = condScore.toLowerCase();
-    }
-
-    // Pitch
-    const pitchRaw = roof.pitch || roof.roof_pitch || "unknown";
-    let pitch = "unknown";
-    let pitchDegrees = null;
-    if (typeof pitchRaw === "number") {
-      pitchDegrees = Math.round(pitchRaw * 10) / 10;
-      pitch = pitchRaw > 25 ? "high" : pitchRaw > 15 ? "medium" : "low";
-    } else if (typeof pitchRaw === "string") {
-      pitch = pitchRaw.toLowerCase();
-    }
-
-    // Material
-    const material =
-      roof.material || roof.roof_material || roof.roof_type || "unknown";
-
-    // Image
-    const imageUrl =
-      data.ortho_image_url ||
-      data.image_url ||
-      data.thumbnail_url ||
-      roof.image_url ||
-      null;
+    // Satellite image via Google Maps Static API
+    const imageParams = new URLSearchParams({
+      center: `${lat},${lng}`,
+      zoom: "20",
+      size: "600x400",
+      maptype: "satellite",
+      key: apiKey,
+    });
+    const imageUrl = `${CONFIG.GOOGLE_STATIC_MAP_URL}?${imageParams}`;
 
     return {
       has_data: true,
-      area_sqm: Math.round(areaSqm * 10) / 10,
-      area_sqft: areaSqft ? Math.round(parseFloat(areaSqft) * 10) / 10 : null,
+      area_sqm: areaSqm,
+      area_sqft: areaSqm ? Math.round(areaSqm * 10.7639 * 10) / 10 : null,
       condition,
-      condition_score: condScore,
+      condition_score: null,
       pitch,
       pitch_degrees: pitchDegrees,
-      material:
-        material !== "unknown"
-          ? String(material).charAt(0).toUpperCase() + String(material).slice(1)
-          : "Unknown",
+      material,
       image_url: imageUrl,
-      source: "Vexcel Aerial Imagery",
+      source: "Google Solar API",
     };
   } catch (err) {
-    console.error("Error parsing Vexcel response:", err);
+    console.error("Error parsing Google Solar response:", err);
     return fallbackRoofData(`Error parsing roof data: ${err}`);
   }
 }
@@ -531,7 +484,7 @@ export default async function handler(req, res) {
     `Geocoded: ${formattedAddress} → (${lat}, ${lng}) postcode=${postcode}`,
   );
 
-  // Step 2: Vexcel roof data
+  // Step 2: Google Solar roof data
   const roofData = await getRoofData(lat, lng);
 
   // Step 3: Calculate quote
