@@ -1077,6 +1077,16 @@
                     return;
                 }
 
+                // Rate limit: 1 quote per hour
+                const lastQuoteTime = parseInt(localStorage.getItem('lastQuoteTime') || '0', 10);
+                const cooldownMs = 60 * 60 * 1000; // 1 hour
+                const elapsed = Date.now() - lastQuoteTime;
+                if (lastQuoteTime && elapsed < cooldownMs) {
+                    const minsLeft = Math.ceil((cooldownMs - elapsed) / 60000);
+                    showError(`You can only generate one quote per hour. Please try again in ${minsLeft} minute${minsLeft === 1 ? '' : 's'}.`);
+                    return;
+                }
+
                 setLoading(true);
 
                 try {
@@ -1103,6 +1113,7 @@
                     }
 
                     renderResults(data);
+                    localStorage.setItem('lastQuoteTime', String(Date.now()));
                 } catch (err) {
                     console.error('Quote request failed:', err);
                     showError('Network error — please check your connection and try again.');
