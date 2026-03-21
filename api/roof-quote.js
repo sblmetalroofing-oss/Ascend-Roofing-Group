@@ -15,15 +15,20 @@ const CONFIG = {
     replacement: 1.15,
     repair: 0.5,
   },
+
+  // Repair jobs: cap area to avoid inflated quotes for small patch jobs
+  REPAIR_MAX_AREA_SQM: 50,
   JOB_TYPE_LABELS: {
     new_metal_install: "New Metal Install",
     replacement: "Replacement",
     repair: "Repair",
   },
 
-  // Coastal postcodes (Gold Coast region)
-  COASTAL_POSTCODE_MIN: 4200,
-  COASTAL_POSTCODE_MAX: 4299,
+  // Coastal postcodes (Gold Coast / coastal SEQ)
+  COASTAL_POSTCODES: [
+    [4130, 4130], // Ormeau / Pimpama
+    [4200, 4399], // Gold Coast region including Coolangatta
+  ],
 
   // SEQ service area
   SEQ_POSTCODE_MIN: 4000,
@@ -67,10 +72,9 @@ function sanitize(str) {
 
 function isCoastalPostcode(postcode) {
   const pc = parseInt(postcode, 10);
-  return (
-    !isNaN(pc) &&
-    pc >= CONFIG.COASTAL_POSTCODE_MIN &&
-    pc <= CONFIG.COASTAL_POSTCODE_MAX
+  if (isNaN(pc)) return false;
+  return CONFIG.COASTAL_POSTCODES.some(
+    ([min, max]) => pc >= min && pc <= max,
   );
 }
 
@@ -325,7 +329,11 @@ function calculateQuote(roofData, jobType, postcode) {
     };
   }
 
-  const areaSqm = roofData.area_sqm;
+  // For repairs, cap area so quotes aren't inflated for small patch jobs
+  const areaSqm =
+    jobType === "repair"
+      ? Math.min(roofData.area_sqm, CONFIG.REPAIR_MAX_AREA_SQM)
+      : roofData.area_sqm;
   const pitch = roofData.pitch || "unknown";
   const condition = roofData.condition || "unknown";
 
