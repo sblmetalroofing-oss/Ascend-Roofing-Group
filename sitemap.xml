@@ -680,12 +680,6 @@
         <changefreq>monthly</changefreq>
     </url>
     <url>
-        <loc>https://www.ascendroofinggroup.com.au/service-areas/roofing-calamvale.html</loc>
-        <lastmod>2026-03-11</lastmod>
-        <priority>0.6</priority>
-        <changefreq>monthly</changefreq>
-    </url>
-    <url>
         <loc>https://www.ascendroofinggroup.com.au/service-areas/roofing-parkinson.html</loc>
         <lastmod>2026-03-11</lastmod>
         <priority>0.6</priority>
@@ -1820,12 +1814,6 @@
         <changefreq>monthly</changefreq>
     </url>
     <url>
-        <loc>https://www.ascendroofinggroup.com.au/service-areas/roofing-elanora.html</loc>
-        <lastmod>2026-03-11</lastmod>
-        <priority>0.6</priority>
-        <changefreq>monthly</changefreq>
-    </url>
-    <url>
         <loc>https://www.ascendroofinggroup.com.au/service-areas/roofing-bribie-island.html</loc>
         <lastmod>2026-03-11</lastmod>
         <priority>0.6</priority>
@@ -1925,6 +1913,38 @@
         <loc>https://www.ascendroofinggroup.com.au/service-areas/roofing-elimbah.html</loc>
         <lastmod>2026-03-11</lastmod>
         <priority>0.6</priority>
+        <changefreq>monthly</changefreq>
+    </url>
+
+    <!-- Blog -->
+    <url>
+        <loc>https://www.ascendroofinggroup.com.au/blog/</loc>
+        <lastmod>2026-03-21</lastmod>
+        <priority>0.7</priority>
+        <changefreq>weekly</changefreq>
+    </url>
+    <url>
+        <loc>https://www.ascendroofinggroup.com.au/blog/how-much-roof-replacement-cost-brisbane-2026.html</loc>
+        <lastmod>2026-03-21</lastmod>
+        <priority>0.7</priority>
+        <changefreq>monthly</changefreq>
+    </url>
+    <url>
+        <loc>https://www.ascendroofinggroup.com.au/blog/signs-roof-needs-replacing-brisbane.html</loc>
+        <lastmod>2026-03-21</lastmod>
+        <priority>0.7</priority>
+        <changefreq>monthly</changefreq>
+    </url>
+    <url>
+        <loc>https://www.ascendroofinggroup.com.au/blog/best-metal-roofing-materials-queensland-2026.html</loc>
+        <lastmod>2026-03-21</lastmod>
+        <priority>0.7</priority>
+        <changefreq>monthly</changefreq>
+    </url>
+    <url>
+        <loc>https://www.ascendroofinggroup.com.au/blog/asbestos-roof-removal-brisbane-guide.html</loc>
+        <lastmod>2026-03-21</lastmod>
+        <priority>0.7</priority>
         <changefreq>monthly</changefreq>
     </url>
 </urlset>
