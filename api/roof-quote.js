@@ -24,10 +24,12 @@ const CONFIG = {
     repair: "Repair",
   },
 
-  // Coastal postcodes (Gold Coast / coastal SEQ)
+  // Coastal postcodes — beachfront suburbs only
   COASTAL_POSTCODES: [
-    [4130, 4130], // Ormeau / Pimpama
-    [4200, 4399], // Gold Coast region including Coolangatta
+    [4217, 4218], // Surfers Paradise, Main Beach, Broadbeach, Mermaid Beach
+    [4220, 4221], // Burleigh Heads, Miami, Palm Beach, Elanora
+    [4223, 4225], // Coolangatta, Bilinga, Tugun, Currumbin
+    [4507, 4507], // Bribie Island (Woorim, Bongaree, Banksia Beach)
   ],
 
   // SEQ service area
