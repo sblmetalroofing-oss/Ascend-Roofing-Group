@@ -202,7 +202,7 @@ export default async function handler(req, res) {
 
         const { data, error } = await resend.emails.send({
             from: process.env.FROM_EMAIL || 'Ascend Website <onboarding@resend.dev>',
-            to: process.env.BUSINESS_EMAIL || 'delivered@resend.dev',
+            to: process.env.BUSINESS_EMAIL || 'admin@ascendroofinggroup.com.au',
             subject: `Subcontractor Pack: ${safeData.businessName} — ${safeData.firstName} ${safeData.lastName}`,
             attachments: attachments,
             html: `
