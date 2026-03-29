@@ -5,7 +5,9 @@
     "type": "module",
     "scripts": {
         "build": "node build.js",
-        "serve": "npx serve ."
+        "serve": "npx serve .",
+        "test": "NODE_OPTIONS=--experimental-vm-modules jest",
+        "test:coverage": "NODE_OPTIONS=--experimental-vm-modules jest --coverage"
     },
     "author": "Ascend Roofing Group",
     "license": "UNLICENSED",
@@ -13,5 +15,12 @@
         "resend": "^4.0.0",
         "openai": "^4.28.0",
         "@vercel/postgres": "^0.5.1"
+    },
+    "devDependencies": {
+        "jest": "^29.7.0"
+    },
+    "jest": {
+        "testEnvironment": "node",
+        "transform": {}
     }
 }

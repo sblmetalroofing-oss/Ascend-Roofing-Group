@@ -33,8 +33,10 @@ export default async function handler(req, res) {
     const safeSignature = isTyped ? sanitize(signature) : '[Drawn Signature - see image below]';
 
     // Build signature image tag if drawn
+    // Strictly validate the data URL to prevent protocol-based XSS (e.g. javascript: URLs)
+    const isValidDataUrl = /^data:image\/(png|jpeg|jpg|gif|webp|svg\+xml);base64,[A-Za-z0-9+/]+=*$/.test(signature);
     let signatureHtml = `<p>${safeSignature}</p>`;
-    if (!isTyped && signature && signature.startsWith('data:image')) {
+    if (!isTyped && signature && isValidDataUrl) {
         signatureHtml = `<img src="${signature}" alt="Customer Signature" style="max-width:400px; border:1px solid #ccc; padding:8px; background:#fff;">`;
     }
 
