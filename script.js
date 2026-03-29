@@ -208,14 +208,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ---- SPIN ANIMATION FOR LOADING ----
-  const style = document.createElement("style");
-  style.textContent = `
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .spin { animation: spin 0.8s linear infinite; }
-    `;
-  document.head.appendChild(style);
-
   // ---- FAQ ACCORDION ----
   const faqItems = document.querySelectorAll(".faq-item");
   faqItems.forEach((item) => {
