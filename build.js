@@ -470,6 +470,42 @@ async function build() {
         <priority>0.3</priority>
         <changefreq>yearly</changefreq>
     </url>
+    <url>
+        <loc>${CONFIG.baseUrl}/quote.html</loc>
+        <lastmod>${today}</lastmod>
+        <priority>0.8</priority>
+        <changefreq>monthly</changefreq>
+    </url>
+    <url>
+        <loc>${CONFIG.baseUrl}/blog/</loc>
+        <lastmod>${today}</lastmod>
+        <priority>0.7</priority>
+        <changefreq>weekly</changefreq>
+    </url>
+    <url>
+        <loc>${CONFIG.baseUrl}/blog/asbestos-roof-removal-brisbane-guide.html</loc>
+        <lastmod>2026-03-08</lastmod>
+        <priority>0.6</priority>
+        <changefreq>monthly</changefreq>
+    </url>
+    <url>
+        <loc>${CONFIG.baseUrl}/blog/best-metal-roofing-materials-queensland-2026.html</loc>
+        <lastmod>2026-03-08</lastmod>
+        <priority>0.6</priority>
+        <changefreq>monthly</changefreq>
+    </url>
+    <url>
+        <loc>${CONFIG.baseUrl}/blog/how-much-roof-replacement-cost-brisbane-2026.html</loc>
+        <lastmod>2026-03-08</lastmod>
+        <priority>0.6</priority>
+        <changefreq>monthly</changefreq>
+    </url>
+    <url>
+        <loc>${CONFIG.baseUrl}/blog/signs-roof-needs-replacing-brisbane.html</loc>
+        <lastmod>2026-03-08</lastmod>
+        <priority>0.6</priority>
+        <changefreq>monthly</changefreq>
+    </url>
     ${sitemapUrls
       .map(
         (url) => `
@@ -485,7 +521,7 @@ async function build() {
 
   fs.writeFileSync(CONFIG.sitemapPath, sitemapContent);
   console.log(
-    `Sitemap generated at ${CONFIG.sitemapPath} with ${sitemapUrls.length + 2} URLs.`,
+    `Sitemap generated at ${CONFIG.sitemapPath} with ${sitemapUrls.length + 8} URLs.`,
   );
 
   console.log("Build Complete!");
