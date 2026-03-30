@@ -1833,3 +1833,147 @@ textarea {
 .autocomplete-main-text { font-weight: 700; color: #fff; }
 .autocomplete-sub-text { font-size: 0.8rem; color: var(--text-muted); display: block; margin-top: 2px; }
 
+/* ============================================
+   FAQ SECTION (replaces Tailwind utilities)
+   ============================================ */
+.faq-section {
+  padding: 80px 0;
+  background: #161616;
+}
+
+.faq-section .faq-inner {
+  max-width: 896px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.faq-section .faq-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.faq-section .faq-tag {
+  display: block;
+  color: var(--accent-color);
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.faq-section .faq-title {
+  font-size: clamp(1.875rem, 4vw, 2.25rem);
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 16px;
+}
+
+.faq-section .faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.faq-section .faq-card {
+  background: #202020;
+  border: 1px solid #2a2a2a;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.faq-section .faq-card h3 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.faq-section .faq-card p {
+  color: #9ca3af;
+  font-size: 0.875rem;
+  line-height: 1.625;
+}
+
+.faq-section .faq-card a {
+  color: var(--accent-color);
+  transition: color 0.2s;
+}
+
+.faq-section .faq-card a:hover {
+  color: #fff;
+}
+
+.faq-section .faq-cta {
+  text-align: center;
+  margin-top: 40px;
+}
+
+.faq-section .faq-cta a {
+  color: var(--accent-color);
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s;
+}
+
+.faq-section .faq-cta a:hover {
+  color: #fff;
+}
+
+/* ============================================
+   SERVICE CARD LINKS (replaces Tailwind utilities)
+   ============================================ */
+.service-card h3 a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.service-card h3 a:hover {
+  color: var(--accent-color);
+}
+
+/* ============================================
+   FLOATING MOBILE CTA (replaces Tailwind utilities)
+   ============================================ */
+.floating-phone-cta {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #007bff;
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 9999px;
+  font-weight: 700;
+  box-shadow: 0 10px 25px rgba(0, 123, 255, 0.4);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.3s, background 0.3s;
+  text-decoration: none;
+}
+
+.floating-phone-cta:hover {
+  background: #0056b3;
+  transform: translateY(-4px);
+  color: #fff;
+}
+
+.floating-phone-cta svg {
+  width: 16px;
+  height: 16px;
+}
+
+@media (min-width: 768px) {
+  .floating-phone-cta {
+    display: none;
+  }
+}
+
