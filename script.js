@@ -186,6 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (response.ok) {
           const wrapper = contactForm.parentElement;
+          const firstName = (data.name || "").split(" ")[0].replace(/[<>&"']/g, "");
           wrapper.innerHTML = `
                         <div class="form-success">
                             <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -193,7 +194,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                 <polyline points="9 12 12 15 16 9"/>
                             </svg>
                             <h3>Quote Request Sent!</h3>
-                            <p>Thanks for reaching out, ${data.name.split(" ")[0]}. We'll get back to you within 24 hours.</p>
+                            <p>Thanks for reaching out, ${firstName}. We'll get back to you within 24 hours.</p>
                         </div>
                     `;
         } else {
