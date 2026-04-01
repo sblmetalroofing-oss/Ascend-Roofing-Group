@@ -431,7 +431,7 @@ function getLocationNote(postcode, coastal = false) {
 
 // ─── Lead Capture ─────────────────────────────────────────
 
-async function captureLead({ email, firstName, lastName, phone, address, jobType, quote }) {
+async function captureLead({ email, firstName, lastName, phone, address, jobType, quote, roof }) {
   const jobLabel = CONFIG.JOB_TYPE_LABELS[jobType] || jobType;
   const quoteRange = quote.available
     ? `$${Math.round(quote.range_low).toLocaleString()} – $${Math.round(quote.range_high).toLocaleString()} AUD`
@@ -453,6 +453,79 @@ async function captureLead({ email, firstName, lastName, phone, address, jobType
   if (process.env.RESEND_API_KEY) {
     try {
       const resend = new Resend(process.env.RESEND_API_KEY);
+
+      // Build roof analysis section
+      const roofSection = roof && roof.has_data
+        ? `<h3 style="color:#e67e22; margin:24px 0 12px;">Roof Analysis</h3>
+           <table style="border-collapse:collapse; width:100%; max-width:500px;">
+             <tr>
+               <td style="padding:8px; border:1px solid #ddd; font-weight:bold;">Roof Area</td>
+               <td style="padding:8px; border:1px solid #ddd;">${sanitize(String(roof.area_sqm))} m²</td>
+             </tr>
+             <tr>
+               <td style="padding:8px; border:1px solid #ddd; font-weight:bold;">Roof Pitch</td>
+               <td style="padding:8px; border:1px solid #ddd;">${sanitize(roof.pitch ? roof.pitch.charAt(0).toUpperCase() + roof.pitch.slice(1) : "Unknown")}${roof.pitch_degrees != null ? ` (${sanitize(String(roof.pitch_degrees))}°)` : ""}</td>
+             </tr>
+             <tr>
+               <td style="padding:8px; border:1px solid #ddd; font-weight:bold;">Data Source</td>
+               <td style="padding:8px; border:1px solid #ddd;">${sanitize(roof.source || "N/A")}</td>
+             </tr>
+           </table>`
+        : "";
+
+      // Build quote breakdown section
+      let quoteSection = "";
+      if (quote.available) {
+        const fmt = (n) => `$${Math.round(n).toLocaleString()}`;
+
+        let breakdownRows = `
+          <tr>
+            <td style="padding:8px; border:1px solid #ddd;">Base (${sanitize(String(quote.area_sqm))} m² × $${quote.base_rate_per_sqm}/m²)</td>
+            <td style="padding:8px; border:1px solid #ddd; text-align:right;">${sanitize(fmt(quote.base_amount / quote.job_type_multiplier))}</td>
+          </tr>`;
+
+        if (quote.job_type_multiplier !== 1.0) {
+          breakdownRows += `
+          <tr>
+            <td style="padding:8px; border:1px solid #ddd;">Job type multiplier</td>
+            <td style="padding:8px; border:1px solid #ddd; text-align:right;">×${sanitize(String(quote.job_type_multiplier))}</td>
+          </tr>`;
+        }
+
+        for (const sc of quote.surcharges) {
+          breakdownRows += `
+          <tr>
+            <td style="padding:8px; border:1px solid #ddd; color:#e67e22;">${sanitize(sc.name)} (${sanitize(sc.rate)})</td>
+            <td style="padding:8px; border:1px solid #ddd; text-align:right; color:#e67e22;">+${sanitize(fmt(sc.amount))}</td>
+          </tr>`;
+        }
+
+        breakdownRows += `
+          <tr>
+            <td style="padding:8px; border:1px solid #ddd; font-weight:bold;">Estimated Total</td>
+            <td style="padding:8px; border:1px solid #ddd; text-align:right; font-weight:bold;">${sanitize(fmt(quote.estimated_total))}</td>
+          </tr>`;
+
+        quoteSection = `
+          <h3 style="color:#e67e22; margin:24px 0 12px;">Estimated Quote</h3>
+          <p style="font-size:20px; font-weight:bold; text-align:center; margin:12px 0;">
+            ${sanitize(quoteRange)} <span style="font-size:14px; font-weight:normal;">(incl. GST)</span>
+          </p>
+          <table style="border-collapse:collapse; width:100%; max-width:500px;">
+            ${breakdownRows}
+          </table>`;
+      } else {
+        quoteSection = `
+          <h3 style="color:#e67e22; margin:24px 0 12px;">Estimated Quote</h3>
+          <p>Manual quote required — no automated estimate available.</p>`;
+      }
+
+      // Build notes section
+      const notesHtml = quote.notes && quote.notes.length > 0
+        ? `<h3 style="color:#e67e22; margin:24px 0 12px;">Recommendations</h3>
+           <ul style="margin:0; padding-left:20px;">${quote.notes.map((n) => `<li style="padding:4px 0;">${sanitize(n)}</li>`).join("")}</ul>`
+        : "";
+
       await resend.emails.send({
         from:
           process.env.FROM_EMAIL || "Ascend Website <onboarding@resend.dev>",
@@ -460,34 +533,34 @@ async function captureLead({ email, firstName, lastName, phone, address, jobType
         replyTo: email,
         subject: `🏠 New Roof Quote Lead: ${sanitize(fullName)} — ${sanitize(address)}`,
         html: `
-                    <h2>New AI Roof Quote Lead</h2>
-                    <table style="border-collapse:collapse; width:100%; max-width:500px;">
-                        <tr>
-                            <td style="padding:8px; border:1px solid #ddd; font-weight:bold;">Name</td>
-                            <td style="padding:8px; border:1px solid #ddd;">${sanitize(fullName)}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding:8px; border:1px solid #ddd; font-weight:bold;">Phone</td>
-                            <td style="padding:8px; border:1px solid #ddd;">${sanitize(phone)}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding:8px; border:1px solid #ddd; font-weight:bold;">Email</td>
-                            <td style="padding:8px; border:1px solid #ddd;">${sanitize(email)}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding:8px; border:1px solid #ddd; font-weight:bold;">Address</td>
-                            <td style="padding:8px; border:1px solid #ddd;">${sanitize(address)}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding:8px; border:1px solid #ddd; font-weight:bold;">Job Type</td>
-                            <td style="padding:8px; border:1px solid #ddd;">${sanitize(jobLabel)}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding:8px; border:1px solid #ddd; font-weight:bold;">Estimated Quote</td>
-                            <td style="padding:8px; border:1px solid #ddd;">${sanitize(quoteRange)}</td>
-                        </tr>
-                    </table>
-                `,
+          <h2>New AI Roof Quote Lead</h2>
+          <h3 style="color:#e67e22; margin:24px 0 12px;">Customer Details</h3>
+          <table style="border-collapse:collapse; width:100%; max-width:500px;">
+            <tr>
+              <td style="padding:8px; border:1px solid #ddd; font-weight:bold;">Name</td>
+              <td style="padding:8px; border:1px solid #ddd;">${sanitize(fullName)}</td>
+            </tr>
+            <tr>
+              <td style="padding:8px; border:1px solid #ddd; font-weight:bold;">Phone</td>
+              <td style="padding:8px; border:1px solid #ddd;">${sanitize(phone)}</td>
+            </tr>
+            <tr>
+              <td style="padding:8px; border:1px solid #ddd; font-weight:bold;">Email</td>
+              <td style="padding:8px; border:1px solid #ddd;">${sanitize(email)}</td>
+            </tr>
+            <tr>
+              <td style="padding:8px; border:1px solid #ddd; font-weight:bold;">Address</td>
+              <td style="padding:8px; border:1px solid #ddd;">${sanitize(address)}</td>
+            </tr>
+            <tr>
+              <td style="padding:8px; border:1px solid #ddd; font-weight:bold;">Job Type</td>
+              <td style="padding:8px; border:1px solid #ddd;">${sanitize(jobLabel)}</td>
+            </tr>
+          </table>
+          ${roofSection}
+          ${quoteSection}
+          ${notesHtml}
+        `,
       });
       console.log("Lead notification email sent successfully");
     } catch (err) {
@@ -612,6 +685,7 @@ export default async function handler(req, res) {
       address: cleanAddress,
       jobType: cleanJobType,
       quote,
+      roof: roofData,
     });
   }
 
