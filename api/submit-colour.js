@@ -52,7 +52,7 @@ export default async function handler(req, res) {
         }
 
         const { data, error } = await resend.emails.send({
-            from: process.env.RESEND_FROM_EMAIL || 'Ascend Website <onboarding@resend.dev>',
+            from: process.env.FROM_EMAIL || 'Ascend Website <onboarding@resend.dev>',
             to: process.env.BUSINESS_EMAIL || 'admin@ascendroofinggroup.com.au',
             subject: `Colour Confirmation: ${safeFirst} ${safeLast} — ${safeAddress}`,
             html: `

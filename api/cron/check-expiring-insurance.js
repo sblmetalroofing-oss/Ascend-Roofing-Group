@@ -145,7 +145,7 @@ export default async function handler(req, res) {
 
             try {
                 const { data: emailData, error: emailError } = await resend.emails.send({
-                    from: process.env.RESEND_FROM_EMAIL || 'Ascend Roofing <onboarding@resend.dev>',
+                    from: process.env.FROM_EMAIL || 'Ascend Roofing <onboarding@resend.dev>',
                     to: process.env.BUSINESS_EMAIL || 'delivered@resend.dev',
                     subject: `⚠️ Insurance Expiring Soon: ${sub.business_name}`,
                     html: `
