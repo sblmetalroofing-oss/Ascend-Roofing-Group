@@ -1,27 +1,25 @@
 import { jest } from '@jest/globals';
 
-// ─── Mock openai before importing module ──────────────────
+// ─── Mock @anthropic-ai/sdk before importing module ──────────
 const mockCreate = jest.fn();
-jest.unstable_mockModule('openai', () => ({
+jest.unstable_mockModule('@anthropic-ai/sdk', () => ({
     default: jest.fn(() => ({
-        chat: {
-            completions: {
-                create: mockCreate
-            }
+        messages: {
+            create: mockCreate
         }
     }))
 }));
 
-function makeOpenAIResponse(content) {
+function makeClaudeResponse(content) {
     return {
-        choices: [{
-            message: { content }
+        content: [{
+            text: content
         }]
     };
 }
 
 function jsonResponse(obj) {
-    return makeOpenAIResponse(JSON.stringify(obj));
+    return makeClaudeResponse(JSON.stringify(obj));
 }
 
 describe('extractInsuranceData', () => {
@@ -34,16 +32,16 @@ describe('extractInsuranceData', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
-        process.env.OPENAI_API_KEY = 'test-key';
+        process.env.ANTHROPIC_API_KEY = 'test-key';
     });
 
     afterEach(() => {
-        delete process.env.OPENAI_API_KEY;
+        delete process.env.ANTHROPIC_API_KEY;
     });
 
     // ── Missing API key ───────────────────────────────────
-    test('returns success:false when OPENAI_API_KEY is not set', async () => {
-        delete process.env.OPENAI_API_KEY;
+    test('returns success:false when ANTHROPIC_API_KEY is not set', async () => {
+        delete process.env.ANTHROPIC_API_KEY;
         const result = await extractInsuranceData('base64data', 'image/png', 'public_liability');
         expect(result.success).toBe(false);
         expect(result.error).toMatch(/not configured/i);
@@ -51,7 +49,7 @@ describe('extractInsuranceData', () => {
     });
 
     // ── Bug fix verification: model name ─────────────────
-    test('calls OpenAI with gpt-4o model (not deprecated gpt-4-vision-preview)', async () => {
+    test('calls Claude with claude-sonnet-4-20250514 model', async () => {
         mockCreate.mockResolvedValueOnce(jsonResponse({
             document_type: 'Public Liability',
             expiry_date: '2026-06-30',
@@ -61,15 +59,12 @@ describe('extractInsuranceData', () => {
         }));
         await extractInsuranceData('base64data', 'image/png', 'public_liability');
         expect(mockCreate).toHaveBeenCalledWith(
-            expect.objectContaining({ model: 'gpt-4o' })
-        );
-        expect(mockCreate).not.toHaveBeenCalledWith(
-            expect.objectContaining({ model: 'gpt-4-vision-preview' })
+            expect.objectContaining({ model: 'claude-sonnet-4-20250514' })
         );
     });
 
-    // ── Bug fix verification: data URL format ─────────────
-    test('wraps base64 data in proper data URL for OpenAI image_url', async () => {
+    // ── Bug fix verification: image format ─────────────
+    test('sends base64 image data in Claude format', async () => {
         mockCreate.mockResolvedValueOnce(jsonResponse({
             document_type: 'Public Liability',
             expiry_date: '2026-06-30',
@@ -79,8 +74,12 @@ describe('extractInsuranceData', () => {
         }));
         await extractInsuranceData('AAABBBCCC===', 'image/jpeg', 'public_liability');
         const callArgs = mockCreate.mock.calls[0][0];
-        const imageContent = callArgs.messages[0].content.find(c => c.type === 'image_url');
-        expect(imageContent.image_url.url).toBe('data:image/jpeg;base64,AAABBBCCC===');
+        const imageContent = callArgs.messages[0].content.find(c => c.type === 'image');
+        expect(imageContent.source).toEqual({
+            type: 'base64',
+            media_type: 'image/jpeg',
+            data: 'AAABBBCCC==='
+        });
     });
 
     // ── Happy path ────────────────────────────────────────
@@ -195,29 +194,29 @@ describe('extractInsuranceData', () => {
     // ── Markdown-wrapped JSON response ────────────────────
     test('strips markdown code fences from JSON response', async () => {
         const rawContent = '```json\n{"document_type":"PL","expiry_date":"2026-06-30","policy_number":"P-001","insurer_name":"AAMI","confidence":0.9}\n```';
-        mockCreate.mockResolvedValueOnce(makeOpenAIResponse(rawContent));
+        mockCreate.mockResolvedValueOnce(makeClaudeResponse(rawContent));
         const result = await extractInsuranceData('base64data', 'image/png', 'public_liability');
         expect(result.success).toBe(true);
         expect(result.data.expiry_date).toBe('2026-06-30');
     });
 
-    // ── Non-JSON response from OpenAI ─────────────────────
-    test('returns success:false when OpenAI returns non-JSON', async () => {
-        mockCreate.mockResolvedValueOnce(makeOpenAIResponse('Sorry, I cannot read this document.'));
+    // ── Non-JSON response from Claude ─────────────────────
+    test('returns success:false when Claude returns non-JSON', async () => {
+        mockCreate.mockResolvedValueOnce(makeClaudeResponse('Sorry, I cannot read this document.'));
         const result = await extractInsuranceData('base64data', 'image/png', 'public_liability');
         expect(result.success).toBe(false);
         expect(result.error).toMatch(/invalid json/i);
     });
 
-    // ── No response content from OpenAI ───────────────────
-    test('returns success:false when OpenAI returns no content', async () => {
-        mockCreate.mockResolvedValueOnce({ choices: [{ message: { content: null } }] });
+    // ── No response content from Claude ───────────────────
+    test('returns success:false when Claude returns no content', async () => {
+        mockCreate.mockResolvedValueOnce({ content: [{ text: null }] });
         const result = await extractInsuranceData('base64data', 'image/png', 'public_liability');
         expect(result.success).toBe(false);
     });
 
-    // ── OpenAI API throws ─────────────────────────────────
-    test('returns success:false when OpenAI API throws', async () => {
+    // ── Claude API throws ─────────────────────────────────
+    test('returns success:false when Claude API throws', async () => {
         mockCreate.mockRejectedValueOnce(new Error('Network timeout'));
         const result = await extractInsuranceData('base64data', 'image/png', 'public_liability');
         expect(result.success).toBe(false);
@@ -250,8 +249,8 @@ describe('extractInsuranceData', () => {
         expect(result.data.confidence).toBe(0.5);
     });
 
-    // ── File type passed correctly in data URL ────────────
-    test('uses correct MIME type in data URL for PDF', async () => {
+    // ── File type passed correctly in source ─────────────
+    test('uses correct MIME type in source for PDF', async () => {
         mockCreate.mockResolvedValueOnce(jsonResponse({
             document_type: 'Workers Comp',
             expiry_date: '2026-06-30',
@@ -261,7 +260,11 @@ describe('extractInsuranceData', () => {
         }));
         await extractInsuranceData('PDFBASE64DATA', 'application/pdf', 'workers_comp');
         const callArgs = mockCreate.mock.calls[0][0];
-        const imageContent = callArgs.messages[0].content.find(c => c.type === 'image_url');
-        expect(imageContent.image_url.url).toBe('data:application/pdf;base64,PDFBASE64DATA');
+        const imageContent = callArgs.messages[0].content.find(c => c.type === 'image');
+        expect(imageContent.source).toEqual({
+            type: 'base64',
+            media_type: 'application/pdf',
+            data: 'PDFBASE64DATA'
+        });
     });
 });
