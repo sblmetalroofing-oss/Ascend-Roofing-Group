@@ -4,8 +4,8 @@ import { Resend } from "resend";
 // In-memory store: effective within a warm Vercel instance.
 // Limits cost exposure on Google Solar API + Resend.
 const _rlMap = new Map(); // ip -> { count, windowStart }
-const RL_WINDOW_MS = 60 * 60 * 1000; // 1 hour
-const RL_MAX = 5; // max 5 quote requests per IP per hour
+const RL_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
+const RL_MAX = 1; // max 1 quote request per IP per 5 minutes
 
 function isRateLimited(ip) {
   const now = Date.now();
