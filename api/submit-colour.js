@@ -37,12 +37,23 @@ export default async function handler(req, res) {
     const isTyped = typeof signature === 'string' && signature.startsWith('Typed:');
     const safeSignature = isTyped ? sanitize(signature) : '[Drawn Signature - see image below]';
 
-    // Build signature image tag if drawn
-    // Strictly validate the data URL to prevent protocol-based XSS (e.g. javascript: URLs)
-    const isValidDataUrl = /^data:image\/(png|jpeg|jpg|gif|webp|svg\+xml);base64,[A-Za-z0-9+/]+=*$/.test(signature);
+    // Build signature — data: URLs are blocked by email clients, so send as CID attachment
+    const isValidDataUrl = /^data:image\/(png|jpeg|jpg|gif|webp);base64,[A-Za-z0-9+/]+=*$/.test(signature);
     let signatureHtml = `<p>${safeSignature}</p>`;
+    let attachments = [];
     if (!isTyped && signature && isValidDataUrl) {
-        signatureHtml = `<img src="${signature}" alt="Customer Signature" style="max-width:400px; border:1px solid #ccc; padding:8px; background:#fff;">`;
+        // Extract mime type and base64 content from data URL
+        const mimeMatch = signature.match(/^data:image\/(png|jpeg|jpg|gif|webp);base64,(.+)$/);
+        const mimeType = `image/${mimeMatch[1]}`;
+        const base64Content = mimeMatch[2];
+        attachments = [{
+            filename: 'signature.png',
+            content: base64Content,
+            content_type: mimeType,
+            content_id: 'signature',
+            inline: true,
+        }];
+        signatureHtml = `<img src="cid:signature" alt="Customer Signature" style="max-width:400px; border:1px solid #ccc; padding:8px; background:#fff;">`;
     }
 
     try {
@@ -55,6 +66,7 @@ export default async function handler(req, res) {
             from: process.env.FROM_EMAIL || 'Ascend Website <onboarding@resend.dev>',
             to: process.env.BUSINESS_EMAIL || 'admin@ascendroofinggroup.com.au',
             subject: `Colour Confirmation: ${safeFirst} ${safeLast} — ${safeAddress}`,
+            attachments,
             html: `
         <h2>Colour Confirmation</h2>
         <table style="border-collapse:collapse; width:100%; max-width:500px;">

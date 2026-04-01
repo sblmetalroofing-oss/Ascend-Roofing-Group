@@ -103,17 +103,19 @@ describe('submit-quote handler', () => {
         expect(html).not.toContain('<b>');
     });
 
-    // ── Empty / missing optional fields ──────────────────
-    test('handles empty optional fields without crashing', async () => {
+    // ── Required field validation ─────────────────────────
+    test('returns 400 when required fields are missing (only name provided)', async () => {
         const res = makeRes();
         await handler(makeReq({ name: 'Test User' }), res);
-        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json.mock.calls[0][0].success).toBe(false);
     });
 
-    test('handles all undefined fields without crashing', async () => {
+    test('returns 400 when all fields are missing', async () => {
         const res = makeRes();
         await handler(makeReq({}), res);
-        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json.mock.calls[0][0].success).toBe(false);
     });
 
     // ── Email content ─────────────────────────────────────

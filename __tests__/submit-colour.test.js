@@ -64,11 +64,17 @@ describe('submit-colour handler', () => {
         expect(res.json.mock.calls[0][0].success).toBe(true);
     });
 
-    test('sends email with drawn signature as img tag when valid data URL', async () => {
+    test('sends email with drawn signature as CID inline attachment', async () => {
         const res = makeRes();
         await handler(makeReq({ ...validBase, signature: validImageDataUrl }), res);
-        const html = mockEmailSend.mock.calls[0][0].html;
-        expect(html).toContain('<img src="data:image/png;base64,');
+        const call = mockEmailSend.mock.calls[0][0];
+        // HTML should reference cid:signature, not a data URL (data URLs are blocked by email clients)
+        expect(call.html).toContain('<img src="cid:signature"');
+        expect(call.html).not.toContain('data:image');
+        // Attachment should carry the base64 content
+        expect(call.attachments).toHaveLength(1);
+        expect(call.attachments[0].content_id).toBe('signature');
+        expect(call.attachments[0].inline).toBe(true);
         expect(res.status).toHaveBeenCalledWith(200);
     });
 
@@ -96,12 +102,13 @@ describe('submit-colour handler', () => {
         expect(html).not.toContain('<img src="data:image/png;base64,<script>');
     });
 
-    test('accepts valid data:image/jpeg;base64,... signature', async () => {
+    test('accepts valid data:image/jpeg;base64,... signature as CID attachment', async () => {
         const jpegDataUrl = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/wAARC==';
         const res = makeRes();
         await handler(makeReq({ ...validBase, signature: jpegDataUrl }), res);
-        const html = mockEmailSend.mock.calls[0][0].html;
-        expect(html).toContain('<img src="data:image/jpeg;base64,');
+        const call = mockEmailSend.mock.calls[0][0];
+        expect(call.html).toContain('<img src="cid:signature"');
+        expect(call.attachments[0].content_type).toBe('image/jpeg');
     });
 
     // ── Sanitization ──────────────────────────────────────
