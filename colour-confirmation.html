@@ -727,6 +727,7 @@
                         </div>
                         <p class="signature-note">By signing above, you confirm your Colorbond&reg; colour selections for
                             this project.</p>
+                        <p class="signature-error" id="signatureError" style="display:none; color:#e53e3e; font-size:0.875rem; margin-top:0.5rem;"></p>
                     </div>
 
                     <input type="hidden" id="signatureData" name="signatureData">
@@ -946,8 +947,22 @@
             const errorEl = document.getElementById('colourFormError');
             const submitBtn = document.getElementById('colourSubmitBtn');
 
+            const sigError = document.getElementById('signatureError');
+
+            function showSigError(msg) {
+                sigError.textContent = msg;
+                sigError.style.display = 'block';
+                sigError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            function hideSigError() {
+                sigError.style.display = 'none';
+                sigError.textContent = '';
+            }
+
             form.addEventListener('submit', async function (e) {
                 e.preventDefault();
+                hideSigError();
 
                 // Get signature data
                 let sigData = '';
@@ -958,13 +973,13 @@
                     blankCanvas.width = canvas.width;
                     blankCanvas.height = canvas.height;
                     if (canvas.toDataURL() === blankCanvas.toDataURL()) {
-                        alert('Please provide your signature before submitting.');
+                        showSigError('Please provide your signature before submitting.');
                         return;
                     }
                 } else {
                     sigData = 'Typed: ' + typeInput.value.trim();
                     if (!typeInput.value.trim()) {
-                        alert('Please type your name as a signature.');
+                        showSigError('Please type your name as a signature.');
                         return;
                     }
                 }
@@ -1001,6 +1016,7 @@
                     }
                 } catch (err) {
                     errorEl.style.display = 'block';
+                    errorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     submitBtn.textContent = 'Submit Colour Confirmation';
                     submitBtn.disabled = false;
                 }

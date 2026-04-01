@@ -165,7 +165,11 @@ document.addEventListener("DOMContentLoaded", () => {
       e.preventDefault();
 
       const btn = document.getElementById("submitBtn");
+      const errorEl = document.getElementById("contactError");
       const originalHTML = btn.innerHTML;
+
+      if (errorEl) { errorEl.style.display = "none"; errorEl.textContent = ""; }
+
       btn.innerHTML = `
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin">
                     <path d="M12 2a10 10 0 1 0 10 10"/>
@@ -204,7 +208,10 @@ document.addEventListener("DOMContentLoaded", () => {
         console.error("Error:", error);
         btn.innerHTML = originalHTML;
         btn.disabled = false;
-        alert("Something went wrong. Please call us directly at 0490 196 284.");
+        if (errorEl) {
+          errorEl.textContent = "Something went wrong. Please call us directly at 0490 196 284.";
+          errorEl.style.display = "block";
+        }
       }
     });
   }

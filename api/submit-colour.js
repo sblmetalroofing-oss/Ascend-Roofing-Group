@@ -20,6 +20,11 @@ export default async function handler(req, res) {
 
     const { firstName, lastName, jobAddress, roofColour, gutterColour, fasciaColour, signature } = req.body;
 
+    // Validate required fields
+    if (!firstName || !lastName || !jobAddress) {
+        return res.status(400).json({ success: false, message: 'Missing required fields: firstName, lastName, jobAddress.' });
+    }
+
     // Sanitize all inputs
     const safeFirst = sanitize(firstName);
     const safeLast = sanitize(lastName);
@@ -47,7 +52,7 @@ export default async function handler(req, res) {
         }
 
         const { data, error } = await resend.emails.send({
-            from: process.env.FROM_EMAIL || 'Ascend Website <onboarding@resend.dev>',
+            from: process.env.RESEND_FROM_EMAIL || 'Ascend Website <onboarding@resend.dev>',
             to: process.env.BUSINESS_EMAIL || 'admin@ascendroofinggroup.com.au',
             subject: `Colour Confirmation: ${safeFirst} ${safeLast} — ${safeAddress}`,
             html: `
