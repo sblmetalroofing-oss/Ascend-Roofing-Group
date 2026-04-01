@@ -1147,11 +1147,23 @@
                 hideError();
                 document.getElementById('resultsAddress').textContent = data.address;
 
-                // Image
+                // Image — only render URLs from the expected Google Static Maps origin
                 const imageCard = document.getElementById('roofImageCard');
+                const roofImg = document.getElementById('roofImage');
+                const ALLOWED_IMAGE_HOST = 'maps.googleapis.com';
                 if (data.roof && data.roof.image_url) {
-                    document.getElementById('roofImage').src = data.roof.image_url;
-                    imageCard.hidden = false;
+                    let imgSafe = false;
+                    try {
+                        const parsed = new URL(data.roof.image_url);
+                        imgSafe = parsed.hostname === ALLOWED_IMAGE_HOST && parsed.protocol === 'https:';
+                    } catch (_) { /* invalid URL */ }
+                    if (imgSafe) {
+                        roofImg.src = data.roof.image_url;
+                        roofImg.alt = `Satellite view of ${data.address}`;
+                        imageCard.hidden = false;
+                    } else {
+                        imageCard.hidden = true;
+                    }
                 } else {
                     imageCard.hidden = true;
                 }

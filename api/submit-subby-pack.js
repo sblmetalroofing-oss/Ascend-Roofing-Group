@@ -127,8 +127,10 @@ export default async function handler(req, res) {
 
                 console.log(`Stored subcontractor data in database (ID: ${subcontractorId})`);
             } catch (dbError) {
-                console.error('Database error:', dbError);
-                // Continue even if database fails - still send email
+                console.error('Database error — subcontractor data NOT saved to DB:', dbError);
+                // Flag so the response can surface this to the caller
+                res.locals = res.locals || {};
+                res.locals.dbFailed = true;
             }
         }
 
@@ -285,7 +287,13 @@ export default async function handler(req, res) {
             return res.status(400).json({ success: false, error });
         }
 
-        return res.status(200).json({ success: true, data, subcontractorId });
+        const dbFailed = res.locals?.dbFailed === true;
+        return res.status(200).json({
+            success: true,
+            data,
+            subcontractorId,
+            ...(dbFailed && { warning: 'Submission received but could not be saved to database. Our team has been notified via email.' }),
+        });
 
     } catch (error) {
         console.error('Server error:', error);

@@ -22,6 +22,7 @@ export default async function handler(req, res) {
     // Restricting by country:au (Australia) to keep results relevant for QLD
     const response = await fetch(
       `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&components=country:au&key=${apiKey}`,
+      { signal: AbortSignal.timeout(5000) },
     );
 
     const data = await response.json();

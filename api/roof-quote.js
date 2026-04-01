@@ -1,5 +1,24 @@
 import { Resend } from "resend";
 
+// ─── Server-side Rate Limiting ────────────────────────────
+// In-memory store: effective within a warm Vercel instance.
+// Limits cost exposure on Google Solar API + Resend.
+const _rlMap = new Map(); // ip -> { count, windowStart }
+const RL_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+const RL_MAX = 5; // max 5 quote requests per IP per hour
+
+function isRateLimited(ip) {
+  const now = Date.now();
+  const entry = _rlMap.get(ip);
+  if (!entry || now - entry.windowStart >= RL_WINDOW_MS) {
+    _rlMap.set(ip, { count: 1, windowStart: now });
+    return false;
+  }
+  if (entry.count >= RL_MAX) return true;
+  entry.count++;
+  return false;
+}
+
 // ─── Configuration ────────────────────────────────────────
 const CONFIG = {
   // Pricing
@@ -135,6 +154,7 @@ async function geocodeAddress(address) {
   });
 
   try {
+    const geocodeSignal = AbortSignal.timeout(8000);
     const resp = await fetch(
       `https://nominatim.openstreetmap.org/search?${params}`,
       {
@@ -143,6 +163,7 @@ async function geocodeAddress(address) {
             "AscendRoofingQuoteGenerator/1.0 (admin@ascendroofinggroup.com.au)",
           Accept: "application/json",
         },
+        signal: geocodeSignal,
       },
     );
 
@@ -212,8 +233,10 @@ async function getRoofData(lat, lng) {
   });
 
   try {
+    const solarSignal = AbortSignal.timeout(10000);
     const resp = await fetch(`${CONFIG.GOOGLE_SOLAR_API_URL}?${params}`, {
       headers: { Accept: "application/json" },
+      signal: solarSignal,
     });
 
     if (resp.ok) {
@@ -478,6 +501,17 @@ async function captureLead({ email, firstName, lastName, phone, address, jobType
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method Not Allowed" });
+  }
+
+  // Server-side rate limit by IP
+  const clientIp =
+    (req.headers["x-forwarded-for"] || "").split(",")[0].trim() ||
+    req.socket?.remoteAddress ||
+    "unknown";
+  if (isRateLimited(clientIp)) {
+    return res.status(429).json({
+      error: "Too many quote requests. Please wait before trying again.",
+    });
   }
 
   const {
