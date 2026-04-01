@@ -42,9 +42,8 @@ export default async function handler(req, res) {
 
     try {
         if (!process.env.RESEND_API_KEY) {
-            console.warn('RESEND_API_KEY is not set. Logging data instead.');
-            console.log('Colour Confirmation:', { firstName: safeFirst, lastName: safeLast, jobAddress: safeAddress, roofColour: safeRoof, gutterColour: safeGutter, fasciaColour: safeFascia });
-            return res.status(200).json({ success: true, message: 'Colour confirmation submitted (Simulation)' });
+            console.error('RESEND_API_KEY is not set. Cannot send colour confirmation email.');
+            return res.status(503).json({ success: false, message: 'Email service not configured.' });
         }
 
         const { data, error } = await resend.emails.send({

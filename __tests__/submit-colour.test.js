@@ -157,13 +157,13 @@ describe('submit-colour handler', () => {
     });
 
     // ── Simulation mode (no API key) ──────────────────────
-    test('returns 200 in simulation mode when RESEND_API_KEY is not set', async () => {
+    test('returns 503 when RESEND_API_KEY is not set', async () => {
         delete process.env.RESEND_API_KEY;
         const res = makeRes();
         await handler(makeReq(validBase), res);
         expect(mockEmailSend).not.toHaveBeenCalled();
-        expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json.mock.calls[0][0].message).toMatch(/simulation/i);
+        expect(res.status).toHaveBeenCalledWith(503);
+        expect(res.json.mock.calls[0][0].success).toBe(false);
     });
 
     // ── Resend error handling ─────────────────────────────
