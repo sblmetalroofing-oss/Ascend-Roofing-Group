@@ -20,6 +20,11 @@ export default async function handler(req, res) {
 
   const { name, email, phone, address, roof_type, service, message } = req.body;
 
+  // Validate required fields
+  if (!name || !email || !phone || !address) {
+    return res.status(400).json({ success: false, message: 'Missing required fields: name, email, phone, address.' });
+  }
+
   // Sanitize all inputs
   const safeName = sanitize(name);
   const safeEmail = sanitize(email);
@@ -50,7 +55,7 @@ export default async function handler(req, res) {
     }
 
     const { data, error } = await resend.emails.send({
-      from: process.env.FROM_EMAIL || "Ascend Website <onboarding@resend.dev>",
+      from: process.env.RESEND_FROM_EMAIL || "Ascend Website <onboarding@resend.dev>",
       to: process.env.BUSINESS_EMAIL || "admin@ascendroofinggroup.com.au",
       reply_to: email,
       subject: `New Quote Request: ${safeName}`,

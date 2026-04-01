@@ -499,6 +499,7 @@
                     <div class="subby-submit">
                         <button type="submit" class="btn btn-primary btn-full" id="subbySubmitBtn">Submit
                             Subcontractor Pack</button>
+                        <p id="subbySubmitError" class="error-message" style="margin-top:0.75rem;"></p>
                     </div>
                 </form>
 
@@ -711,7 +712,14 @@
                     }
                 } catch (error) {
                     console.error('Submission error:', error);
-                    alert('There was an error submitting your pack. Please try again or contact us directly.');
+                    const submitError = document.getElementById('subbySubmitError');
+                    if (submitError) {
+                        submitError.textContent = error.message && error.message !== 'Submission failed'
+                            ? error.message
+                            : 'There was an error submitting your pack. Please try again or contact us directly.';
+                        submitError.classList.add('visible');
+                        submitError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Submit Subcontractor Pack';
                 }

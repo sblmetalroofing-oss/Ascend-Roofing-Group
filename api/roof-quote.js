@@ -432,7 +432,7 @@ async function captureLead({ email, firstName, lastName, phone, address, jobType
       const resend = new Resend(process.env.RESEND_API_KEY);
       await resend.emails.send({
         from:
-          process.env.FROM_EMAIL || "Ascend Website <onboarding@resend.dev>",
+          process.env.RESEND_FROM_EMAIL || "Ascend Website <onboarding@resend.dev>",
         to: process.env.BUSINESS_EMAIL || "admin@ascendroofinggroup.com.au",
         replyTo: email,
         subject: `🏠 New Roof Quote Lead: ${sanitize(fullName)} — ${sanitize(address)}`,

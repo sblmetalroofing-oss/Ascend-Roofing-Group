@@ -1085,6 +1085,10 @@
                     showError('Please select a job type.');
                     return;
                 }
+                if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    showError('Please enter a valid email address.');
+                    return;
+                }
 
                 // Rate limit: 1 quote per hour
                 const lastQuoteTime = parseInt(localStorage.getItem('lastQuoteTime') || '0', 10);
