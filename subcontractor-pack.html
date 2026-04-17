@@ -452,7 +452,7 @@
                                 Choose File
                             </label>
                             <input type="file" id="publicLiability" name="publicLiability"
-                                class="file-upload-input" accept=".pdf,.jpg,.jpeg,.png" required>
+                                class="file-upload-input" accept=".pdf,.jpg,.jpeg,.png" aria-required="true">
                             <div class="file-upload-items" id="publicLiability-items"></div>
                         </div>
                         <div class="error-message" id="publicLiability-error"></div>
@@ -471,7 +471,7 @@
                                 Choose File
                             </label>
                             <input type="file" id="workersComp" name="workersComp" class="file-upload-input"
-                                accept=".pdf,.jpg,.jpeg,.png" required>
+                                accept=".pdf,.jpg,.jpeg,.png" aria-required="true">
                             <div class="file-upload-items" id="workersComp-items"></div>
                         </div>
                         <div class="error-message" id="workersComp-error"></div>
@@ -653,6 +653,49 @@
 
             form.addEventListener('submit', async function (e) {
                 e.preventDefault();
+
+                // Clear any prior submit-level error
+                const submitError = document.getElementById('subbySubmitError');
+                if (submitError) {
+                    submitError.textContent = '';
+                    submitError.classList.remove('visible');
+                }
+
+                // JS-level validation for required file inputs (HTML5 `required`
+                // can't be used because the inputs are display:none — browsers
+                // refuse to focus hidden invalid fields and silently block submit).
+                const requiredFiles = [
+                    { id: 'publicLiability', label: 'Public Liability Insurance' },
+                    { id: 'workersComp', label: 'Workers Compensation Insurance' }
+                ];
+                let hasFileError = false;
+                for (const { id, label } of requiredFiles) {
+                    const input = document.getElementById(id);
+                    const errorEl = document.getElementById(`${id}-error`);
+                    if (!input.files || !input.files[0]) {
+                        errorEl.textContent = `${label} is required.`;
+                        errorEl.classList.add('visible');
+                        hasFileError = true;
+                    }
+                }
+                if (hasFileError) return;
+
+                // Guard against Vercel's ~4.5MB request-body limit. Base64
+                // inflates binary by ~33%, so cap the combined raw file bytes
+                // at ~3MB to leave headroom for the JSON envelope.
+                const fileInputIds = ['publicLiability', 'workersComp', 'otherCerts'];
+                const totalBytes = fileInputIds.reduce((sum, id) => {
+                    const f = document.getElementById(id).files[0];
+                    return sum + (f ? f.size : 0);
+                }, 0);
+                if (totalBytes > 3 * 1024 * 1024) {
+                    if (submitError) {
+                        submitError.textContent = 'Combined file size is too large. Please keep the total under 3MB across all uploads.';
+                        submitError.classList.add('visible');
+                        submitError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                    return;
+                }
 
                 // Disable submit button
                 submitBtn.disabled = true;
