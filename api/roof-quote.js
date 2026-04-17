@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { verifyOrigin } from "../lib/verify-origin.js";
 
 // ─── Server-side Rate Limiting ────────────────────────────
 // In-memory store: effective within a warm Vercel instance.
@@ -438,16 +439,8 @@ async function captureLead({ email, firstName, lastName, phone, address, jobType
     : "Manual quote required";
   const fullName = `${firstName} ${lastName}`.trim();
 
-  console.log(`\n${"=".repeat(60)}`);
-  console.log(`  📧 NEW ROOF QUOTE LEAD — ${new Date().toISOString()}`);
-  console.log(`${"=".repeat(60)}`);
-  console.log(`  Name:     ${fullName}`);
-  console.log(`  Phone:    ${phone}`);
-  console.log(`  Email:    ${email}`);
-  console.log(`  Address:  ${address}`);
-  console.log(`  Job Type: ${jobLabel}`);
-  console.log(`  Quote:    ${quoteRange}`);
-  console.log(`${"=".repeat(60)}\n`);
+  // Lead details intentionally not logged to avoid PII in Vercel logs.
+  // Notification is delivered via Resend email below.
 
   // Send notification email via Resend if configured
   if (process.env.RESEND_API_KEY) {
@@ -574,6 +567,10 @@ async function captureLead({ email, firstName, lastName, phone, address, jobType
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method Not Allowed" });
+  }
+
+  if (!verifyOrigin(req)) {
+    return res.status(403).json({ error: "Forbidden" });
   }
 
   // Server-side rate limit by IP

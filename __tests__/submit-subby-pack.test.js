@@ -19,7 +19,7 @@ jest.unstable_mockModule('../lib/extract-insurance-data.js', () => ({
 // ─── Helpers ──────────────────────────────────────────────
 
 function makeReq(body) {
-    return { method: 'POST', body };
+    return { method: 'POST', body, headers: { origin: 'https://www.ascendroofinggroup.com.au' } };
 }
 
 function makeRes() {
