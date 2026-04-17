@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import { verifyOrigin } from '../lib/verify-origin.js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -16,6 +17,10 @@ function sanitize(str) {
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ message: 'Method Not Allowed' });
+    }
+
+    if (!verifyOrigin(req)) {
+        return res.status(403).json({ success: false, message: 'Forbidden' });
     }
 
     const { firstName, lastName, jobAddress, roofColour, gutterColour, fasciaColour, signature } = req.body;

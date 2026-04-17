@@ -9,7 +9,7 @@ jest.unstable_mockModule('resend', () => ({
 // ─── Helpers ──────────────────────────────────────────────
 
 function makeReq(body) {
-    return { method: 'POST', body };
+    return { method: 'POST', body, headers: { origin: 'https://www.ascendroofinggroup.com.au' } };
 }
 
 function makeRes() {

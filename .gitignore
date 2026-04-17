@@ -6,6 +6,11 @@ desktop.ini
 # Dependencies
 node_modules/
 
+# Environment secrets
+.env
+.env.local
+.env.*.local
+
 # Build Artifacts
 coverage/
 
