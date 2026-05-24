@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import { verifyOrigin } from "../lib/verify-origin.js";
+import { geocodeAddress, buildDisplayAddress } from "../lib/geocode-address.js";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -30,11 +31,24 @@ export default async function handler(req, res) {
     return res.status(400).json({ success: false, message: 'Missing required fields: name, email, phone, address.' });
   }
 
+  // Best-effort enrich the address with suburb/postcode so the lead email
+  // carries the suburb even when the customer typed it without picking a
+  // Google autocomplete suggestion. Never block the lead on geocode failure.
+  let displayAddress = address;
+  try {
+    const geo = await geocodeAddress(address);
+    if (!geo.error) {
+      displayAddress = buildDisplayAddress(address, geo);
+    }
+  } catch (_) {
+    /* geocoding unavailable — fall back to the raw address */
+  }
+
   // Sanitize all inputs
   const safeName = sanitize(name);
   const safeEmail = sanitize(email);
   const safePhone = sanitize(phone);
-  const safeAddress = sanitize(address);
+  const safeAddress = sanitize(displayAddress);
   const safeRoofType = sanitize(roof_type);
   const safeService = sanitize(service);
   const safeMessage = sanitize(message);

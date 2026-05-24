@@ -10,6 +10,19 @@ function makeReq(body) {
     return { method: 'POST', body, headers: { origin: 'https://www.ascendroofinggroup.com.au' } };
 }
 
+// Nominatim geocoding response used to enrich the address with a suburb
+function mockNominatimSuccess({ postcode = '4000', suburb = 'Brisbane City' } = {}) {
+    return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve([{
+            lat: '-27.4698',
+            lon: '153.0251',
+            display_name: `1 Test Street, ${suburb} QLD ${postcode}, Australia`,
+            address: { state: 'Queensland', postcode, suburb }
+        }])
+    });
+}
+
 function makeRes() {
     const res = {};
     res.status = jest.fn().mockReturnValue(res);
@@ -38,6 +51,8 @@ describe('submit-quote handler', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         process.env.RESEND_API_KEY = 'test-key';
+        // Handler now geocodes the address (best-effort) to enrich it with a suburb.
+        global.fetch = jest.fn().mockResolvedValue(mockNominatimSuccess());
     });
 
     afterEach(() => {
@@ -181,5 +196,25 @@ describe('submit-quote handler', () => {
         await handler(makeReq(validBody), res);
         expect(mockEmailSend.mock.calls[0][0].to).toBe('office@business.com.au');
         delete process.env.BUSINESS_EMAIL;
+    });
+
+    // ── Suburb enrichment ─────────────────────────────────
+    test('appends geocoded suburb to the address when typed without one', async () => {
+        const res = makeRes();
+        await handler(makeReq({ ...validBody, address: '4 Shields Street' }), res);
+        const { html } = mockEmailSend.mock.calls[0][0];
+        expect(html).toContain('Brisbane City');
+        expect(html).toContain('4 Shields Street');
+    });
+
+    test('still sends the lead with the raw address when geocoding fails', async () => {
+        global.fetch = jest.fn().mockRejectedValue(new Error('network down'));
+        const res = makeRes();
+        await handler(makeReq({ ...validBody, address: '4 Shields Street' }), res);
+        expect(mockEmailSend).toHaveBeenCalledTimes(1);
+        const { html } = mockEmailSend.mock.calls[0][0];
+        expect(html).toContain('4 Shields Street');
+        expect(html).not.toContain('Brisbane City');
+        expect(res.status).toHaveBeenCalledWith(200);
     });
 });

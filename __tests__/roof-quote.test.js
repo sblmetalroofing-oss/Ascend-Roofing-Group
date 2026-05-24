@@ -8,8 +8,19 @@ jest.unstable_mockModule('resend', () => ({
 
 // ─── Helpers ──────────────────────────────────────────────
 
+// Unique client IP per request so the handler's in-memory per-IP rate limiter
+// (1 request / 5 min) doesn't 429 subsequent tests sharing one process.
+let _ipCounter = 0;
 function makeReq(body) {
-    return { method: 'POST', body, headers: { origin: 'https://www.ascendroofinggroup.com.au' } };
+    _ipCounter += 1;
+    return {
+        method: 'POST',
+        body,
+        headers: {
+            origin: 'https://www.ascendroofinggroup.com.au',
+            'x-forwarded-for': `203.0.113.${_ipCounter}`,
+        },
+    };
 }
 
 function makeRes() {
@@ -437,5 +448,28 @@ describe('roof-quote handler', () => {
             last_name: 'Smith'
         }), res);
         expect(mockEmailSend).toHaveBeenCalledTimes(1);
+    });
+
+    // ── Suburb enrichment in lead email (manual / Nominatim path) ──
+    test('appends geocoded suburb to the address in the lead email when typed without a suburb', async () => {
+        process.env.RESEND_API_KEY = 'test-key';
+        global.fetch = jest.fn()
+            .mockResolvedValueOnce(mockNominatimSuccess({ postcode: '4000' }))
+            .mockResolvedValueOnce(mockSolarSuccess({ areaSqm: 100, pitchDegrees: 10 }));
+        const res = makeRes();
+        await handler(makeReq({
+            address: '4 Shields Street',
+            job_type: 'new_metal_install',
+            email: 'client@example.com',
+            first_name: 'John',
+            last_name: 'Smith'
+        }), res);
+        expect(mockEmailSend).toHaveBeenCalledTimes(1);
+        const { html, subject } = mockEmailSend.mock.calls[0][0];
+        // Nominatim mock resolves the suburb as 'Brisbane City'
+        expect(html).toContain('Brisbane City');
+        expect(subject).toContain('Brisbane City');
+        // The API response address is enriched too
+        expect(res.json.mock.calls[0][0].address).toContain('Brisbane City');
     });
 });

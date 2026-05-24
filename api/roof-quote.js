@@ -1,5 +1,10 @@
 import { Resend } from "resend";
 import { verifyOrigin } from "../lib/verify-origin.js";
+import {
+  geocodeAddress,
+  buildDisplayAddress,
+  isSEQPostcode,
+} from "../lib/geocode-address.js";
 
 // ─── Server-side Rate Limiting ────────────────────────────
 // In-memory store: effective within a warm Vercel instance.
@@ -52,10 +57,6 @@ const CONFIG = {
     [4507, 4507], // Bribie Island (Woorim, Bongaree, Banksia Beach)
   ],
 
-  // SEQ service area
-  SEQ_POSTCODE_MIN: 4000,
-  SEQ_POSTCODE_MAX: 4600,
-
   // Google Solar API
   GOOGLE_SOLAR_API_URL:
     "https://solar.googleapis.com/v1/buildingInsights:findClosest",
@@ -100,13 +101,6 @@ function isCoastalPostcode(postcode) {
   );
 }
 
-function isSEQPostcode(postcode) {
-  const pc = parseInt(postcode, 10);
-  return (
-    !isNaN(pc) && pc >= CONFIG.SEQ_POSTCODE_MIN && pc <= CONFIG.SEQ_POSTCODE_MAX
-  );
-}
-
 // ─── Input Validation ─────────────────────────────────────
 
 function validateInputs(address, jobType, email) {
@@ -133,85 +127,6 @@ function validateInputs(address, jobType, email) {
     }
   }
   return null;
-}
-
-// ─── Geocoding (Nominatim / OpenStreetMap) ────────────────
-
-async function geocodeAddress(address) {
-  let query = address;
-  if (!/qld|queensland/i.test(address)) {
-    query = `${address}, QLD, Australia`;
-  } else if (!/australia/i.test(address)) {
-    query = `${address}, Australia`;
-  }
-
-  const params = new URLSearchParams({
-    q: query,
-    format: "json",
-    addressdetails: "1",
-    limit: "1",
-    countrycodes: "au",
-    viewbox: "152.0,-26.5,154.0,-28.5",
-  });
-
-  try {
-    const geocodeSignal = AbortSignal.timeout(8000);
-    const resp = await fetch(
-      `https://nominatim.openstreetmap.org/search?${params}`,
-      {
-        headers: {
-          "User-Agent":
-            "AscendRoofingQuoteGenerator/1.0 (admin@ascendroofinggroup.com.au)",
-          Accept: "application/json",
-        },
-        signal: geocodeSignal,
-      },
-    );
-
-    if (!resp.ok) {
-      return {
-        error: "Geocoding service temporarily unavailable. Please try again.",
-      };
-    }
-
-    const results = await resp.json();
-    if (!results || results.length === 0) {
-      return { error: `Could not find address: ${address}` };
-    }
-
-    const result = results[0];
-    const addr = result.address || {};
-    const state = addr.state || "";
-    const postcode = addr.postcode || "";
-
-    // Verify Queensland
-    if (!/queensland|qld/i.test(state)) {
-      return {
-        error:
-          "Address appears to be outside Queensland. We currently service South East Queensland only (Brisbane, Gold Coast, Logan, Ipswich, Moreton Bay).",
-      };
-    }
-
-    // Verify SEQ postcode
-    if (postcode && !isSEQPostcode(postcode)) {
-      return {
-        error: `Postcode ${postcode} is outside our primary service area. We service Brisbane, Gold Coast, Logan, Ipswich, and Moreton Bay regions.`,
-      };
-    }
-
-    return {
-      lat: parseFloat(result.lat),
-      lng: parseFloat(result.lon),
-      postcode,
-      formatted_address: result.display_name,
-      suburb: addr.suburb || addr.town || addr.city || "",
-    };
-  } catch (err) {
-    console.error("Geocoding error:", err);
-    return {
-      error: "Geocoding service temporarily unavailable. Please try again.",
-    };
-  }
 }
 
 // ─── Google Solar API Integration ─────────────────────────
@@ -614,6 +529,9 @@ export default async function handler(req, res) {
   // Step 1: Use client coordinates if provided (from Google autocomplete),
   // otherwise fall back to Nominatim geocoding
   let lat, lng, postcode;
+  // Suburb known only via Nominatim; on the client-coords path the suburb is
+  // already part of cleanAddress (Google formatted_address), so leave it blank.
+  let suburb = "";
 
   if (clientLat && clientLng) {
     lat = parseFloat(clientLat);
@@ -636,10 +554,15 @@ export default async function handler(req, res) {
     lat = geoResult.lat;
     lng = geoResult.lng;
     postcode = geoResult.postcode;
+    suburb = geoResult.suburb || "";
     console.log(
       `Geocoded: ${geoResult.formatted_address} → (${lat}, ${lng}) postcode=${postcode}`,
     );
   }
+
+  // Enrich the address so the lead email/results always carry the suburb,
+  // even when the customer typed the address without picking a suggestion.
+  const displayAddress = buildDisplayAddress(cleanAddress, { suburb, postcode });
 
   // Verify SEQ postcode
   if (postcode && !isSEQPostcode(postcode)) {
@@ -657,7 +580,7 @@ export default async function handler(req, res) {
   // Step 4: Build response
   const response = {
     success: true,
-    address: cleanAddress,
+    address: displayAddress,
     coordinates: { lat, lng },
     postcode,
     job_type: CONFIG.JOB_TYPE_LABELS[cleanJobType] || cleanJobType,
@@ -679,7 +602,7 @@ export default async function handler(req, res) {
       firstName: cleanFirstName,
       lastName: cleanLastName,
       phone: cleanPhone,
-      address: cleanAddress,
+      address: displayAddress,
       jobType: cleanJobType,
       quote,
       roof: roofData,
