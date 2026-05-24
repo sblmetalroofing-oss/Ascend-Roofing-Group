@@ -112,22 +112,31 @@ export default async function handler(req, res) {
 
                 subcontractorId = subResult.rows[0].id;
 
-                // Insert insurance documents
+                // Insert insurance documents. Replace any existing rows for this
+                // subcontractor + document type so re-submissions don't accumulate
+                // duplicates. A row is recorded even when extraction failed so the
+                // error is tracked. AI-extracted text is sanitized before storage
+                // (matches the subcontractor fields) so it's safe wherever it's
+                // later rendered into email HTML.
                 for (const { key, type } of fileTypes) {
-                    if (insuranceData[key]?.extraction) {
-                        const ext = insuranceData[key].extraction;
-                        await sql`
-                            INSERT INTO insurance_documents (
-                                subcontractor_id, document_type, expiry_date, 
-                                policy_number, insurer_name, extraction_confidence, extraction_error
-                            )
-                            VALUES (
-                                ${subcontractorId}, ${type}, ${ext.expiry_date},
-                                ${ext.policy_number}, ${ext.insurer_name}, 
-                                ${ext.confidence}, ${insuranceData[key].error}
-                            )
-                        `;
-                    }
+                    if (!insuranceData[key]) continue; // no file uploaded for this slot
+                    const ext = insuranceData[key].extraction;
+                    await sql`
+                        DELETE FROM insurance_documents
+                        WHERE subcontractor_id = ${subcontractorId} AND document_type = ${type}
+                    `;
+                    await sql`
+                        INSERT INTO insurance_documents (
+                            subcontractor_id, document_type, expiry_date,
+                            policy_number, insurer_name, extraction_confidence, extraction_error
+                        )
+                        VALUES (
+                            ${subcontractorId}, ${type}, ${ext ? ext.expiry_date : null},
+                            ${ext && ext.policy_number ? sanitize(ext.policy_number) : null},
+                            ${ext && ext.insurer_name ? sanitize(ext.insurer_name) : null},
+                            ${ext ? ext.confidence : null}, ${insuranceData[key].error}
+                        )
+                    `;
                 }
 
                 console.log(`Stored subcontractor data in database (ID: ${subcontractorId})`);
@@ -161,9 +170,9 @@ export default async function handler(req, res) {
             if (insuranceData[key]) {
                 const ext = insuranceData[key].extraction;
                 if (ext) {
-                    const expiryDisplay = ext.expiry_date || 'Not detected';
-                    const policyDisplay = ext.policy_number || 'Not detected';
-                    const insurerDisplay = ext.insurer_name || 'Not detected';
+                    const expiryDisplay = sanitize(ext.expiry_date) || 'Not detected';
+                    const policyDisplay = sanitize(ext.policy_number) || 'Not detected';
+                    const insurerDisplay = sanitize(ext.insurer_name) || 'Not detected';
                     const confidenceDisplay = ext.confidence ? `${(ext.confidence * 100).toFixed(0)}%` : 'N/A';
 
                     insuranceTableRows += `

@@ -19,10 +19,13 @@ export default async function handler(req, res) {
     }
 
     try {
-        const today = new Date();
-        const thirtyDaysFromNow = new Date(today.getTime() + (30 * 24 * 60 * 60 * 1000));
-        const sixtyDaysFromNow = new Date(today.getTime() + (60 * 24 * 60 * 60 * 1000));
-        const ninetyDaysFromNow = new Date(today.getTime() + (90 * 24 * 60 * 60 * 1000));
+        // expiry_date is a calendar date and the cron runs at 09:00 AEST, so the
+        // comparison window must be built from the Brisbane day, not UTC (which
+        // lags Brisbane by ~10h and would skew the window by a day).
+        const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Brisbane' });
+        const todayUTC = new Date(`${todayStr}T00:00:00Z`);
+        const ninetyDaysStr = new Date(todayUTC.getTime() + (90 * 24 * 60 * 60 * 1000))
+            .toISOString().split('T')[0];
 
         // Query for insurance expiring in the next 30, 60, or 90 days (whichever hasn't been reminded yet)
         const result = await sql`
@@ -42,8 +45,8 @@ export default async function handler(req, res) {
             FROM insurance_documents i
             JOIN subcontractors s ON i.subcontractor_id = s.id
             WHERE i.expiry_date IS NOT NULL
-              AND i.expiry_date <= ${ninetyDaysFromNow.toISOString().split('T')[0]}
-              AND i.expiry_date >= ${today.toISOString().split('T')[0]}
+              AND i.expiry_date <= ${ninetyDaysStr}
+              AND i.expiry_date >= ${todayStr}
               AND i.reminded_at IS NULL
             ORDER BY i.expiry_date ASC
         `;
@@ -96,8 +99,11 @@ export default async function handler(req, res) {
             const insuranceIds = [];
 
             for (const doc of insuranceDocs) {
-                const expiryDate = new Date(doc.expiry_date);
-                const daysUntilExpiry = Math.floor((expiryDate - today) / (1000 * 60 * 60 * 24));
+                const expiryStr = typeof doc.expiry_date === 'string'
+                    ? doc.expiry_date.split('T')[0]
+                    : new Date(doc.expiry_date).toISOString().split('T')[0];
+                const expiryUTC = new Date(`${expiryStr}T00:00:00Z`);
+                const daysUntilExpiry = Math.round((expiryUTC - todayUTC) / (1000 * 60 * 60 * 24));
 
                 let urgency = '🟡';
                 let urgencyLevel = 'Warning';

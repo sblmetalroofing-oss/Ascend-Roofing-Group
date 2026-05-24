@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals';
 
-function makeReq(query) {
-    return { method: 'GET', query };
+function makeReq(query, headers = { origin: 'https://www.ascendroofinggroup.com.au' }) {
+    return { method: 'GET', query, headers };
 }
 
 function makeRes() {
@@ -52,6 +52,19 @@ describe('places-autocomplete handler', () => {
         const res = makeRes();
         await handler(req, res);
         expect(res.status).toHaveBeenCalledWith(405);
+    });
+
+    // ── Origin verification ──────────────────────────────
+    test('returns 403 for a disallowed origin', async () => {
+        const res = makeRes();
+        await handler(makeReq({ input: 'Brisbane' }, { origin: 'https://evil.example.com' }), res);
+        expect(res.status).toHaveBeenCalledWith(403);
+    });
+
+    test('returns 403 when no origin or referer is present', async () => {
+        const res = makeRes();
+        await handler(makeReq({ input: 'Brisbane' }, {}), res);
+        expect(res.status).toHaveBeenCalledWith(403);
     });
 
     // ── Input length validation ───────────────────────────
