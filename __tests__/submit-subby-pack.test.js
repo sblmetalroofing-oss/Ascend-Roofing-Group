@@ -266,6 +266,52 @@ describe('submit-subby-pack handler', () => {
         expect(html).toContain('&lt;script&gt;');
     });
 
+    test('sanitizes AI-extracted insurer/policy fields in the email', async () => {
+        mockExtractInsuranceData.mockResolvedValue({
+            success: true,
+            data: {
+                document_type: 'Public Liability',
+                expiry_date: daysFromNow(90),
+                policy_number: '<img src=x onerror=alert(1)>',
+                insurer_name: '<script>evil</script>',
+                confidence: 0.9
+            }
+        });
+        const res = makeRes();
+        await handler(makeReq(validBody), res);
+        const html = mockEmailSend.mock.calls[0][0].html;
+        expect(html).not.toContain('<script>evil</script>');
+        expect(html).not.toContain('<img src=x');
+        expect(html).toContain('&lt;script&gt;');
+    });
+
+    // ── Dedupe + failed-extraction recording ──────────────
+    function sqlText(call) {
+        return Array.isArray(call[0]) ? call[0].join(' ') : String(call[0]);
+    }
+
+    test('deletes existing insurance rows before inserting (no dupes on re-submit)', async () => {
+        process.env.POSTGRES_URL = 'postgres://test';
+        mockSql.mockResolvedValueOnce({ rows: [{ id: 42 }] }); // subcontractor upsert
+        mockSql.mockResolvedValue({ rows: [] });
+        const res = makeRes();
+        await handler(makeReq(validBody), res);
+        const texts = mockSql.mock.calls.map(sqlText);
+        expect(texts.some(t => /DELETE FROM insurance_documents/i.test(t))).toBe(true);
+    });
+
+    test('records a row with extraction_error when extraction fails', async () => {
+        process.env.POSTGRES_URL = 'postgres://test';
+        mockExtractInsuranceData.mockResolvedValue({ success: false, error: 'AI timeout', data: null });
+        mockSql.mockResolvedValueOnce({ rows: [{ id: 7 }] }); // subcontractor upsert
+        mockSql.mockResolvedValue({ rows: [] });
+        const res = makeRes();
+        await handler(makeReq(validBody), res);
+        const insertCalls = mockSql.mock.calls.filter(c => /INSERT INTO insurance_documents/i.test(sqlText(c)));
+        expect(insertCalls.length).toBe(2); // one per uploaded file, even though extraction failed
+        expect(insertCalls.some(c => c.slice(1).includes('AI timeout'))).toBe(true);
+    });
+
     // ── Resend error ──────────────────────────────────────
     test('returns 400 when Resend returns an error', async () => {
         mockEmailSend.mockResolvedValueOnce({ data: null, error: { message: 'Bad request' } });

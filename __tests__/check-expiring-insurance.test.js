@@ -261,6 +261,17 @@ describe('check-expiring-insurance handler', () => {
         expect(html).toContain('Workers Comp');
     });
 
+    // ── Brisbane-local date window ────────────────────────
+    test('builds the expiry query window from Brisbane local dates', async () => {
+        mockSql.mockResolvedValueOnce({ rows: [] });
+        const res = makeRes();
+        await handler(makeReq(), res);
+        const selectValues = mockSql.mock.calls[0].slice(1);
+        const brisbaneToday = new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Brisbane' });
+        expect(selectValues).toContain(brisbaneToday);
+        expect(selectValues.every(v => /^\d{4}-\d{2}-\d{2}$/.test(v))).toBe(true);
+    });
+
     // ── AI confidence display ─────────────────────────────
     test('displays AI confidence percentage in email', async () => {
         mockSql

@@ -1,6 +1,13 @@
+import { verifyOrigin } from "../lib/verify-origin.js";
+
 export default async function handler(req, res) {
   if (req.method !== "GET") {
     return res.status(405).json({ message: "Method Not Allowed" });
+  }
+
+  // Prevent abuse of the billable Google Places API from off-site callers.
+  if (!verifyOrigin(req)) {
+    return res.status(403).json({ error: "Forbidden" });
   }
 
   const { input } = req.query;

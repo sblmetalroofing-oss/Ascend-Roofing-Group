@@ -249,8 +249,8 @@ describe('extractInsuranceData', () => {
         expect(result.data.confidence).toBe(0.5);
     });
 
-    // ── File type passed correctly in source ─────────────
-    test('uses correct MIME type in source for PDF', async () => {
+    // ── PDFs sent as a document block (not image) ─────────
+    test('sends PDF as a document content block, not an image', async () => {
         mockCreate.mockResolvedValueOnce(jsonResponse({
             document_type: 'Workers Comp',
             expiry_date: '2026-06-30',
@@ -259,12 +259,44 @@ describe('extractInsuranceData', () => {
             confidence: 0.75
         }));
         await extractInsuranceData('PDFBASE64DATA', 'application/pdf', 'workers_comp');
-        const callArgs = mockCreate.mock.calls[0][0];
-        const imageContent = callArgs.messages[0].content.find(c => c.type === 'image');
-        expect(imageContent.source).toEqual({
+        const content = mockCreate.mock.calls[0][0].messages[0].content;
+        const docContent = content.find(c => c.type === 'document');
+        expect(docContent.source).toEqual({
             type: 'base64',
             media_type: 'application/pdf',
             data: 'PDFBASE64DATA'
         });
+        expect(content.find(c => c.type === 'image')).toBeUndefined();
+    });
+
+    // ── Strips data: URL prefix before sending ────────────
+    test('strips a data URL prefix so Claude receives raw base64', async () => {
+        mockCreate.mockResolvedValueOnce(jsonResponse({
+            document_type: 'Public Liability',
+            expiry_date: '2026-06-30',
+            policy_number: null,
+            insurer_name: null,
+            confidence: 0.8
+        }));
+        await extractInsuranceData('data:image/png;base64,AAABBBCCC', 'image/png', 'public_liability');
+        const imageContent = mockCreate.mock.calls[0][0].messages[0].content.find(c => c.type === 'image');
+        expect(imageContent.source.data).toBe('AAABBBCCC');
+    });
+
+    // ── Date parsing: rejects silent rollover ─────────────
+    test.each([
+        ['31/02/2025'],  // Feb 31 → would roll to March
+        ['13/13/2025'],  // month 13 → would roll to next year
+        ['2025-02-30'],  // ISO but not a real calendar date
+    ])('returns null for impossible date %s instead of rolling over', async (badDate) => {
+        mockCreate.mockResolvedValueOnce(jsonResponse({
+            document_type: 'Public Liability',
+            expiry_date: badDate,
+            policy_number: null,
+            insurer_name: null,
+            confidence: 0.5
+        }));
+        const result = await extractInsuranceData('base64data', 'image/png', 'public_liability');
+        expect(result.data.expiry_date).toBeNull();
     });
 });
