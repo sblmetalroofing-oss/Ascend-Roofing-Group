@@ -29,7 +29,7 @@ export default async function handler(req, res) {
         const { firstName, lastName, email, phone, businessName, abn, businessAddress, bsb, accountNumber, accountName, files } = req.body;
 
         // Validate required fields
-        if (!firstName || !lastName || !email || !phone || !businessName || !bsb || !accountNumber || !accountName) {
+        if (!firstName || !lastName || !email || !phone || !businessName || !abn || !bsb || !accountNumber || !accountName) {
             return res.status(400).json({ success: false, message: 'Missing required fields' });
         }
 

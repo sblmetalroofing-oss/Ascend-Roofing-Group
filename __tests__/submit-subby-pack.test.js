@@ -104,7 +104,7 @@ describe('submit-subby-pack handler', () => {
 
     // ── Required field validation ─────────────────────────
     test.each([
-        'firstName', 'lastName', 'email', 'phone', 'businessName', 'bsb', 'accountNumber', 'accountName'
+        'firstName', 'lastName', 'email', 'phone', 'businessName', 'abn', 'bsb', 'accountNumber', 'accountName'
     ])('returns 400 when required field "%s" is missing', async (field) => {
         const body = { ...validBody };
         delete body[field];
@@ -322,9 +322,8 @@ describe('submit-subby-pack handler', () => {
     });
 
     // ── Optional fields ───────────────────────────────────
-    test('handles missing optional fields (abn, businessAddress) gracefully', async () => {
+    test('handles missing optional field (businessAddress) gracefully', async () => {
         const body = { ...validBody };
-        delete body.abn;
         delete body.businessAddress;
         const res = makeRes();
         await handler(makeReq(body), res);
