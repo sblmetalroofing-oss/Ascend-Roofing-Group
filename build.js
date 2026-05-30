@@ -512,6 +512,24 @@ async function build() {
         <priority>0.6</priority>
         <changefreq>monthly</changefreq>
     </url>
+    <url>
+        <loc>${CONFIG.baseUrl}/blog/storm-damage-roof-repair-insurance-claims-brisbane.html</loc>
+        <lastmod>2026-05-30</lastmod>
+        <priority>0.6</priority>
+        <changefreq>monthly</changefreq>
+    </url>
+    <url>
+        <loc>${CONFIG.baseUrl}/blog/roof-restoration-vs-replacement-brisbane.html</loc>
+        <lastmod>2026-05-30</lastmod>
+        <priority>0.6</priority>
+        <changefreq>monthly</changefreq>
+    </url>
+    <url>
+        <loc>${CONFIG.baseUrl}/blog/how-to-choose-colorbond-roof-colour-queensland.html</loc>
+        <lastmod>2026-05-30</lastmod>
+        <priority>0.6</priority>
+        <changefreq>monthly</changefreq>
+    </url>
     ${sitemapUrls
       .map(
         (url) => `
@@ -527,7 +545,7 @@ async function build() {
 
   fs.writeFileSync(CONFIG.sitemapPath, sitemapContent);
   console.log(
-    `Sitemap generated at ${CONFIG.sitemapPath} with ${sitemapUrls.length + 8} URLs.`,
+    `Sitemap generated at ${CONFIG.sitemapPath} with ${sitemapUrls.length + 11} URLs.`,
   );
 
   console.log("Build Complete!");
