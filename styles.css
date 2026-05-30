@@ -1135,6 +1135,40 @@ textarea:focus-visible,
   transform: translateY(0);
 }
 
+/* ---- AREAS WE SERVE ---- */
+.areas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 32px;
+  margin-top: 48px;
+}
+
+.areas-region h3 {
+  font-size: 1.1rem;
+  color: var(--accent-color);
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.areas-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.areas-links a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: var(--transition);
+}
+
+.areas-links a:hover {
+  color: var(--text-primary);
+  padding-left: 4px;
+}
+
 /* ---- FOOTER ---- */
 .footer {
   background: #111;

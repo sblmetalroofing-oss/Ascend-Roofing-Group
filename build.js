@@ -507,6 +507,12 @@ async function build() {
         <changefreq>monthly</changefreq>
     </url>
     <url>
+        <loc>${CONFIG.baseUrl}/blog-colorbond-roof-replacement-brisbane-gold-coast.html</loc>
+        <lastmod>${today}</lastmod>
+        <priority>0.6</priority>
+        <changefreq>monthly</changefreq>
+    </url>
+    <url>
         <loc>${CONFIG.baseUrl}/blog/storm-damage-roof-repair-insurance-claims-brisbane.html</loc>
         <lastmod>2026-05-30</lastmod>
         <priority>0.6</priority>
