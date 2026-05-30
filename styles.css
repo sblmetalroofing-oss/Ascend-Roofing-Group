@@ -983,6 +983,18 @@ textarea {
   box-shadow: none;
 }
 
+/* Accessibility: visible keyboard focus indicator (WCAG 2.4.7).
+   Only shows for keyboard navigation, not mouse clicks. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
 .form-group input::placeholder,
 .form-group textarea::placeholder {
   color: var(--text-muted);
