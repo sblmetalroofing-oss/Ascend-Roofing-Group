@@ -506,6 +506,12 @@ async function build() {
         <priority>0.6</priority>
         <changefreq>monthly</changefreq>
     </url>
+    <url>
+        <loc>${CONFIG.baseUrl}/blog-colorbond-roof-replacement-brisbane-gold-coast.html</loc>
+        <lastmod>${today}</lastmod>
+        <priority>0.6</priority>
+        <changefreq>monthly</changefreq>
+    </url>
     ${sitemapUrls
       .map(
         (url) => `
