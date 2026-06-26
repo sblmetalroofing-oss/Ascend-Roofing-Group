@@ -706,25 +706,6 @@
     </footer>
 
     <script defer src="../script.js"></script>
-    <script>
-        function initAddressAutocomplete() {
-            const addressInput = document.getElementById('address');
-            if (!addressInput) return;
-            const autocomplete = new google.maps.places.Autocomplete(addressInput, {
-                componentRestrictions: { country: 'au' },
-                types: ['address'],
-                fields: ['formatted_address']
-            });
-            autocomplete.addListener('place_changed', () => {
-                const place = autocomplete.getPlace();
-                if (place.formatted_address) addressInput.value = place.formatted_address;
-            });
-            addressInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') e.preventDefault();
-            });
-        }
-    </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAtuH3SKAhvh-XI2sONazBTcEc6LycF4Zc&libraries=places&callback=initAddressAutocomplete" async defer></script>
 </body>
 
 </html>

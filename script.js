@@ -216,6 +216,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // ---- ADDRESS AUTOCOMPLETE (server-proxied) ----
+  initAddressAutocomplete();
+
   // ---- FAQ ACCORDION ----
   const faqItems = document.querySelectorAll(".faq-item");
   faqItems.forEach((item) => {
@@ -238,3 +241,186 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
+/* ============================================
+   ADDRESS AUTOCOMPLETE (server-proxied)
+   ------------------------------------------------
+   Replaces the legacy Google Maps JS Places widget,
+   which popped the blocking "This page can't load
+   Google Maps correctly" dialog when the browser key
+   was rejected. Instead we call our own origin-checked
+   proxy (/api/places-autocomplete) and render a simple
+   dropdown. On ANY failure we just hide the dropdown —
+   the field stays a normal text input, never a dialog.
+   ============================================ */
+
+// Covers the contact form (#address), instant-quote form (#quoteAddress)
+// and colour-confirmation form (#jobAddress) without per-page wiring.
+const ADDRESS_AC_SELECTOR =
+  'input[data-address-autocomplete], #address, #quoteAddress, #jobAddress, input[name="address"]';
+
+function initAddressAutocomplete(root) {
+  (root || document)
+    .querySelectorAll(ADDRESS_AC_SELECTOR)
+    .forEach(attachAddressAutocomplete);
+}
+
+function attachAddressAutocomplete(input) {
+  if (!input || input.dataset.acBound === "1") return; // never double-bind
+  input.dataset.acBound = "1";
+
+  // The instant-quote form posts client coords to /api/roof-quote and falls
+  // back to server-side geocoding when they're null. We no longer capture
+  // coordinates from Google, so keep these null and let the server geocode.
+  const isQuote = input.id === "quoteAddress";
+
+  input.setAttribute("autocomplete", "off");
+  input.setAttribute("role", "combobox");
+  input.setAttribute("aria-autocomplete", "list");
+  input.setAttribute("aria-expanded", "false");
+
+  // Wrap the input so the dropdown can be positioned relative to it.
+  const wrap = document.createElement("div");
+  wrap.className = "addr-ac";
+  input.parentNode.insertBefore(wrap, input);
+  wrap.appendChild(input);
+
+  const list = document.createElement("ul");
+  list.className = "addr-ac-list";
+  list.setAttribute("role", "listbox");
+  list.hidden = true;
+  wrap.appendChild(list);
+
+  let predictions = [];
+  let activeIdx = -1;
+  let controller = null;
+  let seq = 0;
+  let debounceId = null;
+
+  function clearQuoteCoords() {
+    if (isQuote) {
+      window.__quoteAutoLat = null;
+      window.__quoteAutoLng = null;
+    }
+  }
+
+  function hide() {
+    list.hidden = true;
+    list.innerHTML = "";
+    predictions = [];
+    activeIdx = -1;
+    input.setAttribute("aria-expanded", "false");
+  }
+
+  function setActive(idx) {
+    const lis = list.querySelectorAll(".addr-ac-item");
+    lis.forEach((li, i) => {
+      const on = i === idx;
+      li.classList.toggle("is-active", on);
+      li.setAttribute("aria-selected", on ? "true" : "false");
+    });
+    activeIdx = idx;
+    if (idx >= 0 && lis[idx]) lis[idx].scrollIntoView({ block: "nearest" });
+  }
+
+  function choose(idx) {
+    const p = predictions[idx];
+    if (!p) return;
+    input.value = p.description;
+    clearQuoteCoords();
+    hide();
+    input.focus();
+  }
+
+  function render(preds) {
+    predictions = preds;
+    activeIdx = -1;
+    list.innerHTML = "";
+    if (!preds.length) {
+      hide();
+      return;
+    }
+    preds.forEach((p, i) => {
+      const li = document.createElement("li");
+      li.className = "addr-ac-item";
+      li.setAttribute("role", "option");
+      li.textContent = p.description; // textContent → XSS-safe
+      // mousedown (not click) so selection runs before the input's blur hides the list
+      li.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+        choose(i);
+      });
+      list.appendChild(li);
+    });
+    list.hidden = false;
+    input.setAttribute("aria-expanded", "true");
+  }
+
+  async function query(value) {
+    const mySeq = ++seq;
+    if (controller) controller.abort();
+    controller = new AbortController();
+    try {
+      const resp = await fetch(
+        `/api/places-autocomplete?input=${encodeURIComponent(value)}`,
+        { signal: controller.signal, headers: { Accept: "application/json" } },
+      );
+      if (mySeq !== seq) return; // a newer keystroke superseded this request
+      if (!resp.ok) {
+        hide();
+        return;
+      }
+      const data = await resp.json();
+      if (mySeq !== seq) return;
+      const preds =
+        data && Array.isArray(data.predictions) ? data.predictions : [];
+      render(preds);
+    } catch (err) {
+      // Network/abort/parse error → degrade silently, never a dialog.
+      if (err && err.name !== "AbortError") hide();
+    }
+  }
+
+  input.addEventListener("input", () => {
+    clearQuoteCoords();
+    const value = input.value.trim();
+    clearTimeout(debounceId);
+    if (value.length < 3) {
+      if (controller) controller.abort();
+      seq++; // invalidate any in-flight request
+      hide();
+      return;
+    }
+    debounceId = setTimeout(() => query(value), 250);
+  });
+
+  input.addEventListener("keydown", (e) => {
+    if (list.hidden || !predictions.length) return;
+    switch (e.key) {
+      case "ArrowDown":
+        e.preventDefault();
+        setActive((activeIdx + 1) % predictions.length);
+        break;
+      case "ArrowUp":
+        e.preventDefault();
+        setActive((activeIdx - 1 + predictions.length) % predictions.length);
+        break;
+      case "Enter":
+        // Only intercept Enter when a suggestion is highlighted; otherwise
+        // let the form submit normally.
+        if (activeIdx >= 0) {
+          e.preventDefault();
+          choose(activeIdx);
+        } else {
+          hide();
+        }
+        break;
+      case "Escape":
+        hide();
+        break;
+    }
+  });
+
+  // Delay so a click/tap on a suggestion registers before the list hides.
+  input.addEventListener("blur", () => setTimeout(hide, 150));
+}

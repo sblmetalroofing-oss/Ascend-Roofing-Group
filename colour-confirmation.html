@@ -1024,40 +1024,6 @@
             });
         })();
     </script>
-    <script>
-        // Initialise Google Places autocomplete once the Maps JS API is ready
-        function initAutocomplete() {
-            const addressInput = document.getElementById('jobAddress');
-            if (!addressInput) return;
-
-            const autocomplete = new google.maps.places.Autocomplete(addressInput, {
-                componentRestrictions: { country: 'au' },
-                types: ['address'],
-                fields: ['formatted_address']
-            });
-
-            autocomplete.addListener('place_changed', () => {
-                const place = autocomplete.getPlace();
-                if (place.formatted_address) {
-                    addressInput.value = place.formatted_address;
-                }
-            });
-
-            // Prevent form submit on Enter inside the autocomplete dropdown
-            addressInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    const pacContainer = document.querySelector('.pac-container');
-                    if (pacContainer && pacContainer.style.display !== 'none') {
-                        e.preventDefault();
-                    }
-                }
-            });
-        }
-    </script>
-    <script
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAtuH3SKAhvh-XI2sONazBTcEc6LycF4Zc&libraries=places&callback=initAutocomplete"
-        async defer>
-    </script>
 </body>
 
 </html>

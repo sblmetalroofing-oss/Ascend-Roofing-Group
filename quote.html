@@ -1299,55 +1299,6 @@
             function fmtNum(n) { return Math.round(n).toLocaleString('en-AU'); }
         })();
     </script>
-    <script>
-        // Initialise Google Places autocomplete once the Maps JS API is ready
-        function initAutocomplete() {
-            const addressInput = document.getElementById('quoteAddress');
-            if (!addressInput) return;
-
-            // Reset stored coordinates
-            window.__quoteAutoLat = null;
-            window.__quoteAutoLng = null;
-
-            const autocomplete = new google.maps.places.Autocomplete(addressInput, {
-                componentRestrictions: { country: 'au' },
-                types: ['address'],
-                fields: ['formatted_address', 'geometry', 'address_components']
-            });
-
-            // When user selects an address, store lat/lng for backend
-            autocomplete.addListener('place_changed', () => {
-                const place = autocomplete.getPlace();
-                if (place.formatted_address) {
-                    addressInput.value = place.formatted_address;
-                }
-                if (place.geometry && place.geometry.location) {
-                    window.__quoteAutoLat = place.geometry.location.lat();
-                    window.__quoteAutoLng = place.geometry.location.lng();
-                }
-            });
-
-            // Clear stored coordinates when user manually edits the address
-            addressInput.addEventListener('input', () => {
-                window.__quoteAutoLat = null;
-                window.__quoteAutoLng = null;
-            });
-
-            // Prevent form submit on Enter inside the autocomplete dropdown
-            addressInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    const pacContainer = document.querySelector('.pac-container');
-                    if (pacContainer && pacContainer.style.display !== 'none') {
-                        e.preventDefault();
-                    }
-                }
-            });
-        }
-    </script>
-    <script
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAtuH3SKAhvh-XI2sONazBTcEc6LycF4Zc&libraries=places&callback=initAutocomplete"
-        async defer>
-    </script>
 </body>
 
 </html>
