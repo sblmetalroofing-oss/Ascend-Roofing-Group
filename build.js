@@ -425,7 +425,7 @@ async function build() {
             </div>
             <div class="footer-bottom">
                 <p>&copy; 2026 Ascend Roofing Group Pty Ltd. All rights reserved.</p>
-                <p>QBCC Licensed | ABN Registered</p>
+                <p>QBCC Lic. 15600031 | ABN Registered</p>
             </div>
         </div>
     </footer>
