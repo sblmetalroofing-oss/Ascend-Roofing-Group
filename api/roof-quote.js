@@ -101,6 +101,36 @@ function isCoastalPostcode(postcode) {
   );
 }
 
+// Australia bounding box — used to reject client-supplied coordinates that are
+// non-numeric (NaN) or implausible (spoofed / outside the country) before we
+// spend a Google Solar API call on them.
+const AU_BOUNDS = { latMin: -44, latMax: -10, lngMin: 112, lngMax: 154 };
+
+// Validate client-provided coordinates. Returns { lat, lng } only when both
+// parse to finite numbers inside Australia; otherwise null so the caller falls
+// back to Nominatim geocoding.
+function parseClientCoords(rawLat, rawLng) {
+  const lat = parseFloat(rawLat);
+  const lng = parseFloat(rawLng);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  if (lat < AU_BOUNDS.latMin || lat > AU_BOUNDS.latMax) return null;
+  if (lng < AU_BOUNDS.lngMin || lng > AU_BOUNDS.lngMax) return null;
+  return { lat, lng };
+}
+
+// Extract a QLD postcode (4xxx) from a free-text address. Prefer the code that
+// follows a state token ("… QLD 4125"), since the real postcode trails the
+// address; otherwise fall back to the LAST 4xxx token. Never take the first
+// match — that is frequently a street/unit number (e.g. "4115 Mount Lindesay
+// Hwy, Park Ridge QLD 4125" must resolve to 4125, not 4115).
+function extractPostcode(address) {
+  const str = String(address || "");
+  const stateMatch = str.match(/(?:QLD|Queensland)[,\s]+(4\d{3})\b/i);
+  if (stateMatch) return stateMatch[1];
+  const all = str.match(/\b4\d{3}\b/g);
+  return all && all.length ? all[all.length - 1] : "";
+}
+
 // ─── Input Validation ─────────────────────────────────────
 
 function validateInputs(address, jobType, email) {
@@ -533,12 +563,13 @@ export default async function handler(req, res) {
   // already part of cleanAddress (Google formatted_address), so leave it blank.
   let suburb = "";
 
-  if (clientLat && clientLng) {
-    lat = parseFloat(clientLat);
-    lng = parseFloat(clientLng);
-    // Extract postcode from address string (e.g. "QLD 4118")
-    const pcMatch = cleanAddress.match(/\b(4\d{3})\b/);
-    postcode = pcMatch ? pcMatch[1] : "";
+  const clientCoords = parseClientCoords(clientLat, clientLng);
+  if (clientCoords) {
+    lat = clientCoords.lat;
+    lng = clientCoords.lng;
+    // Postcode is taken from the address string (e.g. "QLD 4118"); the trusted
+    // value comes from after the state token, never the first 4xxx token.
+    postcode = extractPostcode(cleanAddress);
     console.log(
       `Using client coordinates: (${lat}, ${lng}) postcode=${postcode}`,
     );

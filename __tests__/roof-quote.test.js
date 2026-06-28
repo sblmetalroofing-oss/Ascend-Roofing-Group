@@ -379,6 +379,69 @@ describe('roof-quote handler', () => {
         expect(coastal).toBeDefined();
     });
 
+    // ── Postcode extraction: street number must not win (B1) ─
+    test('uses the postcode after the state token, not a leading street number', async () => {
+        global.fetch = jest.fn().mockResolvedValueOnce(mockSolarSuccess({ areaSqm: 100, pitchDegrees: 10 }));
+        const res = makeRes();
+        await handler(makeReq({
+            address: '4115 Mount Lindesay Hwy, Park Ridge QLD 4125',
+            job_type: 'replacement',
+            lat: '-27.81',
+            lng: '153.02'
+        }), res);
+        const body = res.json.mock.calls[0][0];
+        // 4125 (real postcode) — not 4115 (street number)
+        expect(body.postcode).toBe('4125');
+    });
+
+    test('a leading 4xxx street number does not trigger a wrong coastal surcharge', async () => {
+        // First 4xxx token (4500, non-coastal) precedes the real postcode (4218, coastal)
+        global.fetch = jest.fn().mockResolvedValueOnce(mockSolarSuccess({ areaSqm: 100, pitchDegrees: 10 }));
+        const res = makeRes();
+        await handler(makeReq({
+            address: '4500 Gold Coast Hwy, Mermaid Beach QLD 4218',
+            job_type: 'new_metal_install',
+            lat: '-28.05',
+            lng: '153.44'
+        }), res);
+        const body = res.json.mock.calls[0][0];
+        expect(body.postcode).toBe('4218');
+        const coastal = body.quote.surcharges.find(s => s.name === 'Coastal Location Surcharge');
+        expect(coastal).toBeDefined();
+    });
+
+    // ── Client coordinate validation (B2) ─────────────────
+    test('falls back to Nominatim when client coords are non-numeric', async () => {
+        global.fetch = jest.fn()
+            .mockResolvedValueOnce(mockNominatimSuccess({ postcode: '4000' }))
+            .mockResolvedValueOnce(mockSolarSuccess({ areaSqm: 100, pitchDegrees: 10 }));
+        const res = makeRes();
+        await handler(makeReq({
+            address: '1 Test St Brisbane QLD 4000',
+            job_type: 'replacement',
+            lat: 'abc',
+            lng: 'def'
+        }), res);
+        // Two fetches: Nominatim + Solar (client coords rejected)
+        expect(global.fetch).toHaveBeenCalledTimes(2);
+        expect(res.status).toHaveBeenCalledWith(200);
+    });
+
+    test('falls back to Nominatim when client coords are outside Australia', async () => {
+        global.fetch = jest.fn()
+            .mockResolvedValueOnce(mockNominatimSuccess({ postcode: '4000' }))
+            .mockResolvedValueOnce(mockSolarSuccess({ areaSqm: 100, pitchDegrees: 10 }));
+        const res = makeRes();
+        await handler(makeReq({
+            address: '1 Test St Brisbane QLD 4000',
+            job_type: 'replacement',
+            lat: '51.5074',  // London — outside AU bounds
+            lng: '-0.1278'
+        }), res);
+        expect(global.fetch).toHaveBeenCalledTimes(2);
+        expect(res.status).toHaveBeenCalledWith(200);
+    });
+
     // ── All-surcharges scenario ───────────────────────────
     test('calculates correctly with all surcharges applied (high pitch + coastal)', async () => {
         // Using client coords + coastal postcode + high pitch

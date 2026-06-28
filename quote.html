@@ -1194,7 +1194,7 @@
 
                 const details = [
                     { label: 'Roof Area', value: roof.has_data && roof.area_sqm ? `${roof.area_sqm.toLocaleString()} m²` : 'Not available', icon: '📐' },
-                    { label: 'Roof Pitch', value: roof.pitch ? cap(roof.pitch) + (roof.pitch_degrees ? ` (${roof.pitch_degrees}°)` : '') : null, icon: '📏' },
+                    { label: 'Roof Pitch', value: roof.pitch ? cap(roof.pitch) + (roof.pitch_degrees != null ? ` (${roof.pitch_degrees}°)` : '') : null, icon: '📏' },
                     { label: 'Condition', value: roof.condition && roof.condition !== 'unknown' ? cap(roof.condition) : null, icon: condIcon(roof.condition) },
                     { label: 'Material', value: roof.material && roof.material !== 'Unknown' ? roof.material : null, icon: '🏗️' },
                     { label: 'Job Type', value: jobType || 'N/A', icon: '🔧' },
