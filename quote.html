@@ -476,6 +476,16 @@
             margin-top: 8px;
             letter-spacing: 1px;
         }
+        .qr-range-note {
+            font-size: 0.8rem;
+            font-style: italic;
+            color: var(--text-muted);
+            margin-top: 12px;
+            max-width: 420px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.4;
+        }
 
         .qr-unavailable {
             display: flex;
@@ -1226,7 +1236,10 @@
                     return;
                 }
 
-                rangeEl.innerHTML = `<div class="qr-range"><div class="qr-range-label">Estimated Range</div><div class="qr-range-values"><span class="qr-range-low">$${fmtNum(quote.range_low)}</span><span class="qr-range-sep">—</span><span class="qr-range-high">$${fmtNum(quote.range_high)}</span></div><div class="qr-range-currency">AUD (incl. GST)</div></div>`;
+                const typicalNote = quote.estimate_basis === 'typical'
+                    ? `<div class="qr-range-note">Based on a typical local roof size — aerial data wasn't available for this address. Your final price is confirmed with a free on-site measurement.</div>`
+                    : '';
+                rangeEl.innerHTML = `<div class="qr-range"><div class="qr-range-label">Estimated Range</div><div class="qr-range-values"><span class="qr-range-low">$${fmtNum(quote.range_low)}</span><span class="qr-range-sep">—</span><span class="qr-range-high">$${fmtNum(quote.range_high)}</span></div><div class="qr-range-currency">AUD (incl. GST)</div>${typicalNote}</div>`;
 
                 let html = '<div class="qr-breakdown-items">';
                 html += `<div class="qr-breakdown-row"><span>Base (${quote.area_sqm} m² × $${quote.base_rate_per_sqm}/m²)</span><span>$${fmtNum(quote.area_sqm * quote.base_rate_per_sqm)}</span></div>`;
