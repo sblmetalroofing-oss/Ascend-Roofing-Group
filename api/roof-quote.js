@@ -34,6 +34,13 @@ const CONFIG = {
   COASTAL_SURCHARGE: 0.2,
   QUOTE_RANGE_FACTOR: 0.1,
 
+  // Fallback estimate — used when Google Solar has no aerial roof data for the
+  // address. TYPICAL_ROOF_SQM is a typical detached SEQ house roof footprint
+  // (business assumption — tune as needed). The wider range factor reflects the
+  // extra uncertainty of estimating without a real measurement.
+  TYPICAL_ROOF_SQM: 200,
+  FALLBACK_RANGE_FACTOR: 0.3,
+
   // Job type multipliers
   JOB_TYPE_MULTIPLIERS: {
     new_metal_install: 1.0,
@@ -73,6 +80,10 @@ const CONFIG = {
     seq_default:
       "🏠 Recommended Colorbond® steel for superior SEQ storm durability and cyclone-rated fastening systems.",
   },
+
+  // Shown when the estimate is based on a typical roof size rather than aerial data.
+  TYPICAL_ESTIMATE_NOTE:
+    "📐 Estimate based on a typical local roof size — Google aerial data wasn't available for this address. Your final price will be confirmed with a free on-site measurement.",
 
   // Disclaimers
   QUOTE_DISCLAIMER:
@@ -174,7 +185,11 @@ async function getRoofData(lat, lng) {
   const params = new URLSearchParams({
     "location.latitude": String(lat),
     "location.longitude": String(lng),
-    requiredQuality: "MEDIUM",
+    // requiredQuality is a *minimum* threshold — "LOW" still returns the best
+    // imagery Google has for the address while also covering locations that only
+    // have low-quality coverage (common for outer SEQ suburbs). Maximizes the
+    // number of addresses that get a real aerial measurement.
+    requiredQuality: "LOW",
     key: apiKey,
   });
 
@@ -291,22 +306,19 @@ function fallbackRoofData(reason = "") {
 // ─── Quote Calculation ────────────────────────────────────
 
 function calculateQuote(roofData, jobType, postcode) {
-  if (!roofData.has_data || !roofData.area_sqm) {
-    return {
-      available: false,
-      message:
-        "Unable to calculate an automated quote without roof measurements. Please book a free on-site inspection for an accurate quote.",
-      notes: [getLocationNote(postcode)],
-    };
-  }
+  // When Google Solar has no aerial measurement, fall back to a typical roof
+  // size so the customer still gets a ballpark range instead of no estimate.
+  // Pitch/condition are unknown in this mode, so those surcharges are skipped.
+  const isTypical = !roofData.has_data || !roofData.area_sqm;
+  const rawArea = isTypical ? CONFIG.TYPICAL_ROOF_SQM : roofData.area_sqm;
 
   // For repairs, cap area so quotes aren't inflated for small patch jobs
   const areaSqm =
     jobType === "repair"
-      ? Math.min(roofData.area_sqm, CONFIG.REPAIR_MAX_AREA_SQM)
-      : roofData.area_sqm;
-  const pitch = roofData.pitch || "unknown";
-  const condition = roofData.condition || "unknown";
+      ? Math.min(rawArea, CONFIG.REPAIR_MAX_AREA_SQM)
+      : rawArea;
+  const pitch = isTypical ? "unknown" : roofData.pitch || "unknown";
+  const condition = isTypical ? "unknown" : roofData.condition || "unknown";
 
   // Base
   let base = areaSqm * CONFIG.BASE_RATE_PER_SQM;
@@ -349,11 +361,19 @@ function calculateQuote(roofData, jobType, postcode) {
   }
 
   const total = base + surchargeTotal;
-  const low = Math.round(total * (1 - CONFIG.QUOTE_RANGE_FACTOR) * 100) / 100;
-  const high = Math.round(total * (1 + CONFIG.QUOTE_RANGE_FACTOR) * 100) / 100;
+  const rangeFactor = isTypical
+    ? CONFIG.FALLBACK_RANGE_FACTOR
+    : CONFIG.QUOTE_RANGE_FACTOR;
+  const low = Math.round(total * (1 - rangeFactor) * 100) / 100;
+  const high = Math.round(total * (1 + rangeFactor) * 100) / 100;
+
+  const notes = isTypical
+    ? [CONFIG.TYPICAL_ESTIMATE_NOTE, getLocationNote(postcode, coastal)]
+    : [getLocationNote(postcode, coastal)];
 
   return {
     available: true,
+    estimate_basis: isTypical ? "typical" : "aerial",
     area_sqm: areaSqm,
     base_rate_per_sqm: CONFIG.BASE_RATE_PER_SQM,
     job_type_multiplier: multiplier,
@@ -364,7 +384,7 @@ function calculateQuote(roofData, jobType, postcode) {
     range_low: low,
     range_high: high,
     currency: "AUD",
-    notes: [getLocationNote(postcode, coastal)],
+    notes,
   };
 }
 
@@ -444,11 +464,19 @@ async function captureLead({ email, firstName, lastName, phone, address, jobType
             <td style="padding:8px; border:1px solid #ddd; text-align:right; font-weight:bold;">${sanitize(fmt(quote.estimated_total))}</td>
           </tr>`;
 
+        const typicalDisclaimer =
+          quote.estimate_basis === "typical"
+            ? `<p style="font-size:13px; font-style:italic; text-align:center; color:#777; margin:0 0 12px;">
+                Based on a typical local roof size — Google aerial data wasn't available for this address.
+              </p>`
+            : "";
+
         quoteSection = `
           <h3 style="color:#e67e22; margin:24px 0 12px;">Estimated Quote</h3>
           <p style="font-size:20px; font-weight:bold; text-align:center; margin:12px 0;">
             ${sanitize(quoteRange)} <span style="font-size:14px; font-weight:normal;">(incl. GST)</span>
           </p>
+          ${typicalDisclaimer}
           <table style="border-collapse:collapse; width:100%; max-width:500px;">
             ${breakdownRows}
           </table>`;
