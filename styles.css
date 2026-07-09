@@ -14,6 +14,7 @@
 
   --primary-color: #ffffff;
   --accent-color: #007bff;
+  --accent-soft: rgba(0, 123, 255, 0.08);
   --border-color: #2a2a2a;
 
   /* Typography */
@@ -2064,5 +2065,276 @@ textarea:focus-visible,
 .addr-ac-item.is-active {
   background: var(--bg-secondary);
   color: var(--text-light);
+}
+
+/* ============================================
+   ELITEEMA-INSPIRED CONVERSION BLOCKS
+   Trust strip · How-it-works · Guarantee band ·
+   Reviews summary · Nav phone · Hero offer
+   Squared to match the "architectural" theme.
+   ============================================ */
+
+/* ---- NAV PHONE (click-to-call) ---- */
+.nav-link.nav-phone {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--primary-color);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+.nav-link.nav-phone svg {
+  color: var(--accent-color);
+  flex-shrink: 0;
+}
+.nav-link.nav-phone::after {
+  display: none;
+}
+
+/* ---- HERO OFFER LINE ---- */
+.hero-offer {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 40px;
+  padding: 12px 20px;
+  background: var(--accent-soft);
+  border-left: 2px solid var(--accent-color);
+  color: var(--text-main);
+  font-size: 1rem;
+}
+.hero-offer svg {
+  color: var(--accent-color);
+  flex-shrink: 0;
+}
+.hero-offer strong {
+  color: var(--text-light);
+  font-weight: 700;
+}
+
+/* ---- TRUST STRIP ---- */
+.trust-strip {
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  padding: 32px 0;
+}
+.trust-strip-inner {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+.trust-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.trust-item + .trust-item {
+  border-left: 1px solid var(--border-color);
+  padding-left: 24px;
+}
+.trust-item svg {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  color: var(--accent-color);
+}
+.trust-item .trust-stars {
+  font-size: 1.4rem;
+  letter-spacing: 2px;
+  color: #f5b301;
+  flex-shrink: 0;
+}
+.trust-item strong {
+  display: block;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-light);
+  line-height: 1.3;
+}
+.trust-item span {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* ---- HOW IT WORKS (process) ---- */
+.process-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+}
+.process-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-top: 3px solid var(--accent-color);
+  padding: 40px 32px;
+  transition: var(--transition);
+  position: relative;
+}
+.process-card:hover {
+  transform: translateY(-8px);
+  background: var(--bg-secondary);
+}
+.process-card .why-number {
+  font-size: 3.5rem;
+  margin-bottom: 16px;
+}
+.process-card:hover .why-number {
+  color: var(--accent-color);
+}
+.process-card h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+.process-card p {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* ---- GUARANTEE BAND ---- */
+.guarantee-band {
+  padding: 100px 0;
+  background: linear-gradient(180deg, var(--bg-body), var(--bg-secondary));
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+}
+.guarantee-header {
+  text-align: center;
+  margin-bottom: 56px;
+}
+.guarantee-header h2 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 800;
+  line-height: 1.2;
+  margin-top: 8px;
+}
+.guarantee-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 32px 48px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+.guarantee-item {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  padding: 28px;
+  transition: var(--transition);
+}
+.guarantee-item:hover {
+  border-color: var(--accent-color);
+}
+.guarantee-item .feature-icon {
+  color: var(--accent-color);
+  margin-top: 2px;
+}
+.guarantee-item strong {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text-light);
+}
+.guarantee-item p {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* ---- REVIEWS SUMMARY ---- */
+.reviews-summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  margin: -32px auto 56px;
+  padding: 24px 40px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  max-width: 520px;
+}
+.reviews-score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-right: 24px;
+  border-right: 1px solid var(--border-color);
+}
+.reviews-number {
+  font-family: var(--font-heading);
+  font-size: 3rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--text-light);
+}
+.reviews-stars {
+  font-size: 1.1rem;
+  letter-spacing: 2px;
+  color: #f5b301;
+  margin-top: 6px;
+}
+.reviews-meta strong {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-light);
+}
+.reviews-meta span {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* ---- CONVERSION BLOCKS — RESPONSIVE ---- */
+@media (max-width: 1024px) {
+  .trust-strip-inner,
+  .process-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .trust-item:nth-child(odd) {
+    border-left: none;
+    padding-left: 0;
+  }
+}
+@media (max-width: 768px) {
+  .process-grid,
+  .guarantee-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .trust-strip-inner {
+    gap: 20px;
+  }
+  .trust-item + .trust-item {
+    border-left: none;
+    padding-left: 0;
+  }
+  .reviews-summary {
+    margin-top: 0;
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+    padding: 24px;
+  }
+  .reviews-score {
+    padding-right: 0;
+    border-right: none;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+  }
+}
+@media (max-width: 480px) {
+  .trust-strip-inner {
+    grid-template-columns: 1fr;
+  }
 }
 
