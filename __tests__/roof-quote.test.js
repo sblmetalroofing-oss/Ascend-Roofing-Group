@@ -336,7 +336,7 @@ describe('roof-quote handler', () => {
     });
 
     // ── Fallback when Solar API returns 404 ──────────────
-    test('returns unavailable quote when Solar API has no data', async () => {
+    test('returns typical-size estimate when Solar API has no data', async () => {
         global.fetch = jest.fn()
             .mockResolvedValueOnce(mockNominatimSuccess({ postcode: '4000' }))
             .mockResolvedValueOnce(mockSolar404());
@@ -344,8 +344,12 @@ describe('roof-quote handler', () => {
         await handler(makeReq({ address: '1 Test St Brisbane QLD 4000', job_type: 'replacement' }), res);
         const body = res.json.mock.calls[0][0];
         expect(body.success).toBe(true);
-        expect(body.quote.available).toBe(false);
-        expect(body.quote.message).toMatch(/on-site inspection/i);
+        expect(body.quote.available).toBe(true);
+        expect(body.quote.estimate_basis).toBe('typical');
+        expect(body.quote.area_sqm).toBe(200); // CONFIG.TYPICAL_ROOF_SQM
+        // Wider ±30% range in typical mode (FALLBACK_RANGE_FACTOR)
+        expect(body.quote.range_low).toBeCloseTo(body.quote.estimated_total * 0.7, 1);
+        expect(body.quote.range_high).toBeCloseTo(body.quote.estimated_total * 1.3, 1);
     });
 
     // ── Client-provided coordinates ───────────────────────
