@@ -17,6 +17,8 @@
     <meta property="og:image" content="https://www.ascendroofinggroup.com.au/images/ROOFING GROUP.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="Ascend Roofing Group">
+    <meta property="og:locale" content="en_AU">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@AscendRoofing">
     <meta name="twitter:title" content="Yarrabilba Roofing &amp; Colorbond® Specialists | Ascend Roofing Group">
@@ -33,7 +35,7 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#0a0a0a">
-    <!-- Google Analytics (Placeholder) -->
+    <!-- TODO(owner): supply a GA4 measurement ID, then uncomment -->
     <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=YOUR_ID_HERE"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -43,6 +45,7 @@
       gtag('config', 'YOUR_ID_HERE');
     </script> -->
     <link rel="stylesheet" href="../styles.css">
+    <link rel="preload" as="image" type="image/avif" href="/images/20240307_171821.avif" fetchpriority="high">
     <script defer src="/_vercel/speed-insights/script.js"></script>
     <script defer src="/_vercel/insights/script.js"></script>
     <script type="application/ld+json">
@@ -55,6 +58,7 @@
         "telephone": "+61490196284",
         "email": "admin@ascendroofinggroup.com.au",
         "priceRange": "$$",
+        "hasCredential": {"@type": "EducationalOccupationalCredential", "credentialCategory": "licence", "name": "QBCC Licence 15600031"},
         "address": {
             "@type": "PostalAddress",
             "addressLocality": "Yarrabilba",
@@ -87,7 +91,7 @@
                 "name": "How much does a roof replacement cost in Yarrabilba?",
                 "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Roof replacement costs in Yarrabilba 4207 typically range from $15,000 to $35,000+ depending on the size of your home, roof complexity, and chosen Colorbond® colour. We provide free, no-obligation quotes so you know exactly what to expect — no hidden fees."
+                    "text": "Roof replacement costs in Yarrabilba 4207 typically range from $12,000 to $45,000+ depending on the size of your home, roof complexity, and chosen Colorbond® colour. We provide free, no-obligation quotes so you know exactly what to expect — no hidden fees."
                 }
             },
             {
@@ -139,13 +143,14 @@
 </head>
 
 <body>
+    <a class="skip-link" href="#main">Skip to content</a>
     <!-- ===================== NAVIGATION ===================== -->
     <nav class="navbar" id="navbar">
         <div class="container nav-container">
             <a href="/" class="nav-logo">
                 <img src="../images/ROOFING GROUP.png" alt="Ascend Roofing Group Logo" class="logo-img" width="400" height="400">
             </a>
-            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="navMenu">
                 <span></span><span></span><span></span>
             </button>
             <ul class="nav-menu" id="navMenu">
@@ -156,11 +161,18 @@
                 <li><a href="../roof-replacement.html" class="nav-link">Roof Replacement</a></li>
                 <li><a href="../locations.html" class="nav-link active">Locations</a></li>
                 <li><a href="../quote.html" class="nav-link">Instant Quote</a></li>
+                <li><a href="tel:0490196284" class="nav-link nav-phone">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+                    </svg>
+                    0490 196 284
+                </a></li>
                 <li><a href="#contact" class="nav-link nav-cta">Get a Quote</a></li>
             </ul>
         </div>
     </nav>
     <div class="nav-overlay" id="navOverlay"></div>
+    <main id="main">
 
 
 
@@ -287,15 +299,27 @@
             <div class="gallery-grid">
                 <!-- Item 1 -->
                 <div class="gallery-item" data-reveal>
-                    <img src="../images/DJI_20240427080531_0013_D_edited_edited.jpg" alt="Metal Roof Installation Yarrabilba" loading="lazy" decoding="async" width="1920" height="1234">
+                    <picture>
+                        <source srcset="../images/DJI_20240427080531_0013_D_edited_edited.avif" type="image/avif">
+                        <source srcset="../images/DJI_20240427080531_0013_D_edited_edited.webp" type="image/webp">
+                        <img src="../images/DJI_20240427080531_0013_D_edited_edited.jpg" alt="Metal Roof Installation Yarrabilba" loading="lazy" decoding="async" width="1920" height="1234">
+                    </picture>
                 </div>
                 <!-- Item 2 -->
                 <div class="gallery-item" data-reveal>
-                    <img src="../images/20240307_171821.jpg" alt="New Build Yarrabilba" loading="lazy" decoding="async" width="1440" height="1920">
+                    <picture>
+                        <source srcset="../images/20240307_171821.avif" type="image/avif">
+                        <source srcset="../images/20240307_171821.webp" type="image/webp">
+                        <img src="../images/20240307_171821.jpg" alt="New Build Yarrabilba" loading="lazy" decoding="async" width="1440" height="1920">
+                    </picture>
                 </div>
                 <!-- Item 3 -->
                 <div class="gallery-item" data-reveal>
-                    <img src="../images/dji_fly_20250313_141642_0183_1741839576383_photo.JPEG" alt="Commercial Roofing Logan" loading="lazy" decoding="async" width="1920" height="1080">
+                    <picture>
+                        <source srcset="../images/dji_fly_20250313_141642_0183_1741839576383_photo.avif" type="image/avif">
+                        <source srcset="../images/dji_fly_20250313_141642_0183_1741839576383_photo.webp" type="image/webp">
+                        <img src="../images/dji_fly_20250313_141642_0183_1741839576383_photo.JPEG" alt="Commercial Roofing Logan" loading="lazy" decoding="async" width="1920" height="1080">
+                    </picture>
                 </div>
             </div>
         </div>
@@ -307,8 +331,12 @@
             <div class="about-grid">
                 <div class="about-image" data-reveal>
                     <div class="about-img-wrapper">
-                        <img src="../images/dji_fly_20250313_141642_0183_1741839576383_photo.JPEG"
-                            alt="Ascend Roofing Group Team" class="about-img-real" width="1920" height="1080" loading="lazy" decoding="async">
+                        <picture>
+                            <source srcset="../images/dji_fly_20250313_141642_0183_1741839576383_photo.avif" type="image/avif">
+                            <source srcset="../images/dji_fly_20250313_141642_0183_1741839576383_photo.webp" type="image/webp">
+                            <img src="../images/dji_fly_20250313_141642_0183_1741839576383_photo.JPEG"
+                                alt="Ascend Roofing Group Team" class="about-img-real" width="1920" height="1080" loading="lazy" decoding="async">
+                        </picture>
                         <div class="about-experience-badge">
                             <span class="exp-number">14+</span>
                             <span class="exp-label">Years of<br>Excellence</span>
@@ -468,9 +496,9 @@
                 <h2>What Our Clients <span class="text-accent">Say</span></h2>
             </div>
             <div class="testimonials-grid">
-                <div class='testimonial-card' data-reveal><div class='testimonial-stars'>★★★★★</div><p>"Absolutely thrilled with the new roof. The guys worked incredibly hard and left the site spotless. Would definitely use Ascend Roofing Group again."</p><div class='testimonial-author'><div class='author-avatar'>JB</div><div><strong>Jessica B.</strong><span>Homeowner</span></div></div></div>
-<div class='testimonial-card' data-reveal><div class='testimonial-stars'>★★★★★</div><p>"From the initial quote to the final inspection, everything was seamless. High-quality Colorbond installation and friendly staff."</p><div class='testimonial-author'><div class='author-avatar'>NW</div><div><strong>Nathan W.</strong><span>Homeowner</span></div></div></div>
-<div class='testimonial-card' data-reveal><div class='testimonial-stars'>★★★★★</div><p>"After the last big storm we needed urgent repairs. Steve and his team were out the next day and had everything sealed up perfectly. Great communication from start to finish."</p><div class='testimonial-author'><div class='author-avatar'>SR</div><div><strong>Sarah R.</strong><span>Local Resident</span></div></div></div>
+                <div class='testimonial-card' data-reveal><div class='testimonial-stars'>★★★★★</div><p>"Absolutely thrilled with the new roof. The guys worked incredibly hard and left the site spotless. Would definitely use Ascend Roofing Group again."</p><div class='testimonial-author'><div><strong>Homeowner</strong><span>Gold Coast</span></div></div></div>
+<div class='testimonial-card' data-reveal><div class='testimonial-stars'>★★★★★</div><p>"From the initial quote to the final inspection, everything was seamless. High-quality Colorbond installation and friendly staff."</p><div class='testimonial-author'><div><strong>Homeowner</strong><span>Moreton Bay</span></div></div></div>
+<div class='testimonial-card' data-reveal><div class='testimonial-stars'>★★★★★</div><p>"After the last big storm we needed urgent repairs. The team were out the next day and had everything sealed up perfectly. Great communication from start to finish."</p><div class='testimonial-author'><div><strong>Local Resident</strong><span>South East Queensland</span></div></div></div>
             </div>
         </div>
     </section>
@@ -490,7 +518,7 @@
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
                     </button>
                     <div class="faq-answer">
-                        <p>Roof replacement costs in Yarrabilba 4207 typically range from $15,000 to $35,000+ depending on the size of your home, roof complexity, and chosen Colorbond® colour. We provide free, no-obligation quotes so you know exactly what to expect — no hidden fees.</p>
+                        <p>Roof replacement costs in Yarrabilba 4207 typically range from $12,000 to $45,000+ depending on the size of your home, roof complexity, and chosen Colorbond® colour. We provide free, no-obligation quotes so you know exactly what to expect — no hidden fees.</p>
                     </div>
                 </div>
                 <div class="faq-item" data-reveal>
@@ -690,6 +718,7 @@
             </div>
         </div>
     </section>
+    </main>
 
     <!-- ===================== FOOTER ===================== -->
     <!-- ===================== FOOTER ===================== -->
@@ -747,10 +776,17 @@
             </div>
             <div class="footer-bottom">
                 <p>&copy; 2026 Ascend Roofing Group Pty Ltd. All rights reserved.</p>
+                <!-- TODO(owner): replace "ABN Registered" with the actual ABN, e.g. "ABN 12 345 678 901" -->
                 <p>QBCC Lic. 15600031 | ABN Registered</p>
             </div>
         </div>
     </footer>
+
+    <!-- Floating Mobile CTA -->
+    <a href="tel:0490196284" class="floating-phone-cta">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" stroke-width="2"></path></svg>
+        0490 196 284
+    </a>
 
     <script defer src="../script.js"></script>
 </body>

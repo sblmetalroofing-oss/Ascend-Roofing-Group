@@ -7,11 +7,14 @@
     <title>Subcontractor Pack | Ascend Roofing Group</title>
     <meta name="description"
         content="Submit your business information, banking details, and insurance documents to Ascend Roofing Group.">
+    <meta name="robots" content="noindex, follow">
     <meta property="og:title" content="Subcontractor Pack | Ascend Roofing Group">
     <meta property="og:description" content="Submit your business information, banking details, and insurance documents to become an Ascend Roofing Group subcontractor.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.ascendroofinggroup.com.au/subcontractor-pack.html">
     <meta property="og:image" content="https://www.ascendroofinggroup.com.au/images/ROOFING GROUP.png">
+    <meta property="og:site_name" content="Ascend Roofing Group">
+    <meta property="og:locale" content="en_AU">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@AscendRoofing">
     <meta name="twitter:title" content="Subcontractor Pack | Ascend Roofing Group">
@@ -175,7 +178,7 @@
             align-items: center;
             gap: 10px;
             padding: 16px 24px;
-            background: var(--accent-color);
+            background: var(--accent-btn, #0056b3);
             color: #fff;
             font-size: 0.8rem;
             font-weight: 700;
@@ -183,12 +186,12 @@
             letter-spacing: 1px;
             cursor: pointer;
             transition: var(--transition);
-            border: 1px solid var(--accent-color);
+            border: 1px solid var(--accent-btn, #0056b3);
         }
 
         .file-upload-label:hover {
-            background: #0056b3;
-            border-color: #0056b3;
+            background: var(--accent-btn-hover, #004494);
+            border-color: var(--accent-btn-hover, #004494);
         }
 
         .file-upload-label svg {
@@ -339,13 +342,14 @@
 </head>
 
 <body>
+    <a class="skip-link" href="#main">Skip to content</a>
     <!-- ===================== NAVIGATION ===================== -->
     <nav class="navbar" id="navbar">
         <div class="container nav-container">
             <a href="/" class="nav-logo">
                 <img src="./images/ROOFING GROUP.png" alt="Ascend Roofing Group Logo" class="logo-img" width="400" height="400">
             </a>
-            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="navMenu">
                 <span></span><span></span><span></span>
             </button>
                         <ul class="nav-menu" id="navMenu">
@@ -361,6 +365,7 @@
         </div>
     </nav>
     <div class="nav-overlay" id="navOverlay"></div>
+    <main id="main">
 
     <!-- ===================== HERO ===================== -->
     <section class="subby-hero">
@@ -514,7 +519,7 @@
                     <div class="subby-submit">
                         <button type="submit" class="btn btn-primary btn-full" id="subbySubmitBtn">Submit
                             Subcontractor Pack</button>
-                        <p id="subbySubmitError" class="error-message" style="margin-top:0.75rem;"></p>
+                        <p id="subbySubmitError" role="alert" class="error-message" style="margin-top:0.75rem;"></p>
                     </div>
                 </form>
 
@@ -531,6 +536,7 @@
             </div>
         </div>
     </section>
+    </main>
 
     <!-- ===================== FOOTER ===================== -->
     <footer class="footer">
@@ -549,6 +555,7 @@
                         <li><a href="/#services">Services</a></li>
                         <li><a href="/#about">About Us</a></li>
                         <li><a href="locations.html">Locations</a></li>
+                        <li><a href="blog/">Roofing Blog</a></li>
                         <li><a href="/#team">Our Team</a></li>
                         <li><a href="/#testimonials">Reviews</a></li>
                         <li><a href="/#contact">Contact</a></li>
@@ -562,11 +569,11 @@
                 <div class="footer-links">
                     <h4>Services</h4>
                     <ul>
-                        <li><a href="/#services">New Roof Installations</a></li>
-                        <li><a href="/#services">Roof Replacements</a></li>
-                        <li><a href="/#services">Roof Repairs</a></li>
-                        <li><a href="/#services">Insulation Upgrades</a></li>
-                        <li><a href="/#services">Gutters & Downpipes</a></li>
+                        <li><a href="new-roof-installation-brisbane.html">New Roof Installations</a></li>
+                        <li><a href="roof-replacement.html">Roof Replacements</a></li>
+                        <li><a href="roof-repairs-brisbane.html">Roof Repairs</a></li>
+                        <li><a href="roof-insulation-brisbane.html">Insulation Upgrades</a></li>
+                        <li><a href="gutters-downpipes-brisbane.html">Gutters & Downpipes</a></li>
                     </ul>
                 </div>
                 <div class="footer-contact">
@@ -578,6 +585,7 @@
             </div>
             <div class="footer-bottom">
                 <p>&copy; 2026 Ascend Roofing Group Pty Ltd. All rights reserved.</p>
+                <!-- TODO(owner): replace "ABN Registered" with the actual ABN, e.g. "ABN 12 345 678 901" -->
                 <p>QBCC Lic. 15600031 | ABN Registered</p>
             </div>
         </div>

@@ -11,10 +11,13 @@
     },
     "author": "Ascend Roofing Group",
     "license": "UNLICENSED",
+    "engines": {
+        "node": "22.x"
+    },
     "dependencies": {
-        "resend": "^4.0.0",
-        "@anthropic-ai/sdk": "^0.39.0",
-        "@vercel/postgres": "^0.5.1"
+        "@anthropic-ai/sdk": "^0.110.0",
+        "@vercel/postgres": "^0.10.0",
+        "resend": "^4.0.0"
     },
     "devDependencies": {
         "jest": "^29.7.0"
@@ -22,6 +25,9 @@
     "jest": {
         "testEnvironment": "node",
         "transform": {},
-        "extensionsToTreatAsEsm": []
+        "extensionsToTreatAsEsm": [],
+        "setupFilesAfterEnv": [
+            "<rootDir>/jest.setup.js"
+        ]
     }
 }

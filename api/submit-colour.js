@@ -1,18 +1,12 @@
 import { Resend } from 'resend';
 import { verifyOrigin } from '../lib/verify-origin.js';
+import { sanitize } from '../lib/sanitize.js';
+import { rateLimit } from '../lib/rate-limit.js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Sanitize user input to prevent XSS in HTML emails
-function sanitize(str) {
-    if (!str) return '';
-    return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#x27;');
-}
+// Signature images are small canvas PNGs; anything past this is abuse.
+const MAX_SIGNATURE_LENGTH = 300 * 1024; // ~220 KB decoded
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -23,11 +17,21 @@ export default async function handler(req, res) {
         return res.status(403).json({ success: false, message: 'Forbidden' });
     }
 
+    const rl = await rateLimit(req, { name: 'submit-colour', limit: 5, windowMs: 10 * 60 * 1000 });
+    if (rl.limited) {
+        res.setHeader('Retry-After', String(rl.retryAfter));
+        return res.status(429).json({ success: false, message: 'Too many requests. Please wait a few minutes and try again.' });
+    }
+
     const { firstName, lastName, jobAddress, roofColour, gutterColour, fasciaColour, signature } = req.body;
 
     // Validate required fields
     if (!firstName || !lastName || !jobAddress) {
         return res.status(400).json({ success: false, message: 'Missing required fields: firstName, lastName, jobAddress.' });
+    }
+
+    if (typeof signature === 'string' && signature.length > MAX_SIGNATURE_LENGTH) {
+        return res.status(400).json({ success: false, message: 'Signature image is too large. Please try signing again.' });
     }
 
     // Sanitize all inputs
@@ -103,7 +107,7 @@ export default async function handler(req, res) {
 
         if (error) {
             console.error('Resend Error:', error);
-            return res.status(400).json({ success: false, error });
+            return res.status(400).json({ success: false, message: 'Failed to send the confirmation. Please try again or call us.' });
         }
 
         return res.status(200).json({ success: true, data });

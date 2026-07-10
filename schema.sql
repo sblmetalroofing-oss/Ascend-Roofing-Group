@@ -76,3 +76,23 @@ CREATE TABLE IF NOT EXISTS employee_documents (
 
 CREATE INDEX IF NOT EXISTS idx_employee_email ON employees(email);
 CREATE INDEX IF NOT EXISTS idx_employee_documents_employee ON employee_documents(employee_id);
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- TODO(owner): PII encryption migration — run BEFORE setting ENCRYPTION_KEY.
+--
+-- lib/crypto.js encrypts tfn/bsb/account_number with AES-256-GCM when
+-- ENCRYPTION_KEY is set. Ciphertext ("enc:v1:<iv>:<tag>:<ct>") is ~120+ chars
+-- and does NOT fit the original VARCHAR widths, so widen the columns first:
+--
+--   ALTER TABLE employees
+--     ALTER COLUMN tfn TYPE TEXT,
+--     ALTER COLUMN bsb TYPE TEXT,
+--     ALTER COLUMN account_number TYPE TEXT;
+--   ALTER TABLE subcontractors
+--     ALTER COLUMN bsb TYPE TEXT,
+--     ALTER COLUMN account_number TYPE TEXT;
+--
+-- Legacy plaintext rows stay readable (decryptField passes through values
+-- without the enc: prefix) and are re-encrypted on their next upsert.
+-- Generate the key with: openssl rand -hex 32
+-- ─────────────────────────────────────────────────────────────────────────────

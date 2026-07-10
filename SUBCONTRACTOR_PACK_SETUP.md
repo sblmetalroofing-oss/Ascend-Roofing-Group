@@ -15,18 +15,18 @@ Add these to your Vercel project settings (Settings → Environment Variables):
 
 ### New Variables Required
 
-#### 1. OpenAI API Key
+#### 1. Anthropic API Key
 ```
-OPENAI_API_KEY=sk-...your-openai-api-key...
+ANTHROPIC_API_KEY=sk-ant-...your-anthropic-api-key...
 ```
 
-**To get your OpenAI API key:**
-1. Go to https://platform.openai.com/api-keys
+**To get your Anthropic API key:**
+1. Go to https://console.anthropic.com/settings/keys
 2. Sign in or create an account
-3. Click "Create new secret key"
+3. Click "Create Key"
 4. Copy the key and add it to Vercel environment variables
 
-**Cost**: ~$0.01 per document analyzed (~$3-5/month for 100-200 submissions)
+**Cost**: a few cents per document analyzed (Claude vision reads each insurance document once per submission)
 
 #### 2. Vercel Postgres Database
 
@@ -91,7 +91,7 @@ psql $POSTGRES_URL -f schema.sql
    ```
 
 2. **Set Environment Variables in Vercel**
-   - Add `OPENAI_API_KEY`
+   - Add `ANTHROPIC_API_KEY`
    - Add `CRON_SECRET`
    - Create Postgres database (adds `POSTGRES_URL` automatically)
 
@@ -117,7 +117,7 @@ To test locally, create a `.env.local` file:
 RESEND_API_KEY=your-resend-key
 FROM_EMAIL=your@email.com
 BUSINESS_EMAIL=your-business@email.com
-OPENAI_API_KEY=sk-your-openai-key
+ANTHROPIC_API_KEY=sk-ant-your-anthropic-key
 POSTGRES_URL=postgres://user:pass@host:5432/database
 CRON_SECRET=your-secret-string
 ```
@@ -134,7 +134,7 @@ npm run serve
 2. Form submits to `/api/submit-subby-pack`
 3. API endpoint:
    - Validates input
-   - Sends insurance documents to OpenAI Vision API
+   - Sends insurance documents to the Anthropic API (Claude vision)
    - Extracts expiry dates, policy numbers, insurer names
    - Stores data in Postgres database
    - Sends email with all details + AI-extracted info
@@ -152,8 +152,8 @@ npm run serve
 ## Troubleshooting
 
 ### AI Extraction Not Working
-- Check `OPENAI_API_KEY` is set correctly
-- Verify you have OpenAI API credits
+- Check `ANTHROPIC_API_KEY` is set correctly
+- Verify you have Anthropic API credits
 - Check Vercel function logs for errors
 
 ### Database Errors
@@ -175,5 +175,5 @@ npm run serve
 
 For issues or questions, check:
 - Vercel function logs: Dashboard → Project → Functions → Logs
-- OpenAI API usage: https://platform.openai.com/usage
+- Anthropic API usage: https://console.anthropic.com/settings/usage
 - Resend email logs: https://resend.com/emails

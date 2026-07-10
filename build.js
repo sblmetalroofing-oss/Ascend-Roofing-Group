@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { execSync } from "child_process";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -15,22 +16,6 @@ const CONFIG = {
   baseUrl: "https://www.ascendroofinggroup.com.au",
 };
 
-// Project Images (for randomization)
-const PROJECT_IMAGES = [
-  "20231130_153142.jpg",
-  "20240307_171821.jpg",
-  "DJI_20240427080531_0013_D_edited_edited.jpg",
-  "IMG_4703.JPG",
-  "dji_fly_20250220_134822_0091_1740023538708_photo_edited.png",
-  "dji_fly_20250313_141642_0183_1741839576383_photo.JPEG",
-];
-
-const TEMPLATE_PLACEHOLDERS = [
-  "../images/17964553073761123.avif",
-  "../images/18055540900925803.avif",
-  "../images/17845590288288225.avif",
-];
-
 // Utilities
 function getSlug(name) {
   return name
@@ -39,9 +24,25 @@ function getSlug(name) {
     .replace(/[^a-z0-9-]/g, "");
 }
 
-function getRandomImages(count) {
-  const shuffled = [...PROJECT_IMAGES].sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, count);
+// Escape a value for use inside a double-quoted HTML attribute.
+function escapeAttr(str) {
+  return String(str).replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+}
+
+// Sitemap lastmod: the last commit date of the content inputs — deterministic
+// per commit, so rebuilding without content changes produces no diff (CI
+// enforces this) and Google isn't told unchanged pages are "new".
+function getSiteLastmod() {
+  const FALLBACK = "2026-07-10";
+  try {
+    const out = execSync(
+      "git log -1 --format=%cs -- template.html suburbs.json build.js scripts/enrich-service-areas.cjs",
+      { cwd: __dirname, encoding: "utf8" },
+    ).trim();
+    return /^\d{4}-\d{2}-\d{2}$/.test(out) ? out : FALLBACK;
+  } catch {
+    return FALLBACK;
+  }
 }
 
 // Main Build Function
@@ -141,13 +142,15 @@ async function build() {
     `<div class='service-card' data-reveal><div class='service-icon'><svg viewBox='0 0 48 48' fill='none' stroke='currentColor' stroke-width='2'><circle cx='24' cy='24' r='8'/><path d='M24 4v8M24 36v8M4 24h8M36 24h8M8.93 8.93l5.66 5.66M33.41 33.41l5.66 5.66M8.93 39.07l5.66-5.66M33.41 14.59l5.66-5.66'/></svg></div><h3>Skylights &amp; Whirlybirds</h3><p>Natural lighting and ventilation solutions for homes and businesses in {{REGION}}.</p></div>`,
   ];
 
+  // TODO(owner): replace these representative testimonials with real,
+  // attributed customer reviews (names used with permission).
   const TESTIMONIALS_CARDS = [
-    `<div class='testimonial-card' data-reveal><div class='testimonial-stars'>★★★★★</div><p>"Ascend Roofing replaced our entire roof in just three days. The team was professional, tidy, and the new Colorbond roof looks absolutely stunning. Couldn't be happier!"</p><div class='testimonial-author'><div class='author-avatar'>MK</div><div><strong>Mark K.</strong><span>Homeowner</span></div></div></div>`,
-    `<div class='testimonial-card' data-reveal><div class='testimonial-stars'>★★★★★</div><p>"After the last big storm we needed urgent repairs. Steve and his team were out the next day and had everything sealed up perfectly. Great communication from start to finish."</p><div class='testimonial-author'><div class='author-avatar'>SR</div><div><strong>Sarah R.</strong><span>Local Resident</span></div></div></div>`,
-    `<div class='testimonial-card' data-reveal><div class='testimonial-stars'>★★★★★</div><p>"We got three quotes and Ascend was the most transparent and competitive. No hidden fees, honest advice, and the workmanship is top-notch. Highly recommend this family business."</p><div class='testimonial-author'><div class='author-avatar'>DL</div><div><strong>David L.</strong><span>Property Manager</span></div></div></div>`,
-    `<div class='testimonial-card' data-reveal><div class='testimonial-stars'>★★★★★</div><p>"Absolutely thrilled with the new roof. The guys worked incredibly hard and left the site spotless. Would definitely use Ascend Roofing Group again."</p><div class='testimonial-author'><div class='author-avatar'>JB</div><div><strong>Jessica B.</strong><span>Homeowner</span></div></div></div>`,
-    `<div class='testimonial-card' data-reveal><div class='testimonial-stars'>★★★★★</div><p>"Prompt, polite, and well priced. They fixed a leak that two other companies couldn't find. Excellent service."</p><div class='testimonial-author'><div class='author-avatar'>TP</div><div><strong>Tom P.</strong><span>Property Owner</span></div></div></div>`,
-    `<div class='testimonial-card' data-reveal><div class='testimonial-stars'>★★★★★</div><p>"From the initial quote to the final inspection, everything was seamless. High-quality Colorbond installation and friendly staff."</p><div class='testimonial-author'><div class='author-avatar'>NW</div><div><strong>Nathan W.</strong><span>Homeowner</span></div></div></div>`,
+    `<div class='testimonial-card' data-reveal><div class='testimonial-stars'>★★★★★</div><p>"Ascend Roofing replaced our entire roof in just three days. The team was professional, tidy, and the new Colorbond roof looks absolutely stunning. Couldn't be happier!"</p><div class='testimonial-author'><div><strong>Homeowner</strong><span>Brisbane</span></div></div></div>`,
+    `<div class='testimonial-card' data-reveal><div class='testimonial-stars'>★★★★★</div><p>"After the last big storm we needed urgent repairs. The team were out the next day and had everything sealed up perfectly. Great communication from start to finish."</p><div class='testimonial-author'><div><strong>Local Resident</strong><span>South East Queensland</span></div></div></div>`,
+    `<div class='testimonial-card' data-reveal><div class='testimonial-stars'>★★★★★</div><p>"We got three quotes and Ascend was the most transparent and competitive. No hidden fees, honest advice, and the workmanship is top-notch. Highly recommend this family business."</p><div class='testimonial-author'><div><strong>Property Manager</strong><span>Logan</span></div></div></div>`,
+    `<div class='testimonial-card' data-reveal><div class='testimonial-stars'>★★★★★</div><p>"Absolutely thrilled with the new roof. The guys worked incredibly hard and left the site spotless. Would definitely use Ascend Roofing Group again."</p><div class='testimonial-author'><div><strong>Homeowner</strong><span>Gold Coast</span></div></div></div>`,
+    `<div class='testimonial-card' data-reveal><div class='testimonial-stars'>★★★★★</div><p>"Prompt, polite, and well priced. They fixed a leak that two other companies couldn't find. Excellent service."</p><div class='testimonial-author'><div><strong>Property Owner</strong><span>Ipswich</span></div></div></div>`,
+    `<div class='testimonial-card' data-reveal><div class='testimonial-stars'>★★★★★</div><p>"From the initial quote to the final inspection, everything was seamless. High-quality Colorbond installation and friendly staff."</p><div class='testimonial-author'><div><strong>Homeowner</strong><span>Moreton Bay</span></div></div></div>`,
   ];
 
   // Deterministic pick from array based on suburb name hash
@@ -181,8 +184,14 @@ async function build() {
   }
 
   // 3. Generate Suburb Pages
+  const seenSlugs = new Set();
   suburbs.forEach((suburb) => {
     const slug = getSlug(suburb.name);
+    if (seenSlugs.has(slug)) {
+      console.warn(`Duplicate suburb entry skipped: ${suburb.name} (${slug})`);
+      return;
+    }
+    seenSlugs.add(slug);
     const filename = `roofing-${slug}.html`;
     const filePath = path.join(CONFIG.outputDir, filename);
 
@@ -236,14 +245,6 @@ async function build() {
       .replace(/\{\{SERVICES_GRID\}\}/g, servicesGrid)
       .replace(/\{\{TESTIMONIALS_GRID\}\}/g, testimonialsGrid);
 
-    // Randomize Images
-    const selectedImages = getRandomImages(3);
-    TEMPLATE_PLACEHOLDERS.forEach((placeholder, index) => {
-      content = content
-        .split(placeholder)
-        .join(`../images/${selectedImages[index]}`);
-    });
-
     // Write File
     fs.writeFileSync(filePath, content);
 
@@ -273,7 +274,9 @@ async function build() {
     );
 
     sortedSuburbs.forEach((item) => {
-      locationsGridHtml += `<a href='service-areas/${item.filename}' class='location-link' title='Roofing ${item.name}'>${item.name}</a>`;
+      // Double-quoted attributes + escaping: suburb names can contain
+      // apostrophes (D'Aguilar), which broke the single-quoted title attr.
+      locationsGridHtml += `<a href="service-areas/${item.filename}" class="location-link" title="Roofing ${escapeAttr(item.name)}">${item.name}</a>`;
     });
 
     locationsGridHtml += `</div></div>`;
@@ -292,13 +295,24 @@ async function build() {
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.ascendroofinggroup.com.au/locations.html">
     <meta property="og:image" content="https://www.ascendroofinggroup.com.au/images/ROOFING GROUP.png">
+    <meta property="og:site_name" content="Ascend Roofing Group">
+    <meta property="og:locale" content="en_AU">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Ascend Roofing Group Service Areas | Brisbane &amp; Gold Coast">
+    <meta name="twitter:description" content="Roof replacement and metal roofing across all Brisbane, Gold Coast, Logan, Ipswich and Moreton Bay suburbs.">
+    <meta name="twitter:image" content="https://www.ascendroofinggroup.com.au/images/ROOFING GROUP.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap"
         rel="stylesheet">
-    <link rel="icon" href="./images/ROOFING GROUP.png" type="image/png">
-    <!-- Google Analytics (Placeholder) -->
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+    <link rel="icon" href="/favicon-16.png" sizes="16x16" type="image/png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#0a0a0a">
+    <!-- TODO(owner): supply a GA4 measurement ID, then uncomment (also in
+         template.html, index.html, and the hand-written page heads) -->
     <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=YOUR_ID_HERE"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -345,15 +359,17 @@ async function build() {
         }
     </style>
     <script defer src="/_vercel/speed-insights/script.js"></script>
+    <script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
+    <a class="skip-link" href="#main">Skip to content</a>
     <!-- ===================== NAVIGATION ===================== -->
     <nav class="navbar" id="navbar">
         <div class="container nav-container">
             <a href="/" class="nav-logo">
-                <img src="./images/ROOFING GROUP.png" alt="Ascend Roofing Group Logo" class="logo-img">
+                <img src="./images/ROOFING GROUP.png" alt="Ascend Roofing Group Logo" class="logo-img" width="400" height="400">
             </a>
-            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="navMenu">
                 <span></span><span></span><span></span>
             </button>
             <ul class="nav-menu" id="navMenu">
@@ -363,11 +379,13 @@ async function build() {
                 <li><a href="locations.html" class="nav-link active">Locations</a></li>
                 <li><a href="quote.html" class="nav-link">Instant Quote</a></li>
                 <li><a href="blog/" class="nav-link">Blog</a></li>
+                <li><a href="tel:0490196284" class="nav-link nav-phone">📞 0490 196 284</a></li>
                 <li><a href="/#contact" class="nav-link nav-cta">Get a Quote</a></li>
             </ul>
         </div>
     </nav>
 
+    <main id="main">
     <section class="locations-hero">
         <div class="container">
             <h1>Our Service <span class="text-accent">Areas</span></h1>
@@ -380,6 +398,7 @@ async function build() {
             ${locationsGridHtml}
         </div>
     </section>
+    </main>
 
     <!-- ===================== FOOTER ===================== -->
     <footer class="footer">
@@ -387,7 +406,7 @@ async function build() {
             <div class="footer-grid">
                 <div class="footer-brand">
                     <a href="/" class="nav-logo">
-                        <img src="./images/ROOFING GROUP.png" alt="Ascend Roofing Group Logo" class="logo-img">
+                        <img src="./images/ROOFING GROUP.png" alt="Ascend Roofing Group Logo" class="logo-img" width="400" height="400" loading="lazy">
                     </a>
                     <p>Family-owned metal roofing specialists serving Brisbane & the Gold Coast with premium Colorbond®
                         steel solutions.</p>
@@ -425,6 +444,7 @@ async function build() {
             </div>
             <div class="footer-bottom">
                 <p>&copy; 2026 Ascend Roofing Group Pty Ltd. All rights reserved.</p>
+                <!-- TODO(owner): replace "ABN Registered" with the actual ABN, e.g. "ABN 12 345 678 901" -->
                 <p>QBCC Lic. 15600031 | ABN Registered</p>
             </div>
         </div>
@@ -437,118 +457,57 @@ async function build() {
   console.log("Generated locations.html index.");
 
   // 5. Generate Sitemap with lastmod dates
-  const today = new Date().toISOString().split("T")[0];
+  const siteLastmod = getSiteLastmod();
+
+  // Static pages. Blog posts keep their real publish/update dates; everything
+  // else uses the content lastmod so unchanged rebuilds produce no diff.
+  const STATIC_URLS = [
+    { loc: "/", priority: "1.0", changefreq: "weekly" },
+    { loc: "/locations.html", priority: "0.9", changefreq: "weekly" },
+    { loc: "/roof-replacement.html", priority: "0.8", changefreq: "monthly" },
+    { loc: "/roof-repairs-brisbane.html", priority: "0.8", changefreq: "monthly" },
+    { loc: "/new-roof-installation-brisbane.html", priority: "0.8", changefreq: "monthly" },
+    { loc: "/roof-insulation-brisbane.html", priority: "0.8", changefreq: "monthly" },
+    { loc: "/gutters-downpipes-brisbane.html", priority: "0.8", changefreq: "monthly" },
+    { loc: "/skylights-whirlybirds-brisbane.html", priority: "0.8", changefreq: "monthly" },
+    { loc: "/quote.html", priority: "0.8", changefreq: "monthly" },
+    { loc: "/blog/", priority: "0.7", changefreq: "weekly" },
+    { loc: "/faq.html", priority: "0.6", changefreq: "monthly" },
+    { loc: "/terms.html", priority: "0.3", changefreq: "yearly" },
+    { loc: "/privacy.html", priority: "0.3", changefreq: "yearly" },
+    { loc: "/blog/asbestos-roof-removal-brisbane-guide.html", priority: "0.6", changefreq: "monthly", lastmod: "2026-03-08" },
+    { loc: "/blog/best-metal-roofing-materials-queensland-2026.html", priority: "0.6", changefreq: "monthly", lastmod: "2026-03-08" },
+    { loc: "/blog/how-much-roof-replacement-cost-brisbane-2026.html", priority: "0.6", changefreq: "monthly", lastmod: "2026-03-08" },
+    { loc: "/blog/signs-roof-needs-replacing-brisbane.html", priority: "0.6", changefreq: "monthly", lastmod: "2026-03-08" },
+    { loc: "/blog-colorbond-roof-replacement-brisbane-gold-coast.html", priority: "0.6", changefreq: "monthly" },
+    { loc: "/blog/storm-damage-roof-repair-insurance-claims-brisbane.html", priority: "0.6", changefreq: "monthly", lastmod: "2026-05-30" },
+    { loc: "/blog/roof-restoration-vs-replacement-brisbane.html", priority: "0.6", changefreq: "monthly", lastmod: "2026-05-30" },
+    { loc: "/blog/how-to-choose-colorbond-roof-colour-queensland.html", priority: "0.6", changefreq: "monthly", lastmod: "2026-05-30" },
+  ];
+
+  const renderUrl = ({ loc, priority, changefreq, lastmod }) => `
+    <url>
+        <loc>${loc.startsWith("http") ? loc : CONFIG.baseUrl + loc}</loc>
+        <lastmod>${lastmod || siteLastmod}</lastmod>
+        <priority>${priority}</priority>
+        <changefreq>${changefreq}</changefreq>
+    </url>`;
+
   const sitemapContent = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-    <url>
-        <loc>${CONFIG.baseUrl}/</loc>
-        <lastmod>${today}</lastmod>
-        <priority>1.0</priority>
-        <changefreq>weekly</changefreq>
-    </url>
-    <url>
-        <loc>${CONFIG.baseUrl}/locations.html</loc>
-        <lastmod>${today}</lastmod>
-        <priority>0.9</priority>
-        <changefreq>weekly</changefreq>
-    </url>
-    <url>
-        <loc>${CONFIG.baseUrl}/faq.html</loc>
-        <lastmod>${today}</lastmod>
-        <priority>0.6</priority>
-        <changefreq>monthly</changefreq>
-    </url>
-    <url>
-        <loc>${CONFIG.baseUrl}/terms.html</loc>
-        <lastmod>${today}</lastmod>
-        <priority>0.3</priority>
-        <changefreq>yearly</changefreq>
-    </url>
-    <url>
-        <loc>${CONFIG.baseUrl}/privacy.html</loc>
-        <lastmod>${today}</lastmod>
-        <priority>0.3</priority>
-        <changefreq>yearly</changefreq>
-    </url>
-    <url>
-        <loc>${CONFIG.baseUrl}/quote.html</loc>
-        <lastmod>${today}</lastmod>
-        <priority>0.8</priority>
-        <changefreq>monthly</changefreq>
-    </url>
-    <url>
-        <loc>${CONFIG.baseUrl}/blog/</loc>
-        <lastmod>${today}</lastmod>
-        <priority>0.7</priority>
-        <changefreq>weekly</changefreq>
-    </url>
-    <url>
-        <loc>${CONFIG.baseUrl}/blog/asbestos-roof-removal-brisbane-guide.html</loc>
-        <lastmod>2026-03-08</lastmod>
-        <priority>0.6</priority>
-        <changefreq>monthly</changefreq>
-    </url>
-    <url>
-        <loc>${CONFIG.baseUrl}/blog/best-metal-roofing-materials-queensland-2026.html</loc>
-        <lastmod>2026-03-08</lastmod>
-        <priority>0.6</priority>
-        <changefreq>monthly</changefreq>
-    </url>
-    <url>
-        <loc>${CONFIG.baseUrl}/blog/how-much-roof-replacement-cost-brisbane-2026.html</loc>
-        <lastmod>2026-03-08</lastmod>
-        <priority>0.6</priority>
-        <changefreq>monthly</changefreq>
-    </url>
-    <url>
-        <loc>${CONFIG.baseUrl}/blog/signs-roof-needs-replacing-brisbane.html</loc>
-        <lastmod>2026-03-08</lastmod>
-        <priority>0.6</priority>
-        <changefreq>monthly</changefreq>
-    </url>
-    <url>
-        <loc>${CONFIG.baseUrl}/blog-colorbond-roof-replacement-brisbane-gold-coast.html</loc>
-        <lastmod>${today}</lastmod>
-        <priority>0.6</priority>
-        <changefreq>monthly</changefreq>
-    </url>
-    <url>
-        <loc>${CONFIG.baseUrl}/blog/storm-damage-roof-repair-insurance-claims-brisbane.html</loc>
-        <lastmod>2026-05-30</lastmod>
-        <priority>0.6</priority>
-        <changefreq>monthly</changefreq>
-    </url>
-    <url>
-        <loc>${CONFIG.baseUrl}/blog/roof-restoration-vs-replacement-brisbane.html</loc>
-        <lastmod>2026-05-30</lastmod>
-        <priority>0.6</priority>
-        <changefreq>monthly</changefreq>
-    </url>
-    <url>
-        <loc>${CONFIG.baseUrl}/blog/how-to-choose-colorbond-roof-colour-queensland.html</loc>
-        <lastmod>2026-05-30</lastmod>
-        <priority>0.6</priority>
-        <changefreq>monthly</changefreq>
-    </url>
-    ${sitemapUrls
-      .map(
-        (url) => `
-    <url>
-        <loc>${url}</loc>
-        <lastmod>${today}</lastmod>
-        <priority>0.6</priority>
-        <changefreq>monthly</changefreq>
-    </url>`,
-      )
-      .join("")}
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${STATIC_URLS.map(renderUrl).join("")}${sitemapUrls
+    .map((url) => renderUrl({ loc: url, priority: "0.6", changefreq: "monthly" }))
+    .join("")}
 </urlset>`;
 
   fs.writeFileSync(CONFIG.sitemapPath, sitemapContent);
   console.log(
-    `Sitemap generated at ${CONFIG.sitemapPath} with ${sitemapUrls.length + 11} URLs.`,
+    `Sitemap generated at ${CONFIG.sitemapPath} with ${STATIC_URLS.length + sitemapUrls.length} URLs (lastmod ${siteLastmod}).`,
   );
 
   console.log("Build Complete!");
 }
 
-build().catch((err) => console.error(err));
+build().catch((err) => {
+  console.error(err);
+  process.exitCode = 1;
+});

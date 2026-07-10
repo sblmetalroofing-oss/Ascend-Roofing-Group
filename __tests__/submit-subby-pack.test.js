@@ -243,8 +243,10 @@ describe('submit-subby-pack handler', () => {
         await handler(makeReq(validBody), res);
         const { attachments } = mockEmailSend.mock.calls[0][0];
         expect(attachments).toHaveLength(2);
-        expect(attachments[0].filename).toBe('public_liability.png');
-        expect(attachments[1].filename).toBe('workers_comp.png');
+        // Filenames are regenerated server-side from the document label —
+        // client-supplied names are never used for attachments.
+        expect(attachments[0].filename).toBe('public-liability.png');
+        expect(attachments[1].filename).toBe('workers-compensation.png');
     });
 
     test('strips data URL prefix from attachment base64 content', async () => {

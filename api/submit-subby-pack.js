@@ -2,19 +2,11 @@ import { Resend } from 'resend';
 import { sql } from '@vercel/postgres';
 import { extractInsuranceData } from '../lib/extract-insurance-data.js';
 import { verifyOrigin } from '../lib/verify-origin.js';
+import { sanitize, validateUpload } from '../lib/sanitize.js';
+import { rateLimit } from '../lib/rate-limit.js';
+import { encryptField, maskTail } from '../lib/crypto.js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-
-// Sanitize user input to prevent XSS in HTML emails
-function sanitize(str) {
-    if (!str) return '';
-    return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#x27;');
-}
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -23,6 +15,13 @@ export default async function handler(req, res) {
 
     if (!verifyOrigin(req)) {
         return res.status(403).json({ success: false, message: 'Forbidden' });
+    }
+
+    // Tight limit: each submission triggers up to 3 Claude vision calls.
+    const rl = await rateLimit(req, { name: 'submit-subby-pack', limit: 3, windowMs: 60 * 60 * 1000 });
+    if (rl.limited) {
+        res.setHeader('Retry-After', String(rl.retryAfter));
+        return res.status(429).json({ success: false, message: 'Too many submissions. Please try again later.' });
     }
 
     try {
@@ -60,19 +59,30 @@ export default async function handler(req, res) {
             { key: 'otherCerts', type: 'other', label: 'Other Certificates' }
         ];
 
+        // Server-side upload validation before any paid AI call: type
+        // allow-list, size cap, and regenerated safe filenames.
+        const validatedFiles = {};
+        for (const { key, label } of fileTypes) {
+            if (!files[key]) continue;
+            const check = validateUpload(files[key], { label });
+            if (!check.ok) {
+                return res.status(400).json({ success: false, message: check.error });
+            }
+            validatedFiles[key] = check;
+        }
+
         for (const { key, type, label } of fileTypes) {
-            if (files[key]) {
-                const file = files[key];
+            if (validatedFiles[key]) {
                 console.log(`Processing ${label} insurance document...`);
 
                 const extraction = await extractInsuranceData(
-                    file.data,
-                    file.type,
+                    validatedFiles[key].content,
+                    validatedFiles[key].contentType,
                     type
                 );
 
                 insuranceData[key] = {
-                    filename: file.name,
+                    filename: validatedFiles[key].filename,
                     extraction: extraction.success ? extraction.data : null,
                     error: extraction.error || null
                 };
@@ -90,10 +100,10 @@ export default async function handler(req, res) {
                         abn, business_address, bsb, account_number, account_name
                     )
                     VALUES (
-                        ${safeData.firstName}, ${safeData.lastName}, ${safeData.email}, 
-                        ${safeData.phone}, ${safeData.businessName}, ${safeData.abn}, 
-                        ${safeData.businessAddress}, ${safeData.bsb}, 
-                        ${safeData.accountNumber}, ${safeData.accountName}
+                        ${safeData.firstName}, ${safeData.lastName}, ${safeData.email},
+                        ${safeData.phone}, ${safeData.businessName}, ${safeData.abn},
+                        ${safeData.businessAddress}, ${encryptField(safeData.bsb)},
+                        ${encryptField(safeData.accountNumber)}, ${safeData.accountName}
                     )
                     ON CONFLICT (email) 
                     DO UPDATE SET
@@ -148,16 +158,14 @@ export default async function handler(req, res) {
             }
         }
 
-        // Prepare email with attachments
+        // Prepare email with attachments (validated content + safe filenames)
         const attachments = [];
-        for (const { key, label } of fileTypes) {
-            if (files[key]) {
-                // Extract base64 content
-                const base64Content = files[key].data.split(',')[1] || files[key].data;
+        for (const { key } of fileTypes) {
+            if (validatedFiles[key]) {
                 attachments.push({
-                    filename: files[key].name,
-                    content: base64Content,
-                    content_type: files[key].type
+                    filename: validatedFiles[key].filename,
+                    content: validatedFiles[key].content,
+                    content_type: validatedFiles[key].contentType
                 });
             }
         }
@@ -266,17 +274,21 @@ export default async function handler(req, res) {
                 <table style="border-collapse:collapse; width:100%; max-width:600px; margin-bottom:24px;">
                     <tr>
                         <td style="padding:8px; border:1px solid #ddd; font-weight:bold;">BSB</td>
-                        <td style="padding:8px; border:1px solid #ddd;">${safeData.bsb}</td>
+                        <td style="padding:8px; border:1px solid #ddd;">${maskTail(safeData.bsb)}</td>
                     </tr>
                     <tr>
                         <td style="padding:8px; border:1px solid #ddd; font-weight:bold;">Account Number</td>
-                        <td style="padding:8px; border:1px solid #ddd;">${safeData.accountNumber}</td>
+                        <td style="padding:8px; border:1px solid #ddd;">${maskTail(safeData.accountNumber)}</td>
                     </tr>
                     <tr>
                         <td style="padding:8px; border:1px solid #ddd; font-weight:bold;">Account Name</td>
                         <td style="padding:8px; border:1px solid #ddd;">${safeData.accountName}</td>
                     </tr>
                 </table>
+                <p style="color:#666; font-size:12px;">
+                    <em>Bank numbers are masked — the full details are stored securely in the database
+                    ${subcontractorId ? `(subcontractor record ID ${subcontractorId})` : '(⚠ database was unavailable for this submission — contact the subcontractor to re-collect payment details)'}.</em>
+                </p>
 
                 <h3>🤖 AI-Extracted Insurance Information</h3>
                 <table style="border-collapse:collapse; width:100%; max-width:700px; margin-bottom:24px;">
@@ -298,7 +310,7 @@ export default async function handler(req, res) {
 
         if (error) {
             console.error('Resend error:', error);
-            return res.status(400).json({ success: false, error });
+            return res.status(400).json({ success: false, message: 'Failed to send submission email. Please try again or call us.' });
         }
 
         const dbFailed = res.locals?.dbFailed === true;
@@ -311,6 +323,6 @@ export default async function handler(req, res) {
 
     } catch (error) {
         console.error('Server error:', error);
-        return res.status(500).json({ success: false, message: 'Internal Server Error', error: error.message });
+        return res.status(500).json({ success: false, message: 'Internal Server Error' });
     }
 }

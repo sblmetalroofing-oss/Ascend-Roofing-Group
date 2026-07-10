@@ -540,11 +540,6 @@
         "region": "Brisbane"
     },
     {
-        "name": "Calamvale",
-        "postcode": "4116",
-        "region": "Brisbane"
-    },
-    {
         "name": "Parkinson",
         "postcode": "4115",
         "region": "Brisbane"
@@ -1488,11 +1483,6 @@
         "name": "Bellmere",
         "postcode": "4510",
         "region": "Moreton Bay"
-    },
-    {
-        "name": "Elanora",
-        "postcode": "4221",
-        "region": "Gold Coast"
     },
     {
         "name": "Bribie Island",
