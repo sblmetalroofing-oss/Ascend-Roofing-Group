@@ -31,7 +31,6 @@ const path = require('path');
 const ROOT = path.resolve(__dirname, '..');
 const SA_DIR = path.join(ROOT, 'service-areas');
 const SUBURBS_JSON = path.join(ROOT, 'suburbs.json');
-const SITEMAP = path.join(ROOT, 'sitemap.xml');
 const REPORT = path.join(__dirname, 'enrich-report.json');
 const TODAY = new Date().toISOString().split('T')[0];
 
@@ -212,26 +211,14 @@ function main() {
     enriched++;
   }
 
-  // Refresh sitemap lastmod for service-area URLs.
-  let sitemapUpdated = 0;
-  if (fs.existsSync(SITEMAP)) {
-    let sm = fs.readFileSync(SITEMAP, 'utf8');
-    sm = sm.replace(/<url>[\s\S]*?<\/url>/g, (b) => {
-      if (b.includes('/service-areas/')) {
-        sitemapUpdated++;
-        return b.replace(/<lastmod>[^<]*<\/lastmod>/, `<lastmod>${TODAY}</lastmod>`);
-      }
-      return b;
-    });
-    fs.writeFileSync(SITEMAP, sm, 'utf8');
-  }
+  // Note: sitemap lastmod is owned by build.js (deterministic, derived from
+  // content commit dates) — this script must not re-stamp it.
 
   const report = {
     date: TODAY,
     totalFiles: files.length,
     enriched,
     skipped,
-    sitemapServiceUrlsUpdated: sitemapUpdated,
   };
   fs.writeFileSync(REPORT, JSON.stringify(report, null, 2));
   console.log(JSON.stringify(report, null, 2));
