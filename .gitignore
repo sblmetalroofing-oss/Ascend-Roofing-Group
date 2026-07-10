@@ -13,6 +13,7 @@ node_modules/
 
 # Build Artifacts
 coverage/
+scripts/enrich-report.json
 
 # Logs
 npm-debug.log*

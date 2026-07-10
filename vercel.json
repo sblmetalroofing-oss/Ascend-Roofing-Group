@@ -1,6 +1,26 @@
 {
   "redirects": [
     {
+      "source": "/roofing-logan.html",
+      "destination": "/service-areas/roofing-logan-central.html",
+      "permanent": true
+    },
+    {
+      "source": "/service-areas/roofing-logan.html",
+      "destination": "/service-areas/roofing-logan-central.html",
+      "permanent": true
+    },
+    {
+      "source": "/roofing-tweed-heads.html",
+      "destination": "/locations.html",
+      "permanent": true
+    },
+    {
+      "source": "/service-areas/roofing-tweed-heads.html",
+      "destination": "/locations.html",
+      "permanent": true
+    },
+    {
       "source": "/roofing-(.*)\\.html",
       "destination": "/service-areas/roofing-$1.html",
       "permanent": true
