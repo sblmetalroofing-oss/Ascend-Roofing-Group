@@ -4,6 +4,10 @@
    ============================================ */
 
 document.addEventListener("DOMContentLoaded", () => {
+  const prefersReducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
+
   // ---- NAVBAR SCROLL EFFECT ----
   const navbar = document.getElementById("navbar");
   const handleNavScroll = () => {
@@ -20,6 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const closeNav = () => {
     navToggle.classList.remove("open");
     navMenu.classList.remove("open");
+    navToggle.setAttribute("aria-expanded", "false");
     if (navOverlay) navOverlay.classList.remove("active");
     document.body.style.overflow = "";
   };
@@ -27,6 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const openNav = () => {
     navToggle.classList.add("open");
     navMenu.classList.add("open");
+    navToggle.setAttribute("aria-expanded", "true");
     if (navOverlay) navOverlay.classList.add("active");
     document.body.style.overflow = "hidden";
   };
@@ -36,6 +42,14 @@ document.addEventListener("DOMContentLoaded", () => {
       closeNav();
     } else {
       openNav();
+    }
+  });
+
+  // Escape closes the menu and returns focus to the toggle
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && navMenu.classList.contains("open")) {
+      closeNav();
+      navToggle.focus();
     }
   });
 
@@ -105,6 +119,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (statsAnimated) return;
     statsAnimated = true;
 
+    if (prefersReducedMotion) {
+      statNumbers.forEach((el) => {
+        el.textContent = parseInt(el.dataset.count).toLocaleString();
+      });
+      return;
+    }
+
     statNumbers.forEach((el) => {
       const target = parseInt(el.dataset.count);
       const duration = 2000;
@@ -153,7 +174,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const target = document.querySelector(href);
       if (target) {
         e.preventDefault();
-        target.scrollIntoView({ behavior: "smooth", block: "start" });
+        target.scrollIntoView({
+          behavior: prefersReducedMotion ? "auto" : "smooth",
+          block: "start",
+        });
       }
     });
   });
