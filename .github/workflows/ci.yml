@@ -18,3 +18,5 @@ jobs:
       - run: npm test
       - name: Build smoke test
         run: npm run build
+      - name: Generated files must be committed and drift-free
+        run: git diff --exit-code -- service-areas locations.html sitemap.xml
