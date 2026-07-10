@@ -41,6 +41,7 @@
     <meta name="theme-color" content="#0a0a0a">
 
     <link rel="stylesheet" href="styles.css">
+    <link rel="preload" as="image" type="image/avif" href="/images/20240307_171821.avif" fetchpriority="high">
     <script defer src="/_vercel/speed-insights/script.js"></script>
     <script defer src="/_vercel/insights/script.js"></script>
     
@@ -129,13 +130,14 @@
 </head>
 
 <body>
+    <a class="skip-link" href="#main">Skip to content</a>
     <!-- ===================== NAVIGATION ===================== -->
     <nav class="navbar" id="navbar">
         <div class="container nav-container">
             <a href="#hero" class="nav-logo">
                 <img src="./images/ROOFING GROUP.png" alt="Ascend Roofing Group Logo" class="logo-img" width="400" height="400">
             </a>
-            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="navMenu">
                 <span></span><span></span><span></span>
             </button>
             <ul class="nav-menu" id="navMenu">
@@ -157,12 +159,11 @@
         </div>
     </nav>
     <div class="nav-overlay" id="navOverlay"></div>
+    <main id="main">
 
     <!-- ===================== HERO ===================== -->
     <section class="hero" id="hero">
         <div class="hero-bg">
-            <div class="hero-overlay"></div>
-            <div class="hero-pattern"></div>
         </div>
         <div class="container hero-content">
             <div class="hero-badge" data-reveal>
@@ -914,7 +915,7 @@
                             </svg>
                             Send Quote Request
                         </button>
-                        <p id="contactError" style="display:none; color:#e53e3e; font-size:0.875rem; margin-top:0.75rem;"></p>
+                        <p role="alert" id="contactError" style="display:none; color:#e53e3e; font-size:0.875rem; margin-top:0.75rem;"></p>
                     </form>
                 </div>
                 <div class="contact-info" data-reveal>
@@ -988,6 +989,7 @@
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" stroke-width="2"></path></svg>
         0490 196 284
     </a>
+    </main>
 
     <!-- ===================== FOOTER ===================== -->
     <footer class="footer">
@@ -1005,6 +1007,7 @@
                         <li><a href="#services">Services</a></li>
                         <li><a href="roof-replacement.html">Roof Replacement</a></li>
                         <li><a href="blog/">Roofing Blog</a></li>
+                        <li><a href="faq.html">FAQ</a></li>
                         <li><a href="locations.html">Locations</a></li>
                         <li><a href="quote.html">AI Instant Quote</a></li>
                         <li><a href="#about">About Us</a></li>

@@ -199,6 +199,13 @@
         }
 
         .colour-swatch {
+            display: block;
+            width: 100%;
+            padding: 0;
+            background: none;
+            border: none;
+            font: inherit;
+            color: inherit;
             text-align: center;
             cursor: pointer;
             transition: var(--transition);
@@ -412,13 +419,14 @@
 </head>
 
 <body>
+    <a class="skip-link" href="#main">Skip to content</a>
     <!-- ===================== NAVIGATION ===================== -->
     <nav class="navbar" id="navbar">
         <div class="container nav-container">
             <a href="/" class="nav-logo">
                 <img src="./images/ROOFING GROUP.png" alt="Ascend Roofing Group Logo" class="logo-img" width="400" height="400">
             </a>
-            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="navMenu">
                 <span></span><span></span><span></span>
             </button>
                         <ul class="nav-menu" id="navMenu">
@@ -434,6 +442,7 @@
         </div>
     </nav>
     <div class="nav-overlay" id="navOverlay"></div>
+    <main id="main">
 
     <!-- ===================== HERO ===================== -->
     <section class="colour-hero">
@@ -481,119 +490,119 @@
                         </button>
                         <div class="colour-swatches" id="colourSwatches">
                             <div class="colour-swatches-group-title">Standard Colours</div>
-                            <div class="colour-swatch" data-colour="Dover White&trade;">
+                            <button type="button" class="colour-swatch" data-colour="Dover White&trade;">
                                 <div class="swatch-color light-swatch" style="background:#e8e3d6"></div><span
                                     class="swatch-name">Dover White&trade;</span>
-                            </div>
-                            <div class="colour-swatch" data-colour="Surfmist&reg;">
+                            </button>
+                            <button type="button" class="colour-swatch" data-colour="Surfmist&reg;">
                                 <div class="swatch-color light-swatch" style="background:#ddddd5"></div><span
                                     class="swatch-name">Surfmist&reg;</span>
-                            </div>
-                            <div class="colour-swatch" data-colour="Evening Haze&reg;">
+                            </button>
+                            <button type="button" class="colour-swatch" data-colour="Evening Haze&reg;">
                                 <div class="swatch-color light-swatch" style="background:#c4bfab"></div><span
                                     class="swatch-name">Evening Haze&reg;</span>
-                            </div>
-                            <div class="colour-swatch" data-colour="Classic Cream&trade;">
+                            </button>
+                            <button type="button" class="colour-swatch" data-colour="Classic Cream&trade;">
                                 <div class="swatch-color light-swatch" style="background:#d5c48e"></div><span
                                     class="swatch-name">Classic Cream&trade;</span>
-                            </div>
-                            <div class="colour-swatch" data-colour="Paperbark&reg;">
+                            </button>
+                            <button type="button" class="colour-swatch" data-colour="Paperbark&reg;">
                                 <div class="swatch-color light-swatch" style="background:#bead8c"></div><span
                                     class="swatch-name">Paperbark&reg;</span>
-                            </div>
-                            <div class="colour-swatch" data-colour="Dune&reg;">
+                            </button>
+                            <button type="button" class="colour-swatch" data-colour="Dune&reg;">
                                 <div class="swatch-color" style="background:#9c8e73"></div><span
                                     class="swatch-name">Dune&reg;</span>
-                            </div>
-                            <div class="colour-swatch" data-colour="Southerly&reg;">
+                            </button>
+                            <button type="button" class="colour-swatch" data-colour="Southerly&reg;">
                                 <div class="swatch-color" style="background:#95999a"></div><span
                                     class="swatch-name">Southerly&reg;</span>
-                            </div>
-                            <div class="colour-swatch" data-colour="Shale Grey&trade;">
+                            </button>
+                            <button type="button" class="colour-swatch" data-colour="Shale Grey&trade;">
                                 <div class="swatch-color" style="background:#7b7b6e"></div><span
                                     class="swatch-name">Shale Grey&trade;</span>
-                            </div>
-                            <div class="colour-swatch" data-colour="Bluegum&reg;">
+                            </button>
+                            <button type="button" class="colour-swatch" data-colour="Bluegum&reg;">
                                 <div class="swatch-color" style="background:#6d7a7a"></div><span
                                     class="swatch-name">Bluegum&reg;</span>
-                            </div>
-                            <div class="colour-swatch" data-colour="Windspray&reg;">
+                            </button>
+                            <button type="button" class="colour-swatch" data-colour="Windspray&reg;">
                                 <div class="swatch-color" style="background:#7c8383"></div><span
                                     class="swatch-name">Windspray&reg;</span>
-                            </div>
-                            <div class="colour-swatch" data-colour="Gully&reg;">
+                            </button>
+                            <button type="button" class="colour-swatch" data-colour="Gully&reg;">
                                 <div class="swatch-color" style="background:#637068"></div><span
                                     class="swatch-name">Gully&reg;</span>
-                            </div>
-                            <div class="colour-swatch" data-colour="Jasper&reg;">
+                            </button>
+                            <button type="button" class="colour-swatch" data-colour="Jasper&reg;">
                                 <div class="swatch-color" style="background:#6b5d50"></div><span
                                     class="swatch-name">Jasper&reg;</span>
-                            </div>
-                            <div class="colour-swatch" data-colour="Wallaby&reg;">
+                            </button>
+                            <button type="button" class="colour-swatch" data-colour="Wallaby&reg;">
                                 <div class="swatch-color" style="background:#6b625a"></div><span
                                     class="swatch-name">Wallaby&reg;</span>
-                            </div>
-                            <div class="colour-swatch" data-colour="Basalt&reg;">
+                            </button>
+                            <button type="button" class="colour-swatch" data-colour="Basalt&reg;">
                                 <div class="swatch-color" style="background:#555759"></div><span
                                     class="swatch-name">Basalt&reg;</span>
-                            </div>
-                            <div class="colour-swatch" data-colour="Woodland Grey&reg;">
+                            </button>
+                            <button type="button" class="colour-swatch" data-colour="Woodland Grey&reg;">
                                 <div class="swatch-color" style="background:#4c5246"></div><span
                                     class="swatch-name">Woodland Grey&reg;</span>
-                            </div>
-                            <div class="colour-swatch" data-colour="Monument&reg;">
+                            </button>
+                            <button type="button" class="colour-swatch" data-colour="Monument&reg;">
                                 <div class="swatch-color" style="background:#32373a"></div><span
                                     class="swatch-name">Monument&reg;</span>
-                            </div>
-                            <div class="colour-swatch" data-colour="Night Sky&reg;">
+                            </button>
+                            <button type="button" class="colour-swatch" data-colour="Night Sky&reg;">
                                 <div class="swatch-color" style="background:#2a2d31"></div><span
                                     class="swatch-name">Night Sky&reg;</span>
-                            </div>
-                            <div class="colour-swatch" data-colour="Ironstone&reg;">
+                            </button>
+                            <button type="button" class="colour-swatch" data-colour="Ironstone&reg;">
                                 <div class="swatch-color" style="background:#3e3530"></div><span
                                     class="swatch-name">Ironstone&reg;</span>
-                            </div>
-                            <div class="colour-swatch" data-colour="Deep Ocean&reg;">
+                            </button>
+                            <button type="button" class="colour-swatch" data-colour="Deep Ocean&reg;">
                                 <div class="swatch-color" style="background:#1e3442"></div><span
                                     class="swatch-name">Deep Ocean&reg;</span>
-                            </div>
-                            <div class="colour-swatch" data-colour="Cottage Green&reg;">
+                            </button>
+                            <button type="button" class="colour-swatch" data-colour="Cottage Green&reg;">
                                 <div class="swatch-color" style="background:#2f4538"></div><span
                                     class="swatch-name">Cottage Green&reg;</span>
-                            </div>
-                            <div class="colour-swatch" data-colour="Pale Eucalypt&reg;">
+                            </button>
+                            <button type="button" class="colour-swatch" data-colour="Pale Eucalypt&reg;">
                                 <div class="swatch-color" style="background:#5e7e63"></div><span
                                     class="swatch-name">Pale Eucalypt&reg;</span>
-                            </div>
-                            <div class="colour-swatch" data-colour="Manor Red&reg;">
+                            </button>
+                            <button type="button" class="colour-swatch" data-colour="Manor Red&reg;">
                                 <div class="swatch-color" style="background:#6b2226"></div><span
                                     class="swatch-name">Manor Red&reg;</span>
-                            </div>
+                            </button>
                             <div class="colour-swatches-group-title">Matt Finish</div>
-                            <div class="colour-swatch" data-colour="Surfmist&reg; Matt">
+                            <button type="button" class="colour-swatch" data-colour="Surfmist&reg; Matt">
                                 <div class="swatch-color light-swatch" style="background:#d8d8d0"></div><span
                                     class="swatch-name">Surfmist&reg; Matt</span>
-                            </div>
-                            <div class="colour-swatch" data-colour="Dune&reg; Matt">
+                            </button>
+                            <button type="button" class="colour-swatch" data-colour="Dune&reg; Matt">
                                 <div class="swatch-color" style="background:#97896e"></div><span
                                     class="swatch-name">Dune&reg; Matt</span>
-                            </div>
-                            <div class="colour-swatch" data-colour="Shale Grey&trade; Matt">
+                            </button>
+                            <button type="button" class="colour-swatch" data-colour="Shale Grey&trade; Matt">
                                 <div class="swatch-color" style="background:#767669"></div><span
                                     class="swatch-name">Shale Grey&trade; Matt</span>
-                            </div>
-                            <div class="colour-swatch" data-colour="Bluegum&reg; Matt">
+                            </button>
+                            <button type="button" class="colour-swatch" data-colour="Bluegum&reg; Matt">
                                 <div class="swatch-color" style="background:#687575"></div><span
                                     class="swatch-name">Bluegum&reg; Matt</span>
-                            </div>
-                            <div class="colour-swatch" data-colour="Basalt&reg; Matt">
+                            </button>
+                            <button type="button" class="colour-swatch" data-colour="Basalt&reg; Matt">
                                 <div class="swatch-color" style="background:#505254"></div><span
                                     class="swatch-name">Basalt&reg; Matt</span>
-                            </div>
-                            <div class="colour-swatch" data-colour="Monument&reg; Matt">
+                            </button>
+                            <button type="button" class="colour-swatch" data-colour="Monument&reg; Matt">
                                 <div class="swatch-color" style="background:#2d3235"></div><span
                                     class="swatch-name">Monument&reg; Matt</span>
-                            </div>
+                            </button>
                         </div>
                     </div>
 
@@ -724,12 +733,12 @@
                         <div class="signature-pad-wrapper" id="signaturePadWrapper">
                             <canvas id="signatureCanvas"></canvas>
                             <input type="text" class="signature-type-input" id="signatureTypeInput"
-                                placeholder="Type your full name">
+                                placeholder="Type your full name" aria-label="Type your full name">
                             <button type="button" class="signature-clear" id="signatureClear">Clear</button>
                         </div>
                         <p class="signature-note">By signing above, you confirm your Colorbond&reg; colour selections for
                             this project.</p>
-                        <p class="signature-error" id="signatureError" style="display:none; color:#e53e3e; font-size:0.875rem; margin-top:0.5rem;"></p>
+                        <p class="signature-error" id="signatureError" role="alert" style="display:none; color:#e53e3e; font-size:0.875rem; margin-top:0.5rem;"></p>
                     </div>
 
                     <input type="hidden" id="signatureData" name="signatureData">
@@ -751,12 +760,13 @@
                         details.</p>
                 </div>
 
-                <div class="colour-form-error" id="colourFormError">
+                <div class="colour-form-error" id="colourFormError" role="alert">
                     <p>Something went wrong and your submission could not be sent. Please call us on <a href="tel:0490196284">0490 196 284</a> or email <a href="mailto:admin@ascendroofinggroup.com.au">admin@ascendroofinggroup.com.au</a> to confirm your colour selections.</p>
                 </div>
             </div>
         </div>
     </section>
+    </main>
 
     <!-- ===================== FOOTER ===================== -->
     <footer class="footer">
@@ -775,6 +785,7 @@
                         <li><a href="/#services">Services</a></li>
                         <li><a href="/#about">About Us</a></li>
                         <li><a href="locations.html">Locations</a></li>
+                        <li><a href="blog/">Roofing Blog</a></li>
                         <li><a href="/#team">Our Team</a></li>
                         <li><a href="/#testimonials">Reviews</a></li>
                         <li><a href="/#contact">Contact</a></li>
@@ -788,18 +799,18 @@
                 <div class="footer-links">
                     <h4>Services</h4>
                     <ul>
-                        <li><a href="/#services">New Roof Installations</a></li>
-                        <li><a href="/#services">Roof Replacements</a></li>
-                        <li><a href="/#services">Roof Repairs</a></li>
-                        <li><a href="/#services">Insulation Upgrades</a></li>
-                        <li><a href="/#services">Gutters & Downpipes</a></li>
+                        <li><a href="new-roof-installation-brisbane.html">New Roof Installations</a></li>
+                        <li><a href="roof-replacement.html">Roof Replacements</a></li>
+                        <li><a href="roof-repairs-brisbane.html">Roof Repairs</a></li>
+                        <li><a href="roof-insulation-brisbane.html">Insulation Upgrades</a></li>
+                        <li><a href="gutters-downpipes-brisbane.html">Gutters & Downpipes</a></li>
                     </ul>
                 </div>
                 <div class="footer-contact">
                     <h4>Get In Touch</h4>
-                    <p><a href="tel:0490196284">?? 0490 196 284</a></p>
-                    <p><a href="mailto:admin@ascendroofinggroup.com.au">?? admin@ascendroofinggroup.com.au</a></p>
-                    <p>?? Brisbane & Gold Coast, QLD</p>
+                    <p><a href="tel:0490196284">&#128222; 0490 196 284</a></p>
+                    <p><a href="mailto:admin@ascendroofinggroup.com.au">&#9993;&#65039; admin@ascendroofinggroup.com.au</a></p>
+                    <p>&#128205; Brisbane & Gold Coast, QLD</p>
                 </div>
             </div>
             <div class="footer-bottom">
@@ -858,6 +869,8 @@
             let currentMode = 'draw';
 
             function resizeCanvas() {
+                // Snapshot the current drawing so it survives resize/rotation
+                const snapshot = (canvas.width > 0 && canvas.height > 0) ? canvas.toDataURL() : null;
                 const rect = wrapper.getBoundingClientRect();
                 const dpr = window.devicePixelRatio || 1;
                 canvas.width = rect.width * dpr;
@@ -869,6 +882,13 @@
                 ctx.lineWidth = 2;
                 ctx.lineCap = 'round';
                 ctx.lineJoin = 'round';
+                if (snapshot) {
+                    const img = new Image();
+                    img.onload = function () {
+                        ctx.drawImage(img, 0, 0, rect.width, rect.height);
+                    };
+                    img.src = snapshot;
+                }
             }
 
             resizeCanvas();
