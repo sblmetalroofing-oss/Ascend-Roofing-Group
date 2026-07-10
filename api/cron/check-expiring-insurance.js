@@ -1,15 +1,27 @@
 import { Resend } from 'resend';
 import { sql } from '@vercel/postgres';
+import { timingSafeEqual } from 'node:crypto';
+import { sanitize } from '../../lib/sanitize.js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
+
+// Constant-time comparison; false when lengths differ or the secret is unset.
+function isAuthorized(header) {
+    const secret = process.env.CRON_SECRET;
+    if (!secret || typeof header !== 'string') return false;
+    const expected = Buffer.from(`Bearer ${secret}`);
+    const provided = Buffer.from(header);
+    return expected.length === provided.length && timingSafeEqual(expected, provided);
+}
 
 /**
  * Vercel Cron Job - Check for expiring insurance and send reminders
  * Runs daily at 9:00 AM AEST
  */
 export default async function handler(req, res) {
-    // Verify this is a cron request (Vercel sets this header)
-    if (req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) {
+    // Verify this is a cron request. Fails closed when CRON_SECRET is unset —
+    // previously `Bearer undefined` would authorize.
+    if (!isAuthorized(req.headers.authorization)) {
         return res.status(401).json({ error: 'Unauthorized' });
     }
 
@@ -91,7 +103,16 @@ export default async function handler(req, res) {
         const emailsSent = [];
 
         for (const [subId, data] of Object.entries(bySubcontractor)) {
-            const sub = data.subcontractor;
+            // Sanitize at render time rather than trusting that every value
+            // was escaped on the write path.
+            const sub = {
+                ...data.subcontractor,
+                first_name: sanitize(data.subcontractor.first_name),
+                last_name: sanitize(data.subcontractor.last_name),
+                email: sanitize(data.subcontractor.email),
+                phone: sanitize(data.subcontractor.phone),
+                business_name: sanitize(data.subcontractor.business_name),
+            };
             const insuranceDocs = data.insurance;
 
             // Build insurance list HTML
@@ -132,8 +153,8 @@ export default async function handler(req, res) {
                             <strong>Expiry Date:</strong> ${doc.expiry_date} 
                             <span style="color:${urgencyColor}; font-weight:bold;">(${daysUntilExpiry} days)</span>
                         </div>
-                        ${doc.insurer_name ? `<div style="color:#666;"><strong>Insurer:</strong> ${doc.insurer_name}</div>` : ''}
-                        ${doc.policy_number ? `<div style="color:#666;"><strong>Policy:</strong> ${doc.policy_number}</div>` : ''}
+                        ${doc.insurer_name ? `<div style="color:#666;"><strong>Insurer:</strong> ${sanitize(doc.insurer_name)}</div>` : ''}
+                        ${doc.policy_number ? `<div style="color:#666;"><strong>Policy:</strong> ${sanitize(doc.policy_number)}</div>` : ''}
                         <div style="color:#999; font-size:12px; margin-top:8px;">
                             <em>AI Confidence: ${doc.confidence ? `${(doc.confidence * 100).toFixed(0)}%` : 'N/A'}</em>
                         </div>
@@ -231,6 +252,6 @@ export default async function handler(req, res) {
 
     } catch (error) {
         console.error('Cron job error:', error);
-        return res.status(500).json({ error: error.message });
+        return res.status(500).json({ error: 'Internal Server Error' });
     }
 }

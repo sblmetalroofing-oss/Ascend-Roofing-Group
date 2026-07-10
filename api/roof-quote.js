@@ -5,25 +5,8 @@ import {
   buildDisplayAddress,
   isSEQPostcode,
 } from "../lib/geocode-address.js";
-
-// ─── Server-side Rate Limiting ────────────────────────────
-// In-memory store: effective within a warm Vercel instance.
-// Limits cost exposure on Google Solar API + Resend.
-const _rlMap = new Map(); // ip -> { count, windowStart }
-const RL_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
-const RL_MAX = 1; // max 1 quote request per IP per 5 minutes
-
-function isRateLimited(ip) {
-  const now = Date.now();
-  const entry = _rlMap.get(ip);
-  if (!entry || now - entry.windowStart >= RL_WINDOW_MS) {
-    _rlMap.set(ip, { count: 1, windowStart: now });
-    return false;
-  }
-  if (entry.count >= RL_MAX) return true;
-  entry.count++;
-  return false;
-}
+import { sanitize } from "../lib/sanitize.js";
+import { rateLimit } from "../lib/rate-limit.js";
 
 // ─── Configuration ────────────────────────────────────────
 const CONFIG = {
@@ -70,8 +53,15 @@ const CONFIG = {
   GOOGLE_STATIC_MAP_URL:
     "https://maps.googleapis.com/maps/api/staticmap",
 
-  // Frontend API key for client-visible URLs (restricted to website referrers)
-  FRONTEND_API_KEY: "AIzaSyAtuH3SKAhvh-XI2sONazBTcEc6LycF4Zc",
+  // Frontend key for client-visible Static Maps URLs.
+  // TODO(owner): rotate this key in Google Cloud Console — it has shipped in
+  // git history and in client responses. Restrict the replacement to the
+  // Static Maps API only, add an HTTP-referrer allow-list + daily quota cap,
+  // then set it as GOOGLE_MAPS_FRONTEND_KEY in Vercel env vars (the fallback
+  // below can be deleted once that's done).
+  FRONTEND_API_KEY:
+    process.env.GOOGLE_MAPS_FRONTEND_KEY ||
+    "AIzaSyAtuH3SKAhvh-XI2sONazBTcEc6LycF4Zc",
 
   // Location notes
   LOCATION_NOTES: {
@@ -93,16 +83,6 @@ const CONFIG = {
 };
 
 // ─── Helpers ──────────────────────────────────────────────
-
-function sanitize(str) {
-  if (!str) return "";
-  return String(str)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#x27;");
-}
 
 function isCoastalPostcode(postcode) {
   const pc = parseInt(postcode, 10);
@@ -546,12 +526,11 @@ export default async function handler(req, res) {
     return res.status(403).json({ error: "Forbidden" });
   }
 
-  // Server-side rate limit by IP
-  const clientIp =
-    (req.headers["x-forwarded-for"] || "").split(",")[0].trim() ||
-    req.socket?.remoteAddress ||
-    "unknown";
-  if (isRateLimited(clientIp)) {
+  // Server-side rate limit by IP (durable when Upstash is configured);
+  // limits cost exposure on Google Solar API + Resend.
+  const rl = await rateLimit(req, { name: "roof-quote", limit: 1, windowMs: 5 * 60 * 1000 });
+  if (rl.limited) {
+    res.setHeader("Retry-After", String(rl.retryAfter));
     return res.status(429).json({
       error: "Too many quote requests. Please wait before trying again.",
     });
@@ -623,8 +602,16 @@ export default async function handler(req, res) {
   // even when the customer typed the address without picking a suggestion.
   const displayAddress = buildDisplayAddress(cleanAddress, { suburb, postcode });
 
-  // Verify SEQ postcode
-  if (postcode && !isSEQPostcode(postcode)) {
+  // Verify SEQ postcode before spending a Google Solar API call. A missing
+  // postcode used to skip this check entirely, letting out-of-area
+  // coordinates consume paid Solar quota.
+  if (!postcode) {
+    return res.status(422).json({
+      error:
+        "We couldn't determine the postcode for that address. Please include your postcode (e.g. 'QLD 4000') and try again.",
+    });
+  }
+  if (!isSEQPostcode(postcode)) {
     return res.status(422).json({
       error: `Postcode ${postcode} is outside our primary service area. We service Brisbane, Gold Coast, Logan, Ipswich, and Moreton Bay regions.`,
     });
