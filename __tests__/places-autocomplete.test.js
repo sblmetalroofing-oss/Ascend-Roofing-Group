@@ -11,22 +11,28 @@ function makeRes() {
     return res;
 }
 
-function mockGoogleSuccess(predictions = []) {
+// Places API (New) returns { suggestions: [{ placePrediction: {...} }] } on
+// success (the field is simply absent when there are no matches) and a
+// { error: { code, status, message } } body with a non-2xx HTTP status on
+// failure.
+function mockGoogleSuccess(suggestions = []) {
     return Promise.resolve({
-        json: () => Promise.resolve({ status: 'OK', predictions })
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve(suggestions.length ? { suggestions } : {})
     });
 }
 
-function mockGoogleZeroResults() {
+function mockGoogleError(httpStatus, status) {
     return Promise.resolve({
-        json: () => Promise.resolve({ status: 'ZERO_RESULTS', predictions: [] })
+        ok: false,
+        status: httpStatus,
+        json: () => Promise.resolve({ error: { code: httpStatus, status, message: 'API error' } })
     });
 }
 
-function mockGoogleError(status) {
-    return Promise.resolve({
-        json: () => Promise.resolve({ status, error_message: 'API error' })
-    });
+function suggestion(description, placeId = 'abc123') {
+    return { placePrediction: { placeId, text: { text: description } } };
 }
 
 describe('places-autocomplete handler', () => {
@@ -94,30 +100,41 @@ describe('places-autocomplete handler', () => {
     });
 
     // ── Valid input ───────────────────────────────────────
-    test('proxies to Google for 3+ character input', async () => {
-        const mockPredictions = [{ description: '1 Brisbane St, Brisbane QLD 4000' }];
-        global.fetch = jest.fn().mockResolvedValueOnce(mockGoogleSuccess(mockPredictions));
+    test('proxies to Google Places API (New) for 3+ character input', async () => {
+        global.fetch = jest.fn().mockResolvedValueOnce(
+            mockGoogleSuccess([suggestion('1 Brisbane St, Brisbane QLD 4000')])
+        );
         const res = makeRes();
         await handler(makeReq({ input: 'bri' }), res);
         expect(global.fetch).toHaveBeenCalledTimes(1);
+        expect(global.fetch.mock.calls[0][0]).toBe('https://places.googleapis.com/v1/places:autocomplete');
         expect(res.status).toHaveBeenCalledWith(200);
     });
 
-    // ── URL encoding ─────────────────────────────────────
-    test('URL-encodes the input string in the Google API call', async () => {
+    // ── Request body ─────────────────────────────────────
+    test('sends the input string in the POST body', async () => {
         global.fetch = jest.fn().mockResolvedValueOnce(mockGoogleSuccess());
         const res = makeRes();
         await handler(makeReq({ input: '1 King St Sydney' }), res);
-        const calledUrl = global.fetch.mock.calls[0][0];
-        expect(calledUrl).toContain(encodeURIComponent('1 King St Sydney'));
+        const body = JSON.parse(global.fetch.mock.calls[0][1].body);
+        expect(body.input).toBe('1 King St Sydney');
     });
 
-    test('country restriction to Australia is included in API call', async () => {
+    test('region restriction to Australia is included in the request', async () => {
         global.fetch = jest.fn().mockResolvedValueOnce(mockGoogleSuccess());
         const res = makeRes();
         await handler(makeReq({ input: 'Brisbane' }), res);
-        const calledUrl = global.fetch.mock.calls[0][0];
-        expect(calledUrl).toContain('country:au');
+        const body = JSON.parse(global.fetch.mock.calls[0][1].body);
+        expect(body.includedRegionCodes).toEqual(['au']);
+    });
+
+    test('sends the API key via header, not the URL', async () => {
+        global.fetch = jest.fn().mockResolvedValueOnce(mockGoogleSuccess());
+        const res = makeRes();
+        await handler(makeReq({ input: 'Brisbane' }), res);
+        const [url, opts] = global.fetch.mock.calls[0];
+        expect(opts.headers['X-Goog-Api-Key']).toBe('test-google-key');
+        expect(url).not.toContain('test-google-key');
     });
 
     // ── Missing API key ───────────────────────────────────
@@ -129,9 +146,9 @@ describe('places-autocomplete handler', () => {
         expect(res.json.mock.calls[0][0].error).toMatch(/server configuration/i);
     });
 
-    // ── ZERO_RESULTS ──────────────────────────────────────
-    test('returns 200 with empty predictions for ZERO_RESULTS status', async () => {
-        global.fetch = jest.fn().mockResolvedValueOnce(mockGoogleZeroResults());
+    // ── No matches ────────────────────────────────────────
+    test('returns 200 with empty predictions when Google has no suggestions', async () => {
+        global.fetch = jest.fn().mockResolvedValueOnce(mockGoogleSuccess([]));
         const res = makeRes();
         await handler(makeReq({ input: 'zzzzz' }), res);
         expect(res.status).toHaveBeenCalledWith(200);
@@ -140,16 +157,16 @@ describe('places-autocomplete handler', () => {
     });
 
     // ── Google API error status ───────────────────────────
-    test('returns 500 when Google returns REQUEST_DENIED status', async () => {
-        global.fetch = jest.fn().mockResolvedValueOnce(mockGoogleError('REQUEST_DENIED'));
+    test('returns 500 when Google denies the request', async () => {
+        global.fetch = jest.fn().mockResolvedValueOnce(mockGoogleError(403, 'PERMISSION_DENIED'));
         const res = makeRes();
         await handler(makeReq({ input: 'Brisbane' }), res);
         expect(res.status).toHaveBeenCalledWith(500);
         expect(res.json.mock.calls[0][0].error).toMatch(/failed to fetch predictions/i);
     });
 
-    test('returns 500 when Google returns INVALID_REQUEST status', async () => {
-        global.fetch = jest.fn().mockResolvedValueOnce(mockGoogleError('INVALID_REQUEST'));
+    test('returns 500 when Google rejects the request as invalid', async () => {
+        global.fetch = jest.fn().mockResolvedValueOnce(mockGoogleError(400, 'INVALID_ARGUMENT'));
         const res = makeRes();
         await handler(makeReq({ input: 'Brisbane' }), res);
         expect(res.status).toHaveBeenCalledWith(500);
@@ -163,16 +180,31 @@ describe('places-autocomplete handler', () => {
         expect(res.status).toHaveBeenCalledWith(500);
     });
 
-    // ── Response passthrough ──────────────────────────────
-    test('passes through the full Google response including predictions', async () => {
-        const mockPredictions = [
-            { description: '1 Test St, Brisbane QLD 4000, Australia', place_id: 'abc123' }
-        ];
-        global.fetch = jest.fn().mockResolvedValueOnce(mockGoogleSuccess(mockPredictions));
+    // ── Response mapping ──────────────────────────────────
+    test('maps Google suggestions to the legacy predictions shape', async () => {
+        global.fetch = jest.fn().mockResolvedValueOnce(
+            mockGoogleSuccess([suggestion('1 Test St, Brisbane QLD 4000, Australia', 'abc123')])
+        );
         const res = makeRes();
         await handler(makeReq({ input: 'Test' }), res);
         const body = res.json.mock.calls[0][0];
-        expect(body.predictions).toEqual(mockPredictions);
+        expect(body.predictions).toEqual([
+            { description: '1 Test St, Brisbane QLD 4000, Australia', place_id: 'abc123' }
+        ]);
         expect(body.status).toBe('OK');
+    });
+
+    test('skips suggestions without a place prediction or description', async () => {
+        global.fetch = jest.fn().mockResolvedValueOnce(mockGoogleSuccess([
+            suggestion('1 Real St, Beenleigh QLD 4207, Australia', 'real1'),
+            { queryPrediction: { text: { text: 'not a place' } } },
+            { placePrediction: { placeId: 'no-text' } }
+        ]));
+        const res = makeRes();
+        await handler(makeReq({ input: 'Beenleigh' }), res);
+        const body = res.json.mock.calls[0][0];
+        expect(body.predictions).toEqual([
+            { description: '1 Real St, Beenleigh QLD 4207, Australia', place_id: 'real1' }
+        ]);
     });
 });

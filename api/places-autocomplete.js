@@ -34,20 +34,44 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Fetch completions from Google Places Autocomplete API
-    // Restricting by country:au (Australia) to keep results relevant for QLD
+    // Places API (New). The legacy /maps/api/place/autocomplete endpoint
+    // answers REQUEST_DENIED on Google Cloud projects that can't enable the
+    // retired legacy Places API, which silently killed the address dropdown.
+    // Region restricted to Australia to keep results relevant for QLD.
     const response = await fetch(
-      `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&components=country:au&key=${apiKey}`,
-      { signal: AbortSignal.timeout(5000) },
+      "https://places.googleapis.com/v1/places:autocomplete",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Goog-Api-Key": apiKey,
+        },
+        body: JSON.stringify({
+          input: input.trim(),
+          includedRegionCodes: ["au"],
+        }),
+        signal: AbortSignal.timeout(5000),
+      },
     );
 
     const data = await response.json();
 
-    if (data.status !== "OK" && data.status !== "ZERO_RESULTS") {
-      throw new Error(`Google API returned status: ${data.status}`);
+    if (!response.ok) {
+      // Surface Google's real reason (e.g. "Places API (New) has not been
+      // used in project ... before or it is disabled") in Vercel logs.
+      throw new Error(
+        `Google API HTTP ${response.status}: ${data?.error?.status || "UNKNOWN"} — ${data?.error?.message || "no message"}`,
+      );
     }
 
-    return res.status(200).json(data);
+    // Map to the legacy response shape the frontend dropdown consumes.
+    const predictions = (data.suggestions || [])
+      .map((s) => s.placePrediction)
+      .filter(Boolean)
+      .map((p) => ({ description: p.text?.text || "", place_id: p.placeId }))
+      .filter((p) => p.description);
+
+    return res.status(200).json({ status: "OK", predictions });
   } catch (error) {
     console.error("Google Places Proxy Error:", error);
     return res.status(500).json({ error: "Failed to fetch predictions" });
