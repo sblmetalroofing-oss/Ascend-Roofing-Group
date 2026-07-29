@@ -377,7 +377,6 @@ async function build() {
                 <li><a href="/#services" class="nav-link">Services</a></li>
                 <li><a href="roof-replacement.html" class="nav-link">Roof Replacement</a></li>
                 <li><a href="locations.html" class="nav-link active">Locations</a></li>
-                <li><a href="quote.html" class="nav-link">Instant Quote</a></li>
                 <li><a href="blog/" class="nav-link">Blog</a></li>
                 <li><a href="tel:0490196284" class="nav-link nav-phone">📞 0490 196 284</a></li>
                 <li><a href="/#contact" class="nav-link nav-cta">Get a Quote</a></li>
@@ -470,7 +469,6 @@ async function build() {
     { loc: "/roof-insulation-brisbane.html", priority: "0.8", changefreq: "monthly" },
     { loc: "/gutters-downpipes-brisbane.html", priority: "0.8", changefreq: "monthly" },
     { loc: "/skylights-whirlybirds-brisbane.html", priority: "0.8", changefreq: "monthly" },
-    { loc: "/quote.html", priority: "0.8", changefreq: "monthly" },
     { loc: "/blog/", priority: "0.7", changefreq: "weekly" },
     { loc: "/faq.html", priority: "0.6", changefreq: "monthly" },
     { loc: "/terms.html", priority: "0.3", changefreq: "yearly" },
