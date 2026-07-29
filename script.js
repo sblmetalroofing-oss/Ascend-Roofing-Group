@@ -276,12 +276,95 @@ document.addEventListener("DOMContentLoaded", () => {
    proxy (/api/places-autocomplete) and render a simple
    dropdown. On ANY failure we just hide the dropdown —
    the field stays a normal text input, never a dialog.
+
+   Picking a suggestion then calls /api/place-details for
+   the address components, so forms that split the address
+   into separate fields (street / suburb / state / postcode)
+   get every one of them filled in.
    ============================================ */
 
-// Covers the contact form (#address), instant-quote form (#quoteAddress)
-// and colour-confirmation form (#jobAddress) without per-page wiring.
-const ADDRESS_AC_SELECTOR =
-  'input[data-address-autocomplete], #address, #quoteAddress, #jobAddress, input[name="address"]';
+// Covers the contact form (#address), instant-quote form (#quoteAddress),
+// colour-confirmation form (#jobAddress), the employee form (#streetAddress)
+// and the subcontractor pack (#businessAddress) without per-page wiring.
+const ADDRESS_AC_SELECTOR = [
+  "input[data-address-autocomplete]",
+  "#address",
+  "#quoteAddress",
+  "#jobAddress",
+  "#streetAddress",
+  "#businessAddress",
+  'input[name="address"]',
+].join(", ");
+
+// Where the parts of a picked address get written. An explicit data attribute
+// always wins; otherwise fall back to the conventional id/name, then to the
+// autocomplete token the browser already uses for that same field.
+const ADDRESS_PART_SELECTORS = {
+  suburb: [
+    "[data-address-suburb]",
+    "#suburb",
+    '[name="suburb"]',
+    '[autocomplete="address-level2"]',
+  ],
+  state: [
+    "[data-address-state]",
+    "#state",
+    '[name="state"]',
+    '[autocomplete="address-level1"]',
+  ],
+  postcode: [
+    "[data-address-postcode]",
+    "#postcode",
+    '[name="postcode"]',
+    '[autocomplete="postal-code"]',
+  ],
+};
+
+// One token per address lookup, rotated once Details closes the session, so
+// Google bills the keystrokes and the lookup together instead of separately.
+function newPlacesSessionToken() {
+  try {
+    if (window.crypto && typeof window.crypto.randomUUID === "function") {
+      return window.crypto.randomUUID();
+    }
+  } catch (err) {
+    /* randomUUID unavailable (insecure context) — fall through */
+  }
+  return `s-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+// Look for a sibling field within the same form. Scoping to the form keeps a
+// page with several forms from cross-filling the wrong one.
+function findAddressPartField(input, part) {
+  const scope = input.form || document;
+  for (const selector of ADDRESS_PART_SELECTORS[part]) {
+    const el = scope.querySelector(selector);
+    if (el && el !== input) return el;
+  }
+  return null;
+}
+
+// Fill a field and let anything listening (validation, analytics) know.
+// Selects only accept a value they actually have an option for, so an
+// interstate address can't silently leave a bogus state selected.
+function setAddressPartField(el, value) {
+  if (!el || !value) return false;
+  if (el.tagName === "SELECT") {
+    const want = String(value).trim().toLowerCase();
+    const option = Array.from(el.options).find(
+      (o) =>
+        o.value.trim().toLowerCase() === want ||
+        o.textContent.trim().toLowerCase() === want,
+    );
+    if (!option) return false;
+    el.value = option.value;
+  } else {
+    el.value = value;
+  }
+  el.dispatchEvent(new Event("input", { bubbles: true }));
+  el.dispatchEvent(new Event("change", { bubbles: true }));
+  return true;
+}
 
 function initAddressAutocomplete(root) {
   (root || document)
@@ -294,8 +377,8 @@ function attachAddressAutocomplete(input) {
   input.dataset.acBound = "1";
 
   // The instant-quote form posts client coords to /api/roof-quote and falls
-  // back to server-side geocoding when they're null. We no longer capture
-  // coordinates from Google, so keep these null and let the server geocode.
+  // back to server-side geocoding when they're null. Place Details returns
+  // the geometry, so a picked suggestion can hand over exact coordinates.
   const isQuote = input.id === "quoteAddress";
 
   input.setAttribute("autocomplete", "off");
@@ -320,6 +403,17 @@ function attachAddressAutocomplete(input) {
   let controller = null;
   let seq = 0;
   let debounceId = null;
+  let sessionToken = newPlacesSessionToken();
+
+  // Resolved lazily: these forms are static, but the lookup is cheap and this
+  // keeps the binding correct if a form is built after script.js runs.
+  function partFields() {
+    return {
+      suburb: findAddressPartField(input, "suburb"),
+      state: findAddressPartField(input, "state"),
+      postcode: findAddressPartField(input, "postcode"),
+    };
+  }
 
   function clearQuoteCoords() {
     if (isQuote) {
@@ -350,10 +444,70 @@ function attachAddressAutocomplete(input) {
   function choose(idx) {
     const p = predictions[idx];
     if (!p) return;
+    // Show the full description straight away; applyPlaceDetails narrows it to
+    // the street line if this form has somewhere to put the other parts.
     input.value = p.description;
     clearQuoteCoords();
     hide();
     input.focus();
+    applyPlaceDetails(p);
+  }
+
+  // Pull the address components for a picked suggestion and distribute them.
+  // Every failure path leaves the full description sitting in the field, which
+  // is exactly what the form did before details existed.
+  async function applyPlaceDetails(prediction) {
+    if (!prediction.place_id) return;
+
+    const token = sessionToken;
+    sessionToken = newPlacesSessionToken(); // Details closes the billing session
+
+    const fields = partFields();
+    const hasPartFields = Boolean(
+      fields.suburb || fields.state || fields.postcode,
+    );
+    // Nothing to gain from the extra billable call when the form is a single
+    // address box and doesn't need coordinates.
+    if (!hasPartFields && !isQuote) return;
+
+    const params = new URLSearchParams({
+      place_id: prediction.place_id,
+      sessiontoken: token,
+    });
+
+    try {
+      const resp = await fetch(`/api/place-details?${params}`, {
+        headers: { Accept: "application/json" },
+      });
+      if (!resp.ok) return;
+      const data = await resp.json();
+      const result = data && data.result;
+      if (!result) return;
+
+      // A picked suggestion gives exact coordinates, so /api/roof-quote can
+      // skip its fallback geocode.
+      if (
+        isQuote &&
+        typeof result.lat === "number" &&
+        typeof result.lng === "number"
+      ) {
+        window.__quoteAutoLat = result.lat;
+        window.__quoteAutoLng = result.lng;
+      }
+
+      if (!hasPartFields) return;
+
+      // The street line stays in this input and the rest move to their own
+      // fields, so the suburb doesn't end up duplicated across both. Assigning
+      // value directly (no input event) avoids re-opening the dropdown.
+      if (result.street_address) input.value = result.street_address;
+
+      setAddressPartField(fields.suburb, result.suburb);
+      setAddressPartField(fields.state, result.state);
+      setAddressPartField(fields.postcode, result.postcode);
+    } catch (err) {
+      /* details unavailable — the full description already in the field stands */
+    }
   }
 
   function render(preds) {
@@ -384,11 +538,12 @@ function attachAddressAutocomplete(input) {
     const mySeq = ++seq;
     if (controller) controller.abort();
     controller = new AbortController();
+    const params = new URLSearchParams({ input: value, sessiontoken: sessionToken });
     try {
-      const resp = await fetch(
-        `/api/places-autocomplete?input=${encodeURIComponent(value)}`,
-        { signal: controller.signal, headers: { Accept: "application/json" } },
-      );
+      const resp = await fetch(`/api/places-autocomplete?${params}`, {
+        signal: controller.signal,
+        headers: { Accept: "application/json" },
+      });
       if (mySeq !== seq) return; // a newer keystroke superseded this request
       if (!resp.ok) {
         hide();

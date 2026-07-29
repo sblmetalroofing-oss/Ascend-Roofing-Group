@@ -48,6 +48,24 @@ git commit -m "Description of changes"
 git push -u origin my-change
 ```
 
+## Address autocomplete
+
+Address fields across the site are backed by the **legacy** Google Places API
+through two origin-checked proxies, so the browser never sees the API key:
+
+- `api/places-autocomplete.js` → `/maps/api/place/autocomplete/json` (the dropdown)
+- `api/place-details.js` → `/maps/api/place/details/json` (the address components)
+
+Picking a suggestion splits it into street / suburb / state / postcode wherever
+a form has those fields (see `ADDRESS_PART_SELECTORS` in `script.js`); forms
+with a single address box keep the full address string and skip the second
+call. Both requests share a session token so Google bills the lookup once.
+
+⚠ This needs the legacy **"Places API"** enabled in Google Cloud — a different
+product from **"Places API (New)"**. Only the legacy Place Details response
+returns `address_components`, which is what makes the split fields work. A
+`REQUEST_DENIED` in the Vercel function logs means it is not enabled.
+
 ## PII encryption (owner setup)
 
 `api/submit-new-employee.js` and `api/submit-subby-pack.js` can encrypt TFN and bank fields at rest (AES-256-GCM). To activate:
