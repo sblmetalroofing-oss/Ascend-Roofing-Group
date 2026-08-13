@@ -86,7 +86,13 @@ body {
   background-color: var(--bg-body);
   color: var(--text-main);
   line-height: 1.6;
+  /* `overflow-x: hidden` computes overflow-y to `auto`, which makes body a
+     scroll container — and a sticky descendant then sticks to body's box,
+     which never scrolls, so the header could not stick at all. `clip` does
+     the same clipping without creating a scroll container. The `hidden`
+     declaration stays first as the fallback for engines without `clip`. */
   overflow-x: hidden;
+  overflow-x: clip;
   -webkit-font-smoothing: antialiased;
   -webkit-text-size-adjust: 100%;
   -webkit-overflow-scrolling: touch;
@@ -2518,8 +2524,35 @@ textarea:focus-visible,
 .t-btn-light { background: #fff; color: #0a0a0a; }
 .t-btn-light:hover { background: #e4e4e4; }
 
-/* ---- two-tier header ---- */
-.t-utility-bar { background: #000; display: flex; align-items: stretch; min-height: 92px; }
+/* ---- two-tier header ----
+   The header is the sticky element, not the nav inside it: a sticky box can
+   only travel within its own containing block, so `.t-navbar` was confined
+   to the header's 135px and scrolled away with it.
+
+   Desktop pins the whole header, keeping the phone button in reach. Below
+   1100px it is pinned by minus the utility bar's height, so that row slides
+   off and only the nav strip stays — the floating call button already covers
+   phoning there, and a 135px band is a lot of a phone screen. */
+:root {
+  --t-utility-h: 92px;   /* utility bar height; the sticky offset mirrors it */
+  --t-sticky-top: 0px;   /* how far the header is pinned above the viewport */
+  --t-sticky-h: 159px;   /* what stays on screen — drives scroll-margin below */
+}
+
+.t-header {
+  position: sticky;
+  top: var(--t-sticky-top);
+  z-index: 1000;
+}
+
+/* Anchor targets must clear whatever the header leaves on screen, or a
+   jump to #contact lands with its heading behind the nav. */
+section[id],
+main[id] {
+  scroll-margin-top: calc(var(--t-sticky-h) + 12px);
+}
+
+.t-utility-bar { background: #000; display: flex; align-items: stretch; min-height: var(--t-utility-h); }
 .t-logo-panel { display: flex; align-items: center; padding: 0 60px 0 32px; position: relative; flex-shrink: 0; }
 .t-logo-panel::after {
   content: ""; position: absolute; right: -1px; top: 0; bottom: 0; width: 46px;
@@ -2543,11 +2576,11 @@ textarea:focus-visible,
   line-height: 1.3; color: var(--text-muted);
 }
 
-/* z-index 1000 — above .t-nav-overlay (998). `position: sticky` makes this a
-   stacking context, so the mobile drawer nested inside it can never paint
-   above an ancestor-level overlay that outranks the bar itself. When the bar
-   sat at 900 the overlay covered the open drawer and swallowed every tap. */
-.t-navbar { background: #1c1c1c; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 1000; }
+/* Positioned + z-index 1000 so it stays a stacking context above
+   .t-nav-overlay (998): the mobile drawer is nested in here, and when this
+   sat below the overlay the overlay covered the open drawer and swallowed
+   every tap. Sticky moved up to .t-header — see the note there. */
+.t-navbar { background: #1c1c1c; border-bottom: 1px solid var(--border-color); position: relative; z-index: 1000; }
 .t-navbar.scrolled { box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
 .t-nav-menu {
   list-style: none; display: flex; justify-content: flex-end; gap: 34px;
@@ -2715,12 +2748,23 @@ textarea:focus-visible,
   .t-hero-visual { min-height: 380px; }
   .t-review-rail { flex-direction: column; }
   .t-review-card, .t-review-card.t-feature { width: 100%; transform: none; }
+  /* Pin only the nav strip: the header is offset upward by exactly the
+     utility bar's height, so that row scrolls off and the nav stops at the
+     top. The height is fixed rather than intrinsic so the offset can match
+     it exactly — a mismatch either strands a sliver of the utility bar on
+     screen or lets part of the nav scroll away. */
+  :root {
+    --t-utility-h: 84px;
+    --t-sticky-top: -84px;
+    --t-sticky-h: 51px;
+  }
   /* One row, not three: with the rating hidden the bar fits comfortably
      across this whole range, and stacking it cost ~200px of the fold —
      the worst case being a landscape phone at 844x390. */
-  .t-utility-bar { flex-direction: row; align-items: center; min-height: 0; }
+  .t-utility-bar { flex-direction: row; align-items: center; height: var(--t-utility-h); min-height: 0; }
   .t-logo-panel { padding: 10px 24px; }
   .t-logo-panel::after { display: none; }
+  .t-logo-panel img { height: 60px; }
   .t-utility-inner { padding: 10px 24px; flex-wrap: nowrap; gap: 14px; }
   .t-rating { display: none; }
   .t-promo-card { grid-template-columns: 1fr; }
