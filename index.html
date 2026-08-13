@@ -40,8 +40,12 @@
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#0a0a0a">
 
-    <link rel="stylesheet" href="styles.css?v=1a207982">
-    <link rel="preload" as="image" type="image/avif" href="/images/20240307_171821.avif" fetchpriority="high">
+    <link rel="stylesheet" href="styles.css?v=f7f746a8">
+    <!-- The homepage LCP is the .t-hero-bg backdrop, which the hero photo now
+         shares. It previously preloaded 20240307_171821.avif, an image this
+         page only uses in a lazy gallery tile — 262 KB of high-priority
+         bandwidth ahead of the real hero. -->
+    <link rel="preload" as="image" type="image/avif" href="/images/DJI_20240427080531_0013_D_edited_edited.avif" fetchpriority="high">
     <script defer src="/_vercel/speed-insights/script.js"></script>
     <script defer src="/_vercel/insights/script.js"></script>
     
@@ -184,8 +188,12 @@
             </div>
             <div class="t-hero-visual" aria-hidden="true">
                 <div class="t-ring"></div>
-                <img class="t-hero-photo" src="./images/DJI_20240427080531_0013_D_edited_edited.jpg"
+                <picture>
+                    <source srcset="./images/DJI_20240427080531_0013_D_edited_edited.avif" type="image/avif">
+                    <source srcset="./images/DJI_20240427080531_0013_D_edited_edited.webp" type="image/webp">
+                    <img class="t-hero-photo" src="./images/DJI_20240427080531_0013_D_edited_edited.jpg"
                      alt="" loading="eager" fetchpriority="high" width="1920" height="1234">
+                </picture>
             </div>
         </div>
         <div class="t-container">
@@ -964,7 +972,7 @@
         </div>
     </footer>
 
-    <script defer src="script.js?v=2083ce22"></script>
+    <script defer src="script.js?v=4665e0c0"></script>
 </body>
 
 </html>
