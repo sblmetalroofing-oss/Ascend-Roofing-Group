@@ -36,8 +36,14 @@ function escapeAttr(str) {
 function getSiteLastmod() {
   const FALLBACK = "2026-07-10";
   try {
+    // --no-merges: on a pull_request, Actions checks out a merge commit that
+    // GitHub creates at test time, in its own timezone. That commit touches
+    // whatever the PR touches, so without this it becomes the answer and the
+    // date is "whenever CI happened to run" — which never matches the date
+    // the author's build wrote. Only real content commits may set it.
+    // Requires full history in CI (fetch-depth: 0 in .github/workflows/ci.yml).
     const out = execSync(
-      "git log -1 --format=%cs -- template.html suburbs.json build.js scripts/enrich-service-areas.cjs",
+      "git log -1 --no-merges --format=%cs -- template.html suburbs.json build.js scripts/enrich-service-areas.cjs",
       { cwd: __dirname, encoding: "utf8" },
     ).trim();
     return /^\d{4}-\d{2}-\d{2}$/.test(out) ? out : FALLBACK;
@@ -545,10 +551,15 @@ function stampAssetVersions() {
   const cssV = hash("styles.css");
   const jsV = hash("script.js");
 
+  // template.html is a build input, not a served page — the suburb pages it
+  // generates are stamped below on their own. Stamping it too fed a loop: a
+  // styles.css edit rewrote the template, and the template is one of the
+  // inputs getSiteLastmod() watches, so every styling change re-dated the
+  // whole sitemap and the drift check went red.
   const targets = [
     ...fs
       .readdirSync(__dirname)
-      .filter((f) => f.endsWith(".html"))
+      .filter((f) => f.endsWith(".html") && f !== "template.html")
       .map((f) => path.join(__dirname, f)),
     ...fs
       .readdirSync(CONFIG.outputDir)
