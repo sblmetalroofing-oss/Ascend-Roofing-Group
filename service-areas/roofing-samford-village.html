@@ -145,33 +145,41 @@
 <body>
     <a class="skip-link" href="#main">Skip to content</a>
     <!-- ===================== NAVIGATION ===================== -->
-    <nav class="navbar" id="navbar">
-        <div class="container nav-container">
-            <a href="/" class="nav-logo">
-                <img src="../images/ROOFING GROUP.png" alt="Ascend Roofing Group Logo" class="logo-img" width="400" height="400">
-            </a>
-            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="navMenu">
+    <!-- ===================== HEADER (utility bar + nav) ===================== -->
+    <header class="t-header">
+        <div class="t-utility-bar">
+            <div class="t-logo-panel">
+                <a href="../index.html" aria-label="Ascend Roofing Group home">
+                    <img src="../images/ROOFING GROUP.png" alt="Ascend Roofing Group Logo" width="400" height="400">
+                </a>
+            </div>
+            <div class="t-utility-inner">
+                <div class="t-availability"><span class="t-pulse"></span> Available 7 Days</div>
+                <div class="t-utility-right">
+                    <!-- TODO(owner): add the verified Google rating and review count here. -->
+                    <a href="tel:0419098049" class="t-btn t-btn-accent">0419 098 049</a>
+                    <a href="../quote.html" class="t-btn t-btn-ghost">Get a Quote</a>
+                </div>
+            </div>
+        </div>
+        <nav class="t-navbar" id="navbar" aria-label="Main navigation">
+            <button class="t-nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="navMenu">
                 <span></span><span></span><span></span>
             </button>
-            <ul class="nav-menu" id="navMenu">
-                <li><a href="/" class="nav-link">Home</a></li>
-                <li><a href="/#services" class="nav-link">Services</a></li>
-                <li><a href="/#gallery" class="nav-link">Projects</a></li>
-                <li><a href="/#about" class="nav-link">About</a></li>
-                <li><a href="../roof-replacement.html" class="nav-link">Roof Replacement</a></li>
-                <li><a href="../locations.html" class="nav-link active">Locations</a></li>
-                <li><a href="tel:0419098049" class="nav-link nav-phone">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
-                    </svg>
-                    0419 098 049
-                </a></li>
-                <li><a href="#contact" class="nav-link nav-cta">Get a Quote</a></li>
+            <ul class="t-nav-menu" id="navMenu">
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="../index.html#about">About Us</a></li>
+                <li><a href="../index.html#services">Our Services</a></li>
+                <li><a href="../blog/">Blog</a></li>
+                <li><a href="../faq.html">FAQ's</a></li>
+                <li><a href="../index.html#testimonials">Reviews</a></li>
+                <li><a href="../locations.html">Areas We Service</a></li>
+                <li><a href="../quote.html">Contact Us</a></li>
             </ul>
-        </div>
-    </nav>
-    <div class="nav-overlay" id="navOverlay"></div>
-    <main id="main">
+        </nav>
+    </header>
+    <div class="t-nav-overlay" id="navOverlay"></div>
+<main id="main">
 
 
 
@@ -231,41 +239,6 @@
             </a>
         </div>
     </section>
-
-    <!-- ENRICH:START -->
-        <section class="section local-context">
-            <div class="container">
-                <div class="section-header" data-reveal>
-                    <span class="section-tag">Local Roofing</span>
-                    <h2>Roofing in <span class="text-accent">Samford Village</span></h2>
-                </div>
-                <div class="local-context-body" data-reveal>
-                    <p>Ascend Roofing Group is a Colorbond&reg; metal roofing specialist serving Samford Village 4520 and the surrounding suburbs of the Moreton Bay region north of Brisbane. From full roof replacements to repairs and brand-new installations, we work on homes right across Samford Village and neighbouring areas like Samford Valley, Dayboro, Elimbah, D'Aguilar.</p>
-                    <p>Samford Village sits in elevated, leafy country where higher rainfall, gusty winds and surrounding bushland place extra demand on a roof. Our installs focus on secure fastening against wind uplift, well-detailed valleys and flashings to shed heavy downpours, and gutter-guard options to manage leaf litter from nearby trees.</p>
-                    <p>Whatever your roof needs in Samford Village, we can help with
-                        <a href="../roof-replacement.html">roof replacement</a>,
-                        <a href="../roof-repairs-brisbane.html">roof repairs</a>,
-                        <a href="../new-roof-installation-brisbane.html">new roof installation</a>,
-                        <a href="../gutters-downpipes-brisbane.html">gutters &amp; downpipes</a>,
-                        <a href="../roof-insulation-brisbane.html">roof insulation</a> and
-                        <a href="../skylights-whirlybirds-brisbane.html">skylights &amp; whirlybirds</a>.
-                        See every area we cover on our <a href="../locations.html">service areas</a> page.</p>
-                </div>
-                <div class="suburb-links local-suburb-links" data-reveal>
-                    <a href="roofing-samford-valley.html">Roofing Samford Valley</a>
-                    <a href="roofing-dayboro.html">Roofing Dayboro</a>
-                    <a href="roofing-elimbah.html">Roofing Elimbah</a>
-                    <a href="roofing-daguilar.html">Roofing D'Aguilar</a>
-                    <a href="roofing-woodford.html">Roofing Woodford</a>
-                    <a href="roofing-wamuran.html">Roofing Wamuran</a>
-                    <a href="roofing-godwin-beach.html">Roofing Godwin Beach</a>
-                    <a href="roofing-ningi.html">Roofing Ningi</a>
-                    <a href="roofing-sandstone-point.html">Roofing Sandstone Point</a>
-                    <a href="roofing-beachmere.html">Roofing Beachmere</a>
-                </div>
-            </div>
-        </section>
-        <!-- ENRICH:END -->
 
     <!-- ===================== SERVICES ===================== -->
     <section class="section services" id="services">

@@ -367,26 +367,39 @@ async function build() {
 </head>
 <body>
     <a class="skip-link" href="#main">Skip to content</a>
-    <!-- ===================== NAVIGATION ===================== -->
-    <nav class="navbar" id="navbar">
-        <div class="container nav-container">
-            <a href="/" class="nav-logo">
-                <img src="./images/ROOFING GROUP.png" alt="Ascend Roofing Group Logo" class="logo-img" width="400" height="400">
-            </a>
-            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="navMenu">
+    <!-- ===================== HEADER (utility bar + nav) ===================== -->
+    <header class="t-header">
+        <div class="t-utility-bar">
+            <div class="t-logo-panel">
+                <a href="/" aria-label="Ascend Roofing Group home">
+                    <img src="./images/ROOFING GROUP.png" alt="Ascend Roofing Group Logo" width="400" height="400">
+                </a>
+            </div>
+            <div class="t-utility-inner">
+                <div class="t-availability"><span class="t-pulse"></span> Available 7 Days</div>
+                <div class="t-utility-right">
+                    <a href="tel:0419098049" class="t-btn t-btn-accent">0419 098 049</a>
+                    <a href="quote.html" class="t-btn t-btn-ghost">Get a Quote</a>
+                </div>
+            </div>
+        </div>
+        <nav class="t-navbar" id="navbar" aria-label="Main navigation">
+            <button class="t-nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="navMenu">
                 <span></span><span></span><span></span>
             </button>
-            <ul class="nav-menu" id="navMenu">
-                <li><a href="/" class="nav-link">Home</a></li>
-                <li><a href="/#services" class="nav-link">Services</a></li>
-                <li><a href="roof-replacement.html" class="nav-link">Roof Replacement</a></li>
-                <li><a href="locations.html" class="nav-link active">Locations</a></li>
-                <li><a href="blog/" class="nav-link">Blog</a></li>
-                <li><a href="tel:0419098049" class="nav-link nav-phone">📞 0419 098 049</a></li>
-                <li><a href="/#contact" class="nav-link nav-cta">Get a Quote</a></li>
+            <ul class="t-nav-menu" id="navMenu">
+                <li><a href="/">Home</a></li>
+                <li><a href="/#about">About Us</a></li>
+                <li><a href="/#services">Our Services</a></li>
+                <li><a href="blog/">Blog</a></li>
+                <li><a href="faq.html">FAQ's</a></li>
+                <li><a href="/#testimonials">Reviews</a></li>
+                <li><a href="locations.html" class="active">Areas We Service</a></li>
+                <li><a href="quote.html">Contact Us</a></li>
             </ul>
-        </div>
-    </nav>
+        </nav>
+    </header>
+    <div class="t-nav-overlay" id="navOverlay"></div>
 
     <main id="main">
     <section class="locations-hero">
