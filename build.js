@@ -237,6 +237,10 @@ async function build() {
       .replace(/\{\{REGION\}\}/g, suburb.region)
       .replace(/\{\{POSTCODE\}\}/g, suburb.postcode)
       .replace(/\{\{SLUG\}\}/g, slug)
+      .replace(
+        /\{\{SUBURB_QUERY\}\}/g,
+        encodeURIComponent(`${suburb.name} QLD`),
+      )
       .replace(/\{\{NEARBY_SUBURBS\}\}/g, nearbyHtml)
       .replace(/\{\{META_DESCRIPTION\}\}/g, metaDesc)
       .replace(/\{\{HERO_SUBTITLE\}\}/g, heroSubtitle)
