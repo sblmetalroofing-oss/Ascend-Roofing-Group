@@ -209,7 +209,7 @@ Verified 0 `<main>` on index, template (→316 pages), locations, all service/bl
 - **No secrets in repo or git history** beyond the Maps key (H-SEC-2); `.env` never committed; `.env.example` placeholders only.
 - **JSON-LD 100 % valid** across all page types (node parse); zero fake review/aggregateRating schema; BreadcrumbList on all service pages, blog posts, and the suburb template.
 - **Canonicals** correct (https + www, self-referencing) on every indexable page; robots.txt correct; `lang="en-AU"` everywhere; one h1 per page.
-- **NAP consistent:** 0490 196 284 (1,800+ occurrences across forms/schema/tel:), single email, QBCC 15600031 consistent across 341 files.
+- **NAP consistent:** 0419 098 049 (1,800+ occurrences across forms/schema/tel:), single email, QBCC 15600031 consistent across 341 files.
 - **vercel.json redirect** is root-anchored — no loop/conflict with service-areas pages. Cron 23:00 UTC = 09:00 AEST as documented, with correct Australia/Brisbane windowing in the handler.
 - **Build integrity:** fresh `npm run build` reproduces all 316 suburb pages + locations.html byte-identically (only date stamps drift — M-BUILD-2); enrichment is pure-fs, deterministic, idempotent, and safe on Vercel.
 - **schema.sql matches code** column-by-column; apply-schema.sh sound.
