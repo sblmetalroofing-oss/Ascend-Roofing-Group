@@ -161,12 +161,12 @@ async function build() {
 
   // Meta description variations for unique content across pages
   const META_DESCRIPTIONS = [
-    `Looking for roofing in {{SUBURB}}? Ascend Roofing Group provides premium Colorbond® replacements, repairs, and new roofs in {{SUBURB}} {{POSTCODE}}. Call 0490 196 284.`,
+    `Looking for roofing in {{SUBURB}}? Ascend Roofing Group provides premium Colorbond® replacements, repairs, and new roofs in {{SUBURB}} {{POSTCODE}}. Call 0419 098 049.`,
     `Expert roof replacement in {{SUBURB}} {{POSTCODE}}. Family-owned Ascend Roofing Group delivers quality Colorbond® steel roofing with free quotes and no hidden fees. QBCC licensed.`,
     `Need a roofer in {{SUBURB}}? We specialise in Colorbond® metal roofing across {{REGION}}. 14+ years experience, 1,200+ roofs completed. Get your free quote today.`,
     `{{SUBURB}} roofing specialists. Ascend Roofing Group offers complete roof replacements, storm repairs, and new installations in {{SUBURB}} {{POSTCODE}}. Trusted across {{REGION}}.`,
     `Professional roofing services in {{SUBURB}} {{POSTCODE}}. From full Colorbond® re-roofs to gutters and insulation — Ascend Roofing Group has {{REGION}} covered. Call now.`,
-    `Top-rated roofers serving {{SUBURB}} and {{REGION}}. Premium Colorbond® roof replacements and repairs with transparent pricing. QBCC licensed, fully insured. 0490 196 284.`,
+    `Top-rated roofers serving {{SUBURB}} and {{REGION}}. Premium Colorbond® roof replacements and repairs with transparent pricing. QBCC licensed, fully insured. 0419 098 049.`,
     `Ascend Roofing Group — your local {{SUBURB}} roofing experts. Quality Colorbond® installations, fast turnarounds, and honest pricing across {{REGION}}. Free on-site quotes.`,
     `Roof replacement in {{SUBURB}}? Get a free quote from Ascend Roofing Group. We install premium Colorbond® steel roofing across {{REGION}} with a focus on quality and value.`,
   ];
@@ -378,7 +378,7 @@ async function build() {
                 <li><a href="roof-replacement.html" class="nav-link">Roof Replacement</a></li>
                 <li><a href="locations.html" class="nav-link active">Locations</a></li>
                 <li><a href="blog/" class="nav-link">Blog</a></li>
-                <li><a href="tel:0490196284" class="nav-link nav-phone">📞 0490 196 284</a></li>
+                <li><a href="tel:0419098049" class="nav-link nav-phone">📞 0419 098 049</a></li>
                 <li><a href="/#contact" class="nav-link nav-cta">Get a Quote</a></li>
             </ul>
         </div>
@@ -436,7 +436,7 @@ async function build() {
                 </div>
                 <div class="footer-contact">
                     <h4>Get In Touch</h4>
-                    <p><a href="tel:0490196284">📞 0490 196 284</a></p>
+                    <p><a href="tel:0419098049">📞 0419 098 049</a></p>
                     <p><a href="mailto:admin@ascendroofinggroup.com.au">✉️ admin@ascendroofinggroup.com.au</a></p>
                     <p>📍 Brisbane & Gold Coast, QLD</p>
                 </div>

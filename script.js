@@ -233,7 +233,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.innerHTML = originalHTML;
         btn.disabled = false;
         if (errorEl) {
-          errorEl.textContent = "Something went wrong. Please call us directly at 0490 196 284.";
+          errorEl.textContent = "Something went wrong. Please call us directly at 0419 098 049.";
           errorEl.style.display = "block";
         }
       }
