@@ -10,6 +10,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # build.js dates the sitemap from the last commit touching the
+          # content inputs. The default shallow checkout has no history to
+          # read, so it fell back to the merge commit's own date.
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
