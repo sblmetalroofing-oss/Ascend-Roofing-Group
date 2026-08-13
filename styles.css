@@ -32,6 +32,7 @@
   --radius-md: 14px;
   --radius-lg: 20px;
   --radius-xl: 26px;
+  --radius-btn-legacy: 10px;
   --shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.3);
 
   --transition: 0.3s cubic-bezier(0.2, 1, 0.3, 1);
@@ -184,7 +185,7 @@ textarea {
   font-weight: 600;
   font-size: 0.9rem;
   padding: 16px 32px;
-  border-radius: 0;
+  border-radius: var(--radius-btn-legacy);
   transition: var(--transition);
   position: relative;
   letter-spacing: 0.5px;
@@ -324,7 +325,7 @@ textarea {
   color: #fff;
   padding: 12px 24px;
   margin-left: 12px;
-  border-radius: 0;
+  border-radius: var(--radius-btn-legacy);
   border: 1px solid var(--accent-btn);
 }
 
@@ -521,7 +522,7 @@ textarea {
   width: 60px;
   height: 60px;
   border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 0;
+  border-radius: 50%;
   color: #ffffff;
   transition: var(--transition);
   animation: bounce 2s infinite;
@@ -565,7 +566,7 @@ textarea {
 .service-card {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 0;
+  border-radius: var(--radius-lg);
   padding: 48px 40px;
   transition: var(--transition);
   position: relative;
@@ -591,7 +592,7 @@ textarea {
   justify-content: center;
   background: transparent;
   border: 1px solid var(--border-color);
-  border-radius: 0;
+  border-radius: var(--radius-md);
   color: var(--primary-color);
   margin-bottom: 32px;
   transition: var(--transition);
@@ -632,7 +633,7 @@ textarea {
 /* About Image Wrapper */
 .about-img-wrapper {
   position: relative;
-  border-radius: 0;
+  border-radius: var(--radius-lg);
   overflow: hidden;
   aspect-ratio: 1;
   box-shadow: none;
@@ -661,7 +662,7 @@ textarea {
   background: var(--accent-color);
   color: #fff;
   padding: 24px 32px;
-  border-radius: 0;
+  border-radius: var(--radius-md);
   text-align: center;
   box-shadow: none;
   border-top: none;
@@ -725,7 +726,7 @@ textarea {
   align-items: center;
   justify-content: center;
   background: transparent;
-  border-radius: 0;
+  border-radius: var(--radius-md);
   color: var(--primary-color);
   margin-top: 4px;
 }
@@ -762,7 +763,7 @@ textarea {
 .why-card {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 0;
+  border-radius: var(--radius-lg);
   padding: 40px 32px;
   transition: var(--transition);
   text-align: left;
@@ -824,7 +825,7 @@ textarea {
   aspect-ratio: 1;
   height: auto;
   margin: 0 0 24px 0;
-  border-radius: 0;
+  border-radius: 50%;
   /* Square photos */
   overflow: hidden;
   background: var(--bg-secondary);
@@ -880,7 +881,7 @@ textarea {
 .testimonial-card {
   background: var(--bg-secondary);
   border: none;
-  border-radius: 0;
+  border-radius: var(--radius-lg);
   padding: 48px 40px;
   transition: var(--transition);
   display: flex;
@@ -920,7 +921,7 @@ textarea {
 .author-avatar {
   width: 48px;
   height: 48px;
-  border-radius: 0;
+  border-radius: 50%;
   background: var(--accent-color);
   display: flex;
   align-items: center;
@@ -956,7 +957,7 @@ textarea {
 .contact-form-wrapper {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 0;
+  border-radius: var(--radius-xl);
   padding: 64px;
 }
 
@@ -987,7 +988,7 @@ textarea {
   padding: 16px 20px;
   background: var(--bg-secondary);
   border: 1px solid transparent;
-  border-radius: 0;
+  border-radius: var(--radius-md);
   color: var(--text-main);
   font-size: 1rem;
   transition: var(--transition);
@@ -1045,7 +1046,7 @@ textarea:focus-visible,
   padding: 32px;
   background: var(--bg-secondary);
   border: none;
-  border-radius: 0;
+  border-radius: var(--radius-md);
   transition: var(--transition);
 }
 
@@ -1062,7 +1063,7 @@ textarea:focus-visible,
   align-items: center;
   justify-content: center;
   background: transparent;
-  border-radius: 0;
+  border-radius: var(--radius-md);
   color: var(--primary-color);
   margin-top: 4px;
 }
@@ -1087,7 +1088,7 @@ textarea:focus-visible,
 }
 
 .map-embed {
-  border-radius: 0;
+  border-radius: var(--radius-lg);
   overflow: hidden;
   border: none;
   margin-top: 24px;
@@ -2749,3 +2750,183 @@ textarea:focus-visible,
 .t-section--grey .why-number,
 .t-section--light .step-number,
 .t-section--grey .step-number { color: #8a8a8a; }
+
+/* ============================================================
+   QUOTE FORM — definition pass
+   The fields were near-invisible: dark inputs, dark borders and a
+   dark card all sat within a few percent of each other, so the form
+   read as a flat block rather than something to fill in.
+   ============================================================ */
+.contact-form-wrapper { padding: 48px; }
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #b9b9b9;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  background: #101010;
+  border: 1px solid #3d3d3d;
+  border-radius: var(--radius-md);
+  padding: 15px 18px;
+  color: var(--text-light);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder { color: #7c7c7c; }
+
+.form-group input:hover,
+.form-group select:hover,
+.form-group textarea:hover { border-color: #565656; }
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.25);
+}
+
+/* required-field marker, so the asterisks read as meaningful */
+.form-group label::after { color: var(--accent-link); }
+
+.contact-form .btn-full {
+  padding: 18px 30px;
+  font-size: 1rem;
+  border-radius: var(--radius-md);
+}
+
+/* contact detail cards + map */
+.info-card { border: 1px solid var(--border-color); }
+.map-embed { overflow: hidden; border: 1px solid var(--border-color); }
+.map-embed iframe { display: block; filter: grayscale(35%); }
+
+/* Map: give the container its own ground and a labelled fallback, so a
+   slow or blocked embed shows a deliberate panel rather than a void. */
+.map-embed {
+  position: relative;
+  min-height: 260px;
+  background: linear-gradient(135deg, #141414, #1d1d1d);
+}
+.map-embed::after {
+  content: "Brisbane · Gold Coast · Logan · Ipswich · Moreton Bay";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+.map-embed iframe { position: relative; z-index: 1; }
+
+/* ============================================================
+   QUOTE SECTION — form card beside an image panel
+   ============================================================ */
+.contact-grid.t-quote-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 34px;
+  background: transparent;
+  border: 0;
+  align-items: stretch;
+}
+
+.t-quote-grid .contact-form-wrapper {
+  background: #1e1e1e;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  padding: 44px;
+}
+
+/* single-column fields, matching the reference treatment */
+.t-quote-grid .form-row { display: block; }
+.t-quote-grid .form-group { margin-bottom: 16px; }
+
+.t-form-title {
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  color: var(--text-light);
+  margin-bottom: 28px;
+}
+.t-form-title em {
+  font-style: normal;
+  color: var(--accent-link);
+  position: relative;
+  display: inline-block;
+}
+.t-form-title em::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -8px;
+  height: 8px;
+  background: no-repeat center/100% 100%
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 12'%3E%3Cpath d='M3 8c40-6 92-7 194-4' stroke='%233b96ff' stroke-width='4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+.t-secure-note {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  margin-top: 16px;
+}
+
+/* image panel with the angled accent edge */
+.t-quote-visual {
+  position: relative;
+  background: var(--accent-color);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  min-height: 100%;
+}
+.t-quote-visual img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  clip-path: polygon(11% 0, 100% 0, 100% 100%, 0 100%);
+}
+
+/* contact details move below, as a row */
+.t-contact-details {
+  display: grid;
+  /* minmax(0,…) so a long email address cannot widen its own column */
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+  margin-top: 34px;
+}
+.t-contact-details .info-card { margin: 0; height: 100%; min-width: 0; }
+.t-contact-details .info-card a,
+.t-contact-details .info-card span { overflow-wrap: anywhere; }
+.t-contact-details .map-embed { display: none; }
+
+.t-contact-map {
+  margin-top: 20px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+@media (max-width: 900px) {
+  .contact-grid.t-quote-grid { grid-template-columns: 1fr; }
+  .t-quote-visual { min-height: 320px; }
+  .t-contact-details { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .t-contact-details { grid-template-columns: 1fr; }
+  .t-quote-grid .contact-form-wrapper { padding: 28px; }
+}
