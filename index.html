@@ -40,10 +40,11 @@
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#0a0a0a">
 
-    <link rel="stylesheet" href="styles.css">
-    <!-- The homepage LCP is the .t-hero-bg backdrop. It previously preloaded
-         20240307_171821.avif, which this page only uses in a lazy gallery
-         tile — 262 KB of high-priority bandwidth ahead of the real hero. -->
+    <link rel="stylesheet" href="styles.css?v=f7f746a8">
+    <!-- The homepage LCP is the .t-hero-bg backdrop, which the hero photo now
+         shares. It previously preloaded 20240307_171821.avif, an image this
+         page only uses in a lazy gallery tile — 262 KB of high-priority
+         bandwidth ahead of the real hero. -->
     <link rel="preload" as="image" type="image/avif" href="/images/DJI_20240427080531_0013_D_edited_edited.avif" fetchpriority="high">
     <script defer src="/_vercel/speed-insights/script.js"></script>
     <script defer src="/_vercel/insights/script.js"></script>
@@ -971,7 +972,7 @@
         </div>
     </footer>
 
-    <script defer src="script.js"></script>
+    <script defer src="script.js?v=4665e0c0"></script>
 </body>
 
 </html>

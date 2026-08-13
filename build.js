@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import crypto from "crypto";
 import { execSync } from "child_process";
 import { fileURLToPath } from "url";
 
@@ -519,7 +520,57 @@ async function build() {
     `Sitemap generated at ${CONFIG.sitemapPath} with ${STATIC_URLS.length + sitemapUrls.length} URLs (lastmod ${siteLastmod}).`,
   );
 
+  stampAssetVersions();
+
   console.log("Build Complete!");
+}
+
+/**
+ * styles.css and script.js are served with max-age=3600 and
+ * stale-while-revalidate=86400 (see vercel.json), but the pages link to
+ * them by bare filename. After a deploy a returning visitor can pair the
+ * NEW html with CSS up to a day old, which renders the new markup
+ * unstyled. Stamping a content hash onto the URLs makes each deploy
+ * fetch fresh assets while keeping the long cache lifetime for
+ * unchanged ones.
+ */
+function stampAssetVersions() {
+  const hash = (file) =>
+    crypto
+      .createHash("md5")
+      .update(fs.readFileSync(path.join(__dirname, file)))
+      .digest("hex")
+      .slice(0, 8);
+
+  const cssV = hash("styles.css");
+  const jsV = hash("script.js");
+
+  const targets = [
+    ...fs
+      .readdirSync(__dirname)
+      .filter((f) => f.endsWith(".html"))
+      .map((f) => path.join(__dirname, f)),
+    ...fs
+      .readdirSync(CONFIG.outputDir)
+      .filter((f) => f.endsWith(".html"))
+      .map((f) => path.join(CONFIG.outputDir, f)),
+  ];
+
+  let changed = 0;
+  for (const file of targets) {
+    const before = fs.readFileSync(file, "utf8");
+    const after = before
+      .replace(/(href="(?:\.\.\/)?styles\.css)(?:\?v=[0-9a-f]+)?"/g, `$1?v=${cssV}"`)
+      .replace(/(src="(?:\.\.\/)?script\.js)(?:\?v=[0-9a-f]+)?"/g, `$1?v=${jsV}"`);
+    if (after !== before) {
+      fs.writeFileSync(file, after);
+      changed++;
+    }
+  }
+
+  console.log(
+    `Stamped asset versions (css ${cssV}, js ${jsV}) across ${changed} pages.`,
+  );
 }
 
 build().catch((err) => {
