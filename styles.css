@@ -1328,7 +1328,11 @@ textarea:focus-visible,
 
 @media (max-width: 768px) {
   .section {
-    padding: 80px 0;
+    padding: 64px 0;
+  }
+
+  .section-header {
+    margin-bottom: 40px;
   }
 
   .nav-toggle {
@@ -1346,6 +1350,9 @@ textarea:focus-visible,
     width: 80%;
     max-width: 360px;
     height: 100vh;
+    /* dvh tracks the collapsing iOS/Android URL bar; 100vh overshoots and
+       pushes the last link under it */
+    height: 100dvh;
     flex-direction: column;
     align-items: flex-start;
     padding: 100px 32px 40px;
@@ -1480,11 +1487,11 @@ textarea:focus-visible,
 /* ---- SMALL SCREENS (iPhone SE, iPhone Mini) ---- */
 @media (max-width: 480px) {
   .section {
-    padding: 60px 0;
+    padding: 52px 0;
   }
 
   .section-header {
-    margin-bottom: 40px;
+    margin-bottom: 36px;
   }
 
   .container {
@@ -1864,6 +1871,50 @@ textarea:focus-visible,
 }
 
 /* ============================================
+   LOCAL CONTEXT (enrich block on suburb pages)
+   scripts/enrich-service-areas.cjs emits .local-context and
+   .suburb-links; neither had any styling, so the internal links
+   rendered as a bare run of 17px-tall text.
+   ============================================ */
+.local-context-body {
+  max-width: 820px;
+  margin: 0 auto;
+}
+.local-context-body p {
+  color: var(--text-muted);
+  line-height: 1.8;
+  margin-bottom: 18px;
+}
+.local-context-body a {
+  color: var(--accent-link);
+  text-decoration: underline;
+}
+.suburb-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  max-width: 820px;
+  margin: 32px auto 0;
+}
+.suburb-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 18px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  transition: var(--transition);
+}
+.suburb-links a:hover {
+  border-color: var(--accent);
+  color: var(--text-primary);
+}
+
+/* ============================================
    LOADING SPINNER
    ============================================ */
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -2025,7 +2076,7 @@ textarea:focus-visible,
   display: flex;
   align-items: center;
   gap: 8px;
-  transition: transform 0.3s, background 0.3s;
+  transition: transform 0.3s, background 0.3s, opacity 0.3s;
   text-decoration: none;
 }
 
@@ -2491,7 +2542,11 @@ textarea:focus-visible,
   line-height: 1.3; color: var(--text-muted);
 }
 
-.t-navbar { background: #1c1c1c; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 900; }
+/* z-index 1000 — above .t-nav-overlay (998). `position: sticky` makes this a
+   stacking context, so the mobile drawer nested inside it can never paint
+   above an ancestor-level overlay that outranks the bar itself. When the bar
+   sat at 900 the overlay covered the open drawer and swallowed every tap. */
+.t-navbar { background: #1c1c1c; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 1000; }
 .t-navbar.scrolled { box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
 .t-nav-menu {
   list-style: none; display: flex; justify-content: flex-end; gap: 34px;
@@ -2502,15 +2557,28 @@ textarea:focus-visible,
   letter-spacing: 0.07em; text-transform: uppercase; color: #e8e8e8; text-decoration: none;
 }
 .t-nav-menu a:hover, .t-nav-menu a.active { color: var(--accent-link); }
-.t-nav-toggle { display: none; background: none; border: 0; cursor: pointer; padding: 14px 32px; }
+/* Sits above the open drawer so the same control closes it (the bars become
+   an X) — the drawer covers the right edge of the bar where the button is. */
+.t-nav-toggle { display: none; position: relative; z-index: 1002; background: none; border: 0; cursor: pointer; padding: 14px 32px; }
 .t-nav-toggle span { display: block; width: 26px; height: 2px; background: #fff; margin: 5px 0; transition: var(--transition); }
+.t-nav-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.t-nav-toggle.open span:nth-child(2) { opacity: 0; }
+.t-nav-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 .t-nav-overlay { display: none; }
 
 /* ---- hero ---- */
 .t-hero { position: relative; background: #0d0d0d; overflow: hidden; padding: 90px 0 0; }
+/* LCP element on the homepage and every service page. JPG first as the
+   fallback (354 KB); image-set() serves the AVIF (164 KB) where supported,
+   which is most of the mobile traffic. */
 .t-hero-bg {
   position: absolute; inset: 0;
   background: url("./images/DJI_20240427080531_0013_D_edited_edited.jpg") center/cover;
+  background: image-set(
+      url("./images/DJI_20240427080531_0013_D_edited_edited.avif") type("image/avif"),
+      url("./images/DJI_20240427080531_0013_D_edited_edited.webp") type("image/webp"),
+      url("./images/DJI_20240427080531_0013_D_edited_edited.jpg") type("image/jpeg")
+    ) center/cover;
   filter: grayscale(100%) brightness(0.32);
 }
 .t-hero-bg::after {
@@ -2523,6 +2591,9 @@ textarea:focus-visible,
 .t-actions { display: flex; gap: 16px; flex-wrap: wrap; }
 .t-hero-visual { position: relative; align-self: end; min-height: 560px; }
 .t-ring { position: absolute; width: 400px; height: 400px; border-radius: 50%; border: 24px solid var(--accent-color); right: 4%; top: -40px; z-index: 1; }
+/* The photo is wrapped in <picture> for the AVIF/WebP sources; the wrapper
+   must not introduce a box of its own between it and .t-hero-visual. */
+.t-hero-visual picture { display: block; }
 .t-hero-photo { position: absolute; z-index: 2; right: 0; bottom: 0; width: 88%; height: 470px; object-fit: cover; clip-path: polygon(12% 0, 100% 0, 100% 100%, 0 100%); border-radius: var(--t-radius); }
 .t-offer-card {
   position: relative; z-index: 3; margin-top: -70px; background: #161616;
@@ -2643,10 +2714,13 @@ textarea:focus-visible,
   .t-hero-visual { min-height: 380px; }
   .t-review-rail { flex-direction: column; }
   .t-review-card, .t-review-card.t-feature { width: 100%; transform: none; }
-  .t-utility-bar { flex-direction: column; min-height: 0; }
-  .t-logo-panel { padding: 12px 32px; }
+  /* One row, not three: with the rating hidden the bar fits comfortably
+     across this whole range, and stacking it cost ~200px of the fold —
+     the worst case being a landscape phone at 844x390. */
+  .t-utility-bar { flex-direction: row; align-items: center; min-height: 0; }
+  .t-logo-panel { padding: 10px 24px; }
   .t-logo-panel::after { display: none; }
-  .t-utility-inner { padding: 12px 32px; flex-wrap: wrap; gap: 14px; }
+  .t-utility-inner { padding: 10px 24px; flex-wrap: nowrap; gap: 14px; }
   .t-rating { display: none; }
   .t-promo-card { grid-template-columns: 1fr; }
   .t-promo-media { height: 200px; }
@@ -2659,13 +2733,133 @@ textarea:focus-visible,
   .t-nav-toggle { display: block; margin-left: auto; }
   .t-nav-menu {
     position: fixed; inset: 0 0 0 auto; width: min(320px, 82vw); background: #111;
-    flex-direction: column; justify-content: flex-start; gap: 8px; padding: 90px 28px;
-    transform: translateX(100%); transition: var(--transition); z-index: 1000;
+    /* 140px clears the two-tier header so the first link does not sit under
+       the close button, which is drawn above the drawer */
+    flex-direction: column; justify-content: flex-start; gap: 0; padding: 140px 24px 24px;
+    transform: translateX(100%); transition: var(--transition); z-index: 1001;
+    overflow-y: auto; overscroll-behavior: contain;
+    padding-bottom: calc(24px + env(safe-area-inset-bottom));
   }
   .t-nav-menu.open { transform: translateX(0); }
-  .t-nav-menu li { width: 100%; border-bottom: 1px solid #262626; padding: 14px 0; }
-  .t-nav-overlay { display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.6); opacity: 0; pointer-events: none; transition: var(--transition); z-index: 999; }
+  .t-nav-menu li { width: 100%; border-bottom: 1px solid #262626; padding: 0; }
+  /* Full-width block links: the inline <a> was a 16px-tall tap target. */
+  .t-nav-menu a { display: flex; align-items: center; min-height: 48px; width: 100%; padding: 4px 0; font-size: 0.95rem; }
+  /* 998 — below .t-navbar (1000) so the toggle and the drawer nested in the
+     bar both stay tappable while the overlay dims everything else. */
+  .t-nav-overlay { display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.6); opacity: 0; pointer-events: none; transition: var(--transition); z-index: 998; }
   .t-nav-overlay.active { opacity: 1; pointer-events: auto; }
+}
+
+/* ---- phones ----------------------------------------------------------
+   The 1100px block above only unstacks the grids; every desktop spacing
+   value survived into phone widths, which left the homepage 25,000px tall
+   with a 300px header above the fold. These reclaim that vertical budget
+   and rebuild the hero as a linear stack (the desktop hero layers an
+   absolutely-positioned photo over the call button). ------------------- */
+@media (max-width: 768px) {
+  .t-container { padding: 0 20px; }
+  .t-section { padding: 64px 0; }
+  .t-eyebrow { font-size: 1.3rem; margin-bottom: 6px; }
+  .t-head-center { margin-bottom: 36px; }
+  .t-head-split { margin-bottom: 36px; gap: 28px; }
+  .t-head-center h2, .t-head-split h2 { font-size: clamp(1.7rem, 6.4vw, 2.3rem); margin-bottom: 14px; }
+  .t-btn { padding: 15px 22px; }
+
+  /* header: logo and the call button share one row instead of stacking
+     into three, which cost ~300px before any content. */
+  .t-utility-bar { flex-direction: row; align-items: center; }
+  .t-logo-panel { padding: 8px 0 8px 16px; }
+  .t-logo-panel img { height: 60px; }
+  .t-utility-inner { padding: 8px 16px 8px 10px; gap: 10px; flex-wrap: nowrap; justify-content: flex-end; }
+  .t-availability { font-size: 0.7rem; gap: 8px; letter-spacing: 0.05em; }
+  .t-pulse { width: 9px; height: 9px; }
+  .t-utility-right { gap: 8px; }
+  /* nowrap: at these widths the phone number was breaking mid-number */
+  .t-utility-right .t-btn { padding: 11px 14px; font-size: 0.72rem; white-space: nowrap; }
+  .t-nav-toggle { padding: 12px 20px; }
+  .t-nav-menu { padding-left: 24px; padding-right: 24px; }
+
+  /* hero: linear stack. The desktop version absolutely positions the photo
+     and the ring over the copy column — on a phone that put the photo on
+     top of the "call now" button. */
+  .t-hero { padding: 44px 0 0; }
+  .t-hero-grid { min-height: 0; gap: 26px; }
+  .t-hero h1 { font-size: clamp(1.95rem, 8.4vw, 2.6rem); margin-bottom: 16px; }
+  .t-hero-lead { font-size: 1rem; margin-bottom: 24px; }
+  .t-ring { display: none; }
+  .t-hero-visual { min-height: 0; align-self: stretch; }
+  .t-hero-photo {
+    position: static; display: block; width: 100%; height: 190px;
+    clip-path: none; border-radius: var(--t-radius);
+  }
+  .t-actions { gap: 12px; }
+  .t-actions .t-btn { flex: 1 1 100%; justify-content: center; white-space: nowrap; }
+  .t-offer-card { margin-top: 26px; padding: 20px; gap: 16px; }
+  .t-offer-card h3 { font-size: 1.2rem; }
+  .t-offer-card p { font-size: 0.9rem; }
+  .t-offer-icon { width: 48px; height: 48px; }
+
+  .t-marquee { margin-top: 40px; padding: 14px 0; }
+  .t-marquee-track { gap: 30px; }
+  .t-marquee span { font-size: 0.8rem; }
+
+  .t-promo-grid { gap: 18px; }
+  .t-promo-card { min-height: 0; }
+  .t-promo-media { height: 160px; }
+  .t-promo-body { padding: 24px 20px; }
+
+  .t-check-row { gap: 14px 22px; margin-top: 18px; }
+  .t-tile-grid { gap: 16px; }
+  .t-tile { height: 220px; }
+  .t-tile h3 { left: 20px; right: 20px; bottom: 24px; font-size: 1.15rem; }
+  .t-tile .t-bar { left: 20px; bottom: 14px; }
+
+  .t-reviews { padding: 64px 0 72px; }
+  .t-review-rail { gap: 16px; }
+  .t-review-card, .t-review-card.t-feature { padding: 24px; }
+
+  .t-areas { padding: 64px 0; }
+  .t-areas-grid { gap: 32px; }
+  .t-areas p { margin-bottom: 24px; }
+  .t-pin-list { gap: 12px 16px; margin-bottom: 28px; }
+  .t-pin-visual { min-height: 0; }
+  .t-pin-shape { width: 210px; height: 210px; }
+  .t-pin-shape .t-photo { width: 130px; height: 130px; border-width: 6px; }
+
+  .t-faq-grid { gap: 28px; }
+  .t-faq-media { height: 200px; }
+  .t-faq-item summary { padding: 16px 18px; font-size: 0.98rem; }
+  .t-faq-item p { padding: 0 18px 18px; }
+
+  .t-cta-strip { padding: 52px 0; }
+}
+
+/* Landscape phones: the drawer scrolls either way, but a shorter header lets
+   more of the menu fit without it. */
+@media (max-width: 1100px) and (max-height: 500px) {
+  .t-logo-panel img { height: 44px; }
+  .t-nav-menu { padding-top: 116px; }
+  .t-nav-menu a { min-height: 42px; }
+}
+
+@media (max-width: 480px) {
+  .t-container { padding: 0 16px; }
+  .t-section { padding: 52px 0; }
+  .t-eyebrow { font-size: 1.2rem; }
+  /* the ghost quote button is the first thing to go when the bar runs out
+     of room — the drawer, the hero and the sticky bar all still offer it */
+  .t-utility-right .t-btn-ghost { display: none; }
+  .t-availability { display: none; }
+  .t-logo-panel { padding: 8px 0 8px 12px; }
+  .t-utility-inner { padding: 8px 12px; }
+  .t-tile { height: 190px; }
+  .t-faq-media { height: 160px; }
+  .t-pin-list { grid-template-columns: 1fr; }
+  .t-pin-shape { width: 170px; height: 170px; }
+  .t-pin-shape .t-photo { width: 105px; height: 105px; }
+  .t-offer-card { padding: 18px; gap: 14px; }
+  .t-reviews { padding: 52px 0 60px; }
+  .t-areas { padding: 52px 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2749,3 +2943,87 @@ textarea:focus-visible,
 .t-section--grey .why-number,
 .t-section--light .step-number,
 .t-section--grey .step-number { color: #8a8a8a; }
+
+/* ============================================================
+   MOBILE HARDENING
+   Overflow, tap targets and the sticky call button. Last in the
+   file so these win over the component rules they correct.
+   ============================================================ */
+
+/* admin@ascendroofinggroup.com.au has a 258px min-content width and no break
+   opportunity, and its flex parent defaults to min-width:auto — so the
+   contact card could not shrink and pushed the document sideways at 320px. */
+.info-card > div { min-width: 0; }
+.info-card a,
+.footer-contact a { overflow-wrap: anywhere; }
+
+/* The 1100px block resets `.t-review-card` to `transform: none`, but the
+   tilt is applied through `.t-review-card.t-tilt-l`, which outranks it — the
+   cards stayed rotated once stacked and poked past the viewport edge.
+   The desktop fan (above 1100px) is untouched. */
+@media (max-width: 1100px) {
+  .t-review-card.t-tilt-l,
+  .t-review-card.t-tilt-r {
+    transform: none;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Grid and flex children default to min-width:auto, so the <select>s —
+     as wide as their longest <option> — held the contact card at 338px and
+     pushed the whole document sideways on a 320px screen. Let the tracks
+     shrink and clamp the controls to them. */
+  .contact-grid > *,
+  .form-row > *,
+  .footer-grid > *,
+  .qf-grid > * { min-width: 0; }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea,
+  .qf-group input,
+  .qf-group select { max-width: 100%; }
+  select { text-overflow: ellipsis; }
+
+  /* Declared after the conversion-block section, which sets 100px and would
+     otherwise win on source order at equal specificity. */
+  .guarantee-band { padding: 56px 0; }
+  .guarantee-header { margin-bottom: 32px; }
+  .guarantee-item { padding: 22px; }
+  .process-card { padding: 28px 22px; }
+  .process-card .why-number { font-size: 2.75rem; margin-bottom: 10px; }
+  .trust-strip { padding: 24px 0; }
+
+  /* Footer links were 17px-tall targets stacked 16px apart. */
+  .footer { padding-top: 56px; }
+  .footer-grid { gap: 32px; padding-bottom: 40px; }
+  .footer-links ul { gap: 0; }
+  .footer-links a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  .footer-contact a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  .footer-contact p { margin-bottom: 4px; }
+}
+
+/* Sticky call button: clear of the home indicator, and a 48px target.
+   `.is-hidden` is set while the hero's own call button is on screen so the
+   two don't sit on top of each other (see script.js). */
+@media (max-width: 767px) {
+  .floating-phone-cta {
+    right: 16px;
+    bottom: calc(16px + env(safe-area-inset-bottom));
+    min-height: 48px;
+    padding: 12px 18px;
+  }
+  .floating-phone-cta.is-hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(12px);
+  }
+}

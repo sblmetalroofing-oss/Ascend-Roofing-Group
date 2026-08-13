@@ -58,14 +58,29 @@ document.addEventListener("DOMContentLoaded", () => {
     navOverlay.addEventListener("click", closeNav);
   }
 
-  // Close mobile nav on link click
-  navMenu.querySelectorAll(".nav-link").forEach((link) => {
+  // Close mobile nav on link click. Two header markups are in play — the
+  // legacy `.nav-link` bar (blog, 404) and the template `.t-nav-menu` drawer
+  // (everywhere else), whose links carry no class. Matching on `a` covers
+  // both; matching on `.nav-link` left the drawer open — and the body
+  // scroll-locked — on every page built from the template.
+  navMenu.querySelectorAll("a").forEach((link) => {
     link.addEventListener("click", closeNav);
+  });
+
+  // A drawer left open across a rotate/resize would keep the body locked
+  // once the desktop nav takes over, with no visible control to close it.
+  window.addEventListener("resize", () => {
+    if (
+      navMenu.classList.contains("open") &&
+      getComputedStyle(navToggle).display === "none"
+    ) {
+      closeNav();
+    }
   });
 
   // ---- ACTIVE NAV LINK ON SCROLL ----
   const sections = document.querySelectorAll("section[id]");
-  const navLinks = document.querySelectorAll(".nav-link:not(.nav-cta)");
+  const navLinks = navMenu.querySelectorAll("a:not(.nav-cta)");
 
   const updateActiveNav = () => {
     const scrollY = window.scrollY + 120;
@@ -264,6 +279,22 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
   });
+
+  // ---- STICKY CALL BUTTON ----
+  // It sat on top of the hero's own "call us" button on phones. Fade it out
+  // while the hero is on screen and bring it back once the user scrolls past.
+  // No JS (or no hero) leaves it visible, which is the safe default.
+  const floatingCta = document.querySelector(".floating-phone-cta");
+  const heroSection = document.querySelector(".t-hero, .hero");
+  if (floatingCta && heroSection && "IntersectionObserver" in window) {
+    const ctaObserver = new IntersectionObserver(
+      (entries) => {
+        floatingCta.classList.toggle("is-hidden", entries[0].isIntersecting);
+      },
+      { threshold: 0 },
+    );
+    ctaObserver.observe(heroSection);
+  }
 });
 
 /* ============================================
