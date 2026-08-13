@@ -25,11 +25,13 @@
   --container-width: 1400px;
   --header-height: 90px;
 
-  /* Effects */
-  --radius-sm: 0px;
-  --radius-md: 0px;
-  --radius-lg: 0px;
-  --radius-xl: 0px;
+  /* Effects — rounded to match the template treatment. The legacy
+     components read these, so raising them rounds the carried-over
+     cards, inputs and images alongside the new t-* sections. */
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 26px;
   --shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.3);
 
   --transition: 0.3s cubic-bezier(0.2, 1, 0.3, 1);
@@ -2542,7 +2544,15 @@ textarea:focus-visible,
 .t-section--light { background: var(--t-bg-light); }
 .t-section--grey { background: var(--t-bg-light-alt); }
 .t-section--light h2, .t-section--grey h2 { color: var(--t-on-light); }
-.t-section--light p, .t-section--grey p { color: var(--t-on-light-muted); }
+/* Only the copy sitting directly on the light ground — NOT paragraphs
+   inside the dark cards these sections contain, which keep their own
+   light-on-dark colours. */
+.t-section--light > .t-container > p,
+.t-section--grey > .t-container > p,
+.t-section--light .t-head-center p,
+.t-section--grey .t-head-center p,
+.t-section--light .t-head-split p,
+.t-section--grey .t-head-split p { color: var(--t-on-light-muted); }
 .t-section--light .t-eyebrow, .t-section--grey .t-eyebrow { color: var(--accent-btn); }
 .t-head-center { text-align: center; max-width: 900px; margin: 0 auto 60px; }
 .t-head-center h2, .t-head-split h2 {
@@ -2661,3 +2671,81 @@ textarea:focus-visible,
 @media (prefers-reduced-motion: reduce) {
   .t-marquee-track, .t-pulse { animation: none; }
 }
+
+/* ---- legacy components placed on the light template sections ----
+   The carried-over sections were written for the dark theme, so their
+   muted greys and white headings fail against white. These re-point
+   them at the light tokens without touching the dark originals. ---- */
+.t-section--light .section-header h2,
+.t-section--grey .section-header h2,
+.t-section--light .section-header h3,
+.t-section--grey .section-header h3 { color: var(--t-on-light); }
+
+.t-section--light .section-desc,
+.t-section--grey .section-desc { color: var(--t-on-light-muted); }
+
+.t-section--light .section-tag,
+.t-section--grey .section-tag { color: var(--accent-btn); }
+
+/* legacy accordion on a light ground */
+.t-section--light .faq-item,
+.t-section--grey .faq-item {
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  border-radius: var(--t-radius-btn);
+}
+.t-section--light .faq-question,
+.t-section--grey .faq-question { color: #0f2f5c; }
+.t-section--light .faq-question svg,
+.t-section--grey .faq-question svg { color: var(--accent-btn); }
+.t-section--light .faq-answer p,
+.t-section--grey .faq-answer p { color: var(--t-on-light-muted); }
+.t-section--light .faq-answer a,
+.t-section--grey .faq-answer a { color: var(--accent-btn); }
+
+/* Headings carry <span class="text-accent"> from the legacy markup. The
+   accent is mid-blue, which disappears on the accent-blue review block
+   and dips on light grounds — re-point it per surface. */
+.t-reviews h2 .text-accent,
+.t-reviews .text-accent { color: #bfe0ff; }
+
+.t-section--light .text-accent,
+.t-section--grey .text-accent { color: var(--accent-btn); }
+
+/* ============================================================
+   LIGHT-SECTION CORRECTIONS
+   These must come last: `.t-head-center h2` sets white and
+   `.text-accent` carries !important, so earlier light overrides
+   lost the cascade and rendered white-on-white.
+   ============================================================ */
+.t-section--light .t-head-center h2,
+.t-section--light .t-head-split h2,
+.t-section--light .section-header h2,
+.t-section--grey .t-head-center h2,
+.t-section--grey .t-head-split h2,
+.t-section--grey .section-header h2 { color: var(--t-on-light); }
+
+.t-section--light .text-accent,
+.t-section--grey .text-accent { color: var(--accent-btn) !important; }
+
+.t-reviews .text-accent { color: #bfe0ff !important; }
+
+/* Legacy cards that were transparent read as loose text on a light
+   ground. Give them the dark card treatment the template uses. */
+.t-section--light .team-card,
+.t-section--grey .team-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 28px 20px;
+}
+.t-section--light .team-card h3,
+.t-section--grey .team-card h3 { color: var(--text-light); }
+.t-section--light .team-card p,
+.t-section--grey .team-card p { color: var(--text-muted); }
+
+/* Decorative step/why numerals: dark-theme greys vanish on light. */
+.t-section--light .why-number,
+.t-section--grey .why-number,
+.t-section--light .step-number,
+.t-section--grey .step-number { color: #8a8a8a; }
