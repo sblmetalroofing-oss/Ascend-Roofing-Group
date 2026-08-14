@@ -43,18 +43,30 @@ try {
 const data = await response.json().catch(() => null);
 
 if (!response.ok) {
+  const message = data?.error?.message || "(no message)";
   console.error(`FAILED — HTTP ${response.status} ${data?.error?.status || ""}`);
-  console.error(data?.error?.message || "(no message)");
-  console.error("\nUsual causes:");
-  console.error('  PERMISSION_DENIED / "has not been used in project ... or it is disabled"');
-  console.error("      → enable **Places API (New)** in the Google Cloud console.");
-  console.error("        The legacy Places API is a separate product and does not cover this.");
-  console.error("  REQUEST_DENIED / API key not valid");
-  console.error("      → the key's API restrictions exclude Places API (New), or an");
-  console.error("        HTTP-referrer restriction is set on a key used server-side");
-  console.error("        (server keys must be unrestricted or IP-restricted, not referrer-restricted).");
-  console.error("  RESOURCE_EXHAUSTED / billing");
-  console.error("      → billing is not enabled on the project, or a quota cap was hit.");
+  console.error(message);
+
+  // Google uses two different messages for two different misconfigurations,
+  // and they need opposite fixes. Name the right one rather than listing both.
+  if (/are blocked/i.test(message)) {
+    console.error("\n→ The API is enabled on the project, but THIS KEY is not allowed to call it.");
+    console.error("  Google Cloud console → APIs & Services → Credentials → open this key");
+    console.error("  → API restrictions. Either pick 'Don't restrict key', or add");
+    console.error("  'Places API (New)' to the selected-APIs list. Note that the entry named");
+    console.error("  plain 'Places API' is the legacy product and does NOT cover this call.");
+    console.error("  Changes take a minute or two to propagate.");
+  } else if (/has not been used in project|is disabled/i.test(message)) {
+    console.error("\n→ Places API (New) is not enabled on the project.");
+    console.error("  Enable it at the console URL in the message above.");
+    console.error("  The legacy 'Places API' is a separate product and does not cover this.");
+  } else if (/referer|referrer/i.test(message)) {
+    console.error("\n→ The key carries an HTTP-referrer restriction. Server-to-server calls");
+    console.error("  send no referrer, so they can never satisfy it. Use an unrestricted or");
+    console.error("  IP-restricted key for GOOGLE_MAPS_API_KEY.");
+  } else if (response.status === 429 || /RESOURCE_EXHAUSTED/i.test(message)) {
+    console.error("\n→ Billing is not enabled on the project, or a quota cap was hit.");
+  }
   process.exit(1);
 }
 
