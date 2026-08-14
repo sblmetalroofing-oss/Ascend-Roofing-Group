@@ -203,19 +203,28 @@ document.addEventListener("DOMContentLoaded", () => {
     contactForm.addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      const btn = document.getElementById("submitBtn");
+      // The five service pages carry #contactForm but no #submitBtn, so this
+      // lookup returned null and threw on .innerHTML below. preventDefault()
+      // has already run by then, so the native POST fallback died with it and
+      // the submission vanished silently. Fall back to the form's own submit
+      // control, and treat the button as optional from here on.
+      const btn =
+        document.getElementById("submitBtn") ||
+        contactForm.querySelector('button[type="submit"], input[type="submit"]');
       const errorEl = document.getElementById("contactError");
-      const originalHTML = btn.innerHTML;
+      const originalHTML = btn ? btn.innerHTML : "";
 
       if (errorEl) { errorEl.style.display = "none"; errorEl.textContent = ""; }
 
-      btn.innerHTML = `
+      if (btn) {
+        btn.innerHTML = `
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin">
                     <path d="M12 2a10 10 0 1 0 10 10"/>
                 </svg>
                 Sending...
             `;
-      btn.disabled = true;
+        btn.disabled = true;
+      }
 
       const formData = new FormData(contactForm);
       const data = Object.fromEntries(formData.entries());
@@ -245,8 +254,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       } catch (error) {
         console.error("Error:", error);
-        btn.innerHTML = originalHTML;
-        btn.disabled = false;
+        if (btn) {
+          btn.innerHTML = originalHTML;
+          btn.disabled = false;
+        }
         if (errorEl) {
           errorEl.textContent = "Something went wrong. Please call us directly at 0419 098 049.";
           errorEl.style.display = "block";
