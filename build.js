@@ -52,6 +52,19 @@ function getSiteLastmod() {
   }
 }
 
+// The review rail reads as a fan: outer cards tilt, the middle one sits
+// flat and forward. The homepage sets these classes by hand; generated
+// pages get them here.
+function tiltReviewCards(html) {
+  const tiltClasses = ["t-review-card t-tilt-l", "t-review-card t-feature", "t-review-card t-tilt-r"];
+  let i = 0;
+  return html.replace(/class='t-review-card'/g, () => {
+    const cls = tiltClasses[i % tiltClasses.length];
+    i++;
+    return `class='${cls}'`;
+  });
+}
+
 // Main Build Function
 async function build() {
   console.log("Starting Build Process...");
@@ -152,12 +165,12 @@ async function build() {
   // TODO(owner): replace these representative testimonials with real,
   // attributed customer reviews (names used with permission).
   const TESTIMONIALS_CARDS = [
-    `<div class='testimonial-card' data-reveal><div class='testimonial-stars'>★★★★★</div><p>"Ascend Roofing replaced our entire roof in just three days. The team was professional, tidy, and the new Colorbond roof looks absolutely stunning. Couldn't be happier!"</p><div class='testimonial-author'><div><strong>Homeowner</strong><span>Brisbane</span></div></div></div>`,
-    `<div class='testimonial-card' data-reveal><div class='testimonial-stars'>★★★★★</div><p>"After the last big storm we needed urgent repairs. The team were out the next day and had everything sealed up perfectly. Great communication from start to finish."</p><div class='testimonial-author'><div><strong>Local Resident</strong><span>South East Queensland</span></div></div></div>`,
-    `<div class='testimonial-card' data-reveal><div class='testimonial-stars'>★★★★★</div><p>"We got three quotes and Ascend was the most transparent and competitive. No hidden fees, honest advice, and the workmanship is top-notch. Highly recommend this family business."</p><div class='testimonial-author'><div><strong>Property Manager</strong><span>Logan</span></div></div></div>`,
-    `<div class='testimonial-card' data-reveal><div class='testimonial-stars'>★★★★★</div><p>"Absolutely thrilled with the new roof. The guys worked incredibly hard and left the site spotless. Would definitely use Ascend Roofing Group again."</p><div class='testimonial-author'><div><strong>Homeowner</strong><span>Gold Coast</span></div></div></div>`,
-    `<div class='testimonial-card' data-reveal><div class='testimonial-stars'>★★★★★</div><p>"Prompt, polite, and well priced. They fixed a leak that two other companies couldn't find. Excellent service."</p><div class='testimonial-author'><div><strong>Property Owner</strong><span>Ipswich</span></div></div></div>`,
-    `<div class='testimonial-card' data-reveal><div class='testimonial-stars'>★★★★★</div><p>"From the initial quote to the final inspection, everything was seamless. High-quality Colorbond installation and friendly staff."</p><div class='testimonial-author'><div><strong>Homeowner</strong><span>Moreton Bay</span></div></div></div>`,
+    `<div class='t-review-card' data-reveal><div class='t-stars' aria-hidden='true'>★★★★★</div><p>"Ascend Roofing replaced our entire roof in just three days. The team was professional, tidy, and the new Colorbond roof looks absolutely stunning. Couldn't be happier!"</p><div class='t-who'><strong>Homeowner</strong> &middot; <span>Brisbane</span></div></div>`,
+    `<div class='t-review-card' data-reveal><div class='t-stars' aria-hidden='true'>★★★★★</div><p>"After the last big storm we needed urgent repairs. The team were out the next day and had everything sealed up perfectly. Great communication from start to finish."</p><div class='t-who'><strong>Local Resident</strong> &middot; <span>South East Queensland</span></div></div>`,
+    `<div class='t-review-card' data-reveal><div class='t-stars' aria-hidden='true'>★★★★★</div><p>"We got three quotes and Ascend was the most transparent and competitive. No hidden fees, honest advice, and the workmanship is top-notch. Highly recommend this family business."</p><div class='t-who'><strong>Property Manager</strong> &middot; <span>Logan</span></div></div>`,
+    `<div class='t-review-card' data-reveal><div class='t-stars' aria-hidden='true'>★★★★★</div><p>"Absolutely thrilled with the new roof. The guys worked incredibly hard and left the site spotless. Would definitely use Ascend Roofing Group again."</p><div class='t-who'><strong>Homeowner</strong> &middot; <span>Gold Coast</span></div></div>`,
+    `<div class='t-review-card' data-reveal><div class='t-stars' aria-hidden='true'>★★★★★</div><p>"Prompt, polite, and well priced. They fixed a leak that two other companies couldn't find. Excellent service."</p><div class='t-who'><strong>Property Owner</strong> &middot; <span>Ipswich</span></div></div>`,
+    `<div class='t-review-card' data-reveal><div class='t-stars' aria-hidden='true'>★★★★★</div><p>"From the initial quote to the final inspection, everything was seamless. High-quality Colorbond installation and friendly staff."</p><div class='t-who'><strong>Homeowner</strong> &middot; <span>Moreton Bay</span></div></div>`,
   ];
 
   // Deterministic pick from array based on suburb name hash
@@ -254,7 +267,7 @@ async function build() {
       .replace(/\{\{ABOUT_US_P1\}\}/g, aboutP1)
       .replace(/\{\{ABOUT_US_P2\}\}/g, aboutP2)
       .replace(/\{\{SERVICES_GRID\}\}/g, servicesGrid)
-      .replace(/\{\{TESTIMONIALS_GRID\}\}/g, testimonialsGrid);
+      .replace(/\{\{TESTIMONIALS_GRID\}\}/g, tiltReviewCards(testimonialsGrid));
 
     // Write File
     fs.writeFileSync(filePath, content);
@@ -556,16 +569,17 @@ function stampAssetVersions() {
   // styles.css edit rewrote the template, and the template is one of the
   // inputs getSiteLastmod() watches, so every styling change re-dated the
   // whole sitemap and the drift check went red.
-  const targets = [
-    ...fs
-      .readdirSync(__dirname)
-      .filter((f) => f.endsWith(".html") && f !== "template.html")
-      .map((f) => path.join(__dirname, f)),
-    ...fs
-      .readdirSync(CONFIG.outputDir)
-      .filter((f) => f.endsWith(".html"))
-      .map((f) => path.join(CONFIG.outputDir, f)),
-  ];
+  // Every directory that ships HTML. blog/ was missed on the first pass,
+  // so those pages would have kept serving stale CSS after a deploy.
+  const dirs = [__dirname, CONFIG.outputDir, path.join(__dirname, "blog")];
+  const targets = dirs
+    .filter((d) => fs.existsSync(d))
+    .flatMap((d) =>
+      fs
+        .readdirSync(d)
+        .filter((f) => f.endsWith(".html") && f !== "template.html")
+        .map((f) => path.join(d, f)),
+    );
 
   let changed = 0;
   for (const file of targets) {
