@@ -362,6 +362,18 @@ function attachAddressAutocomplete(input) {
   let controller = null;
   let seq = 0;
   let debounceId = null;
+  let pausedUntil = 0;
+
+  // Backspacing and retyping walk back over prefixes we already fetched, so
+  // caching them keeps the dropdown instant and keeps us under the endpoint's
+  // per-IP limit (which protects the billable Google Places API).
+  const CACHE_MAX = 100;
+  const cache = new Map();
+
+  function cacheSet(key, preds) {
+    cache.set(key, preds);
+    if (cache.size > CACHE_MAX) cache.delete(cache.keys().next().value);
+  }
 
   function clearQuoteCoords() {
     if (isQuote) {
@@ -423,6 +435,22 @@ function attachAddressAutocomplete(input) {
   }
 
   async function query(value) {
+    const key = value.toLowerCase();
+    const cached = cache.get(key);
+    if (cached) {
+      seq++; // any in-flight request is now stale
+      if (controller) controller.abort();
+      render(cached);
+      return;
+    }
+
+    // Honour a 429's Retry-After instead of hammering the endpoint while it
+    // is refusing us — retrying just extends the window.
+    if (Date.now() < pausedUntil) {
+      hide();
+      return;
+    }
+
     const mySeq = ++seq;
     if (controller) controller.abort();
     controller = new AbortController();
@@ -433,6 +461,16 @@ function attachAddressAutocomplete(input) {
       );
       if (mySeq !== seq) return; // a newer keystroke superseded this request
       if (!resp.ok) {
+        if (resp.status === 429) {
+          const retryAfter = Number(resp.headers.get("Retry-After")) || 30;
+          pausedUntil = Date.now() + Math.min(retryAfter, 120) * 1000;
+        }
+        // Logged, not shown: the field stays a usable plain text input, but
+        // the reason is one DevTools glance away instead of invisible.
+        const body = await resp.json().catch(() => null);
+        console.warn(
+          `Address autocomplete unavailable (HTTP ${resp.status}${body?.reason ? `, ${body.reason}` : ""})`,
+        );
         hide();
         return;
       }
@@ -440,6 +478,7 @@ function attachAddressAutocomplete(input) {
       if (mySeq !== seq) return;
       const preds =
         data && Array.isArray(data.predictions) ? data.predictions : [];
+      cacheSet(key, preds);
       render(preds);
     } catch (err) {
       // Network/abort/parse error → degrade silently, never a dialog.

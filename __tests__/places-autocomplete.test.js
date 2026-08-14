@@ -8,6 +8,7 @@ function makeRes() {
     const res = {};
     res.status = jest.fn().mockReturnValue(res);
     res.json = jest.fn().mockReturnValue(res);
+    res.setHeader = jest.fn().mockReturnValue(res);
     return res;
 }
 
@@ -37,14 +38,20 @@ function suggestion(description, placeId = 'abc123') {
 
 describe('places-autocomplete handler', () => {
     let handler;
+    let resetCache;
 
     beforeAll(async () => {
         const mod = await import('../api/places-autocomplete.js');
         handler = mod.default;
+        resetCache = mod._resetCacheForTests;
     });
 
     beforeEach(() => {
         jest.clearAllMocks();
+        // The handler memoises predictions per prefix; without this, a test
+        // reusing an earlier test's input would be answered from cache and
+        // never reach the mocked fetch.
+        resetCache();
         process.env.GOOGLE_MAPS_API_KEY = 'test-google-key';
     });
 
@@ -157,27 +164,54 @@ describe('places-autocomplete handler', () => {
     });
 
     // ── Google API error status ───────────────────────────
-    test('returns 500 when Google denies the request', async () => {
+    // 502, not 500: the upstream failed, our handler did not. The reason code
+    // makes the cause visible in the browser network tab.
+    test('returns 502 with the reason when Google denies the request', async () => {
         global.fetch = jest.fn().mockResolvedValueOnce(mockGoogleError(403, 'PERMISSION_DENIED'));
         const res = makeRes();
         await handler(makeReq({ input: 'Brisbane' }), res);
-        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.status).toHaveBeenCalledWith(502);
         expect(res.json.mock.calls[0][0].error).toMatch(/failed to fetch predictions/i);
+        expect(res.json.mock.calls[0][0].reason).toBe('PERMISSION_DENIED');
+        expect(res.json.mock.calls[0][0].predictions).toEqual([]);
     });
 
-    test('returns 500 when Google rejects the request as invalid', async () => {
+    test('returns 502 when Google rejects the request as invalid', async () => {
         global.fetch = jest.fn().mockResolvedValueOnce(mockGoogleError(400, 'INVALID_ARGUMENT'));
         const res = makeRes();
         await handler(makeReq({ input: 'Brisbane' }), res);
-        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.status).toHaveBeenCalledWith(502);
+        expect(res.json.mock.calls[0][0].reason).toBe('INVALID_ARGUMENT');
+    });
+
+    test('does not cache a failed lookup', async () => {
+        global.fetch = jest.fn()
+            .mockResolvedValueOnce(mockGoogleError(403, 'PERMISSION_DENIED'))
+            .mockResolvedValueOnce(mockGoogleSuccess([suggestion('1 Brisbane St, Brisbane QLD 4000')]));
+        await handler(makeReq({ input: 'Brisbane' }), makeRes());
+        const res = makeRes();
+        await handler(makeReq({ input: 'Brisbane' }), res);
+        expect(global.fetch).toHaveBeenCalledTimes(2);
+        expect(res.status).toHaveBeenCalledWith(200);
     });
 
     // ── Network error ─────────────────────────────────────
-    test('returns 500 when fetch throws a network error', async () => {
+    test('returns 502 when fetch throws a network error', async () => {
         global.fetch = jest.fn().mockRejectedValueOnce(new Error('ECONNREFUSED'));
         const res = makeRes();
         await handler(makeReq({ input: 'Brisbane' }), res);
-        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.status).toHaveBeenCalledWith(502);
+        expect(res.json.mock.calls[0][0].reason).toBe('UPSTREAM_UNREACHABLE');
+    });
+
+    test('reports a timeout distinctly from an unreachable upstream', async () => {
+        const timeout = new Error('The operation was aborted due to timeout');
+        timeout.name = 'TimeoutError';
+        global.fetch = jest.fn().mockRejectedValueOnce(timeout);
+        const res = makeRes();
+        await handler(makeReq({ input: 'Brisbane' }), res);
+        expect(res.status).toHaveBeenCalledWith(502);
+        expect(res.json.mock.calls[0][0].reason).toBe('UPSTREAM_TIMEOUT');
     });
 
     // ── Response mapping ──────────────────────────────────
@@ -192,6 +226,92 @@ describe('places-autocomplete handler', () => {
             { description: '1 Test St, Brisbane QLD 4000, Australia', place_id: 'abc123' }
         ]);
         expect(body.status).toBe('OK');
+    });
+
+    // ── Malformed query strings ───────────────────────────
+    test('handles a repeated input query param without crashing', async () => {
+        global.fetch = jest.fn().mockResolvedValueOnce(mockGoogleSuccess());
+        const res = makeRes();
+        await handler(makeReq({ input: ['Brisbane', 'Sydney'] }), res);
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(JSON.parse(global.fetch.mock.calls[0][1].body).input).toBe('Brisbane');
+    });
+
+    test('rejects a non-string input without calling Google', async () => {
+        global.fetch = jest.fn();
+        const res = makeRes();
+        await handler(makeReq({ input: { evil: true } }), res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(global.fetch).not.toHaveBeenCalled();
+    });
+
+    test('truncates an oversized input before sending it to Google', async () => {
+        global.fetch = jest.fn().mockResolvedValueOnce(mockGoogleSuccess());
+        await handler(makeReq({ input: 'a'.repeat(500) }), makeRes());
+        expect(JSON.parse(global.fetch.mock.calls[0][1].body).input.length).toBe(200);
+    });
+
+    // ── Prefix cache ──────────────────────────────────────
+    test('serves a repeated prefix from cache instead of re-billing Google', async () => {
+        global.fetch = jest.fn().mockResolvedValueOnce(
+            mockGoogleSuccess([suggestion('1 Cache St, Logan QLD 4114', 'cache1')])
+        );
+        await handler(makeReq({ input: 'Cache St' }), makeRes());
+
+        const res = makeRes();
+        await handler(makeReq({ input: 'cache st' }), res); // case-insensitive hit
+        expect(global.fetch).toHaveBeenCalledTimes(1);
+        expect(res.status).toHaveBeenCalledWith(200);
+        const body = res.json.mock.calls[0][0];
+        expect(body.cached).toBe(true);
+        expect(body.predictions).toEqual([
+            { description: '1 Cache St, Logan QLD 4114', place_id: 'cache1' }
+        ]);
+    });
+
+    // ── Rate limiting ─────────────────────────────────────
+    test('rate limits an IP past the per-minute ceiling', async () => {
+        global.fetch = jest.fn(() => mockGoogleSuccess());
+        for (let i = 0; i < 60; i++) {
+            await handler(makeReq({ input: `Street number ${i}` }), makeRes());
+        }
+        const res = makeRes();
+        await handler(makeReq({ input: 'Street number 999' }), res);
+        expect(res.status).toHaveBeenCalledWith(429);
+        expect(res.json.mock.calls[0][0].reason).toBe('RATE_LIMITED');
+        expect(res.setHeader).toHaveBeenCalledWith('Retry-After', expect.any(String));
+    });
+
+    test('a cached prefix is still answered once the rate limit is hit', async () => {
+        global.fetch = jest.fn(() => mockGoogleSuccess([suggestion('9 Warm St, Ipswich QLD 4305')]));
+        await handler(makeReq({ input: 'Warm St' }), makeRes());
+        for (let i = 0; i < 59; i++) {
+            await handler(makeReq({ input: `Cold street ${i}` }), makeRes());
+        }
+        const limited = makeRes();
+        await handler(makeReq({ input: 'Brand new street' }), limited);
+        expect(limited.status).toHaveBeenCalledWith(429);
+
+        const res = makeRes();
+        await handler(makeReq({ input: 'Warm St' }), res);
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json.mock.calls[0][0].cached).toBe(true);
+    });
+
+    // ── Same-origin fetch without a Referer ───────────────
+    // Same-origin GETs send no Origin header, so a stripped Referer used to
+    // 403 the customer's dropdown. Sec-Fetch-Site is browser-set.
+    test('allows a same-origin fetch whose Referer was stripped', async () => {
+        global.fetch = jest.fn().mockResolvedValueOnce(mockGoogleSuccess());
+        const res = makeRes();
+        await handler(makeReq({ input: 'Brisbane' }, { 'sec-fetch-site': 'same-origin' }), res);
+        expect(res.status).toHaveBeenCalledWith(200);
+    });
+
+    test('still rejects a cross-site fetch with no Origin or Referer', async () => {
+        const res = makeRes();
+        await handler(makeReq({ input: 'Brisbane' }, { 'sec-fetch-site': 'cross-site' }), res);
+        expect(res.status).toHaveBeenCalledWith(403);
     });
 
     test('skips suggestions without a place prediction or description', async () => {
