@@ -2557,10 +2557,11 @@ textarea:focus-visible,
    only travel within its own containing block, so `.t-navbar` was confined
    to the header's 135px and scrolled away with it.
 
-   Desktop pins the whole header, keeping the phone button in reach. Below
-   1100px it is pinned by minus the utility bar's height, so that row slides
-   off and only the nav strip stays — the floating call button already covers
-   phoning there, and a 135px band is a lot of a phone screen. */
+   The whole header pins at every width, logo and call button included. An
+   earlier version offset it upward on phones so only the nav strip stayed,
+   to save vertical space — but that scrolled the branding off, which reads
+   as the header not sticking at all. The phone bar is compacted below
+   instead, so the pinned band stays affordable. */
 :root {
   --t-utility-h: 92px;   /* utility bar height; the sticky offset mirrors it */
   --t-sticky-top: 0px;   /* how far the header is pinned above the viewport */
@@ -2586,7 +2587,9 @@ main[id] {
   content: ""; position: absolute; right: -1px; top: 0; bottom: 0; width: 46px;
   background: var(--accent-color); clip-path: polygon(78% 0, 100% 0, 22% 100%, 0 100%);
 }
-.t-logo-panel img { height: 72px; width: auto; }
+/* display:block — as an inline image it sat on a text baseline, and the
+   descender slack under it made the panel taller than the bar. */
+.t-logo-panel img { height: 72px; width: auto; display: block; }
 .t-utility-inner { flex: 1; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 0 32px 0 56px; }
 .t-availability {
   display: flex; align-items: center; gap: 12px; font-family: var(--font-heading);
@@ -2780,24 +2783,23 @@ main[id] {
   .t-hero-visual { min-height: 380px; }
   .t-review-rail { flex-direction: column; }
   .t-review-card, .t-review-card.t-feature { width: 100%; transform: none; }
-  /* Pin only the nav strip: the header is offset upward by exactly the
-     utility bar's height, so that row scrolls off and the nav stops at the
-     top. The height is fixed rather than intrinsic so the offset can match
-     it exactly — a mismatch either strands a sliver of the utility bar on
-     screen or lets part of the nav scroll away. */
+  /* Pin the whole header, logo included. The utility bar is compacted to
+     64px (from 84) so the pinned band costs ~115px of the viewport rather
+     than 135 — the logo has generous transparent padding of its own, so it
+     still reads at this size. */
   :root {
-    --t-utility-h: 84px;
-    --t-sticky-top: -84px;
-    --t-sticky-h: 51px;
+    --t-utility-h: 64px;
+    --t-sticky-top: 0px;
+    --t-sticky-h: 115px;
   }
   /* One row, not three: with the rating hidden the bar fits comfortably
      across this whole range, and stacking it cost ~200px of the fold —
      the worst case being a landscape phone at 844x390. */
   .t-utility-bar { flex-direction: row; align-items: center; height: var(--t-utility-h); min-height: 0; }
-  .t-logo-panel { padding: 10px 24px; }
+  .t-logo-panel { padding: 6px 20px; }
   .t-logo-panel::after { display: none; }
-  .t-logo-panel img { height: 60px; }
-  .t-utility-inner { padding: 10px 24px; flex-wrap: nowrap; gap: 14px; }
+  .t-logo-panel img { height: 52px; }
+  .t-utility-inner { padding: 6px 20px; flex-wrap: nowrap; gap: 12px; }
   .t-rating { display: none; }
   .t-promo-card { grid-template-columns: 1fr; }
   .t-promo-media { height: 200px; }
@@ -2845,9 +2847,12 @@ main[id] {
   /* header: logo and the call button share one row instead of stacking
      into three, which cost ~300px before any content. */
   .t-utility-bar { flex-direction: row; align-items: center; }
-  .t-logo-panel { padding: 8px 0 8px 16px; }
-  .t-logo-panel img { height: 60px; }
-  .t-utility-inner { padding: 8px 16px 8px 10px; gap: 10px; flex-wrap: nowrap; justify-content: flex-end; }
+  /* 52 + 6 + 6 = the 64px --t-utility-h above. Anything taller overflows a
+     bar with a fixed height and, because the row is centred, the overflow
+     splits above the header's own top edge and clips the logo. */
+  .t-logo-panel { padding: 6px 0 6px 16px; }
+  .t-logo-panel img { height: 52px; }
+  .t-utility-inner { padding: 6px 16px 6px 10px; gap: 10px; flex-wrap: nowrap; justify-content: flex-end; }
   .t-availability { font-size: 0.7rem; gap: 8px; letter-spacing: 0.05em; }
   .t-pulse { width: 9px; height: 9px; }
   .t-utility-right { gap: 8px; }
@@ -2928,7 +2933,7 @@ main[id] {
      of room — the drawer, the hero and the sticky bar all still offer it */
   .t-utility-right .t-btn-ghost { display: none; }
   .t-availability { display: none; }
-  .t-logo-panel { padding: 8px 0 8px 12px; }
+  .t-logo-panel { padding: 6px 0 6px 12px; }
   .t-utility-inner { padding: 8px 12px; }
   .t-tile { height: 190px; }
   .t-faq-media { height: 160px; }
