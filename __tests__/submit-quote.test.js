@@ -153,6 +153,42 @@ describe('submit-quote handler', () => {
         expect(html).toContain('Looking for a quote');
     });
 
+    test('keeps the service-page qualifying answer instead of dropping it', async () => {
+        const res = makeRes();
+        const { roof_type, ...withoutRoofType } = validBody;
+        await handler(makeReq({ ...withoutRoofType, repair_type: 'Active Leak' }), res);
+        const { html } = mockEmailSend.mock.calls[0][0];
+        expect(html).toContain('Repair Type');
+        expect(html).toContain('Active Leak');
+        // the label for a field that was not submitted must not appear at all
+        expect(html).not.toContain('Current Roof Type');
+    });
+
+    test('labels each service page field correctly', async () => {
+        const cases = [
+            ['roof_profile', 'Roof Profile', 'Custom Orb'],
+            ['gutter_type', 'Gutter Profile', 'Quad'],
+            ['insulation_type', 'Insulation Type', 'Anticon blanket'],
+            ['install_type', 'Installation Type', 'Skylights (fixed)'],
+        ];
+        for (const [field, label, value] of cases) {
+            mockEmailSend.mockClear();
+            const res = makeRes();
+            await handler(makeReq({ ...validBody, [field]: value }), res);
+            const { html } = mockEmailSend.mock.calls[0][0];
+            expect(html).toContain(label);
+            expect(html).toContain(value);
+        }
+    });
+
+    test('escapes HTML in a service-page field', async () => {
+        const res = makeRes();
+        await handler(makeReq({ ...validBody, repair_type: '<script>alert(1)</script>' }), res);
+        const { html } = mockEmailSend.mock.calls[0][0];
+        expect(html).not.toContain('<script>alert(1)</script>');
+        expect(html).toContain('&lt;script&gt;');
+    });
+
     // ── Simulation mode ───────────────────────────────────
     test('returns 200 in simulation mode when RESEND_API_KEY not set', async () => {
         delete process.env.RESEND_API_KEY;

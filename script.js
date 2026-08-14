@@ -50,12 +50,31 @@ document.addEventListener("DOMContentLoaded", () => {
   const navMenu = document.getElementById("navMenu");
   const navOverlay = document.getElementById("navOverlay");
 
+  // Below the drawer breakpoint the menu is an off-canvas panel pushed off-screen
+  // by a transform — still focusable, so keyboard users tabbed through eight
+  // invisible links. `inert` takes it out of the tab order and the accessibility
+  // tree while closed. Above the breakpoint it is the ordinary horizontal nav and
+  // must stay reachable, so this is re-evaluated whenever the layout can change.
+  const isDrawer = () => getComputedStyle(navToggle).display !== "none";
+
+  const syncDrawerInert = () => {
+    if (isDrawer() && !navMenu.classList.contains("open")) {
+      navMenu.setAttribute("inert", "");
+    } else {
+      navMenu.removeAttribute("inert");
+    }
+  };
+
   const closeNav = () => {
+    // Move focus out before the panel goes inert, otherwise the browser drops it
+    // to <body> and the next Tab restarts from the top of the document.
+    if (navMenu.contains(document.activeElement)) navToggle.focus();
     navToggle.classList.remove("open");
     navMenu.classList.remove("open");
     navToggle.setAttribute("aria-expanded", "false");
     if (navOverlay) navOverlay.classList.remove("active");
     document.body.style.overflow = "";
+    syncDrawerInert();
   };
 
   const openNav = () => {
@@ -64,7 +83,34 @@ document.addEventListener("DOMContentLoaded", () => {
     navToggle.setAttribute("aria-expanded", "true");
     if (navOverlay) navOverlay.classList.add("active");
     document.body.style.overflow = "hidden";
+    syncDrawerInert();
+    // The drawer covers the page behind a scrim, so send focus into it rather
+    // than leaving it on the toggle with the rest of the page still tabbable.
+    const first = navMenu.querySelector('a[href], button:not([disabled])');
+    if (first) first.focus();
   };
+
+  // The drawer behaves as a modal, so Tab must cycle within it instead of
+  // wandering onto page content hidden behind the scrim.
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Tab" || !navMenu.classList.contains("open")) return;
+    const items = [
+      navToggle,
+      ...navMenu.querySelectorAll('a[href], button:not([disabled])'),
+    ];
+    if (items.length < 2) return;
+    const first = items[0];
+    const last = items[items.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  });
+
+  syncDrawerInert();
 
   navToggle.addEventListener("click", () => {
     if (navMenu.classList.contains("open")) {
@@ -105,6 +151,9 @@ document.addEventListener("DOMContentLoaded", () => {
     ) {
       closeNav();
     }
+    // Crossing the breakpoint changes whether the menu is a drawer or the
+    // desktop nav, so its inert state has to be re-evaluated either way.
+    syncDrawerInert();
   });
 
   // ---- ACTIVE NAV LINK ON SCROLL ----
@@ -206,19 +255,28 @@ document.addEventListener("DOMContentLoaded", () => {
     contactForm.addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      const btn = document.getElementById("submitBtn");
+      // The five service pages carry #contactForm but no #submitBtn, so this
+      // lookup returned null and threw on .innerHTML below. preventDefault()
+      // has already run by then, so the native POST fallback died with it and
+      // the submission vanished silently. Fall back to the form's own submit
+      // control, and treat the button as optional from here on.
+      const btn =
+        document.getElementById("submitBtn") ||
+        contactForm.querySelector('button[type="submit"], input[type="submit"]');
       const errorEl = document.getElementById("contactError");
-      const originalHTML = btn.innerHTML;
+      const originalHTML = btn ? btn.innerHTML : "";
 
       if (errorEl) { errorEl.style.display = "none"; errorEl.textContent = ""; }
 
-      btn.innerHTML = `
+      if (btn) {
+        btn.innerHTML = `
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin">
                     <path d="M12 2a10 10 0 1 0 10 10"/>
                 </svg>
                 Sending...
             `;
-      btn.disabled = true;
+        btn.disabled = true;
+      }
 
       const formData = new FormData(contactForm);
       const data = Object.fromEntries(formData.entries());
@@ -248,8 +306,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       } catch (error) {
         console.error("Error:", error);
-        btn.innerHTML = originalHTML;
-        btn.disabled = false;
+        if (btn) {
+          btn.innerHTML = originalHTML;
+          btn.disabled = false;
+        }
         if (errorEl) {
           errorEl.textContent = "Something went wrong. Please call us directly at 0419 098 049.";
           errorEl.style.display = "block";

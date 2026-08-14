@@ -1221,11 +1221,12 @@ textarea:focus-visible,
 }
 
 /* h2, not h4: these are top-level groups inside the footer landmark, and as
-   <h4> after the last content <h2> they skipped a level on every page. */
+   <h4> after the last content <h2> they skipped a level on every page. The h4
+   selectors stay for any markup still carrying one. */
+.footer-links h2,
+.footer-contact h2,
 .footer-links h4,
-.footer-contact h4,
-.footer-links .footer-heading,
-.footer-contact .footer-heading {
+.footer-contact h4 {
   font-size: 1rem;
   font-weight: 700;
   margin-bottom: 24px;
@@ -3334,4 +3335,61 @@ main[id] {
     pointer-events: none;
     transform: translateY(12px);
   }
+}
+
+/* ---- compact page hero for the utility and legal pages ----
+   They have no hero of their own; this gives them the template's
+   opening without the full split-hero furniture. */
+.t-page-hero {
+  position: relative;
+  background: linear-gradient(120deg, #101010, #1c1c1c);
+  border-bottom: 1px solid var(--border-color);
+  padding: 78px 0 62px;
+  overflow: hidden;
+}
+.t-page-hero::after {
+  content: "";
+  position: absolute;
+  right: -90px;
+  top: -90px;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  border: 22px solid var(--accent-color);
+  opacity: 0.18;
+}
+.t-page-hero h1 {
+  position: relative;
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 3.4vw, 3rem);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  color: var(--text-light);
+  margin: 0;
+}
+.t-page-hero p {
+  position: relative;
+  color: var(--text-muted);
+  max-width: 640px;
+  margin-top: 16px;
+}
+
+/* Offer-card title: a promo callout, not a section heading — it carried an
+   <h3> that sat between the hero <h1> and the first <h2>, skipping a level
+   in the document outline on every page that uses the hero. */
+.t-offer-title {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.5rem;
+  line-height: 1.1;
+  color: var(--text-light);
+  margin-bottom: 4px;
+}
+
+/* Form/tool card headings moved from h3 to h2 for a valid outline; keep the
+   smaller display size they were designed at. */
+.colour-form-section h2,
+.subby-form-section h2 {
+  font-size: 1.35rem;
 }

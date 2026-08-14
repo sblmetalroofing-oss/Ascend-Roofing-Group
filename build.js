@@ -52,6 +52,19 @@ function getSiteLastmod() {
   }
 }
 
+// The review rail reads as a fan: outer cards tilt, the middle one sits
+// flat and forward. The homepage sets these classes by hand; generated
+// pages get them here.
+function tiltReviewCards(html) {
+  const tiltClasses = ["t-review-card t-tilt-l", "t-review-card t-feature", "t-review-card t-tilt-r"];
+  let i = 0;
+  return html.replace(/class='t-review-card'/g, () => {
+    const cls = tiltClasses[i % tiltClasses.length];
+    i++;
+    return `class='${cls}'`;
+  });
+}
+
 // Main Build Function
 async function build() {
   console.log("Starting Build Process...");
@@ -152,12 +165,12 @@ async function build() {
   // TODO(owner): replace these representative testimonials with real,
   // attributed customer reviews (names used with permission).
   const TESTIMONIALS_CARDS = [
-    `<div class='testimonial-card' data-reveal><div class='testimonial-stars'>★★★★★</div><p>"Ascend Roofing replaced our entire roof in just three days. The team was professional, tidy, and the new Colorbond roof looks absolutely stunning. Couldn't be happier!"</p><div class='testimonial-author'><div><strong>Homeowner</strong><span>Brisbane</span></div></div></div>`,
-    `<div class='testimonial-card' data-reveal><div class='testimonial-stars'>★★★★★</div><p>"After the last big storm we needed urgent repairs. The team were out the next day and had everything sealed up perfectly. Great communication from start to finish."</p><div class='testimonial-author'><div><strong>Local Resident</strong><span>South East Queensland</span></div></div></div>`,
-    `<div class='testimonial-card' data-reveal><div class='testimonial-stars'>★★★★★</div><p>"We got three quotes and Ascend was the most transparent and competitive. No hidden fees, honest advice, and the workmanship is top-notch. Highly recommend this family business."</p><div class='testimonial-author'><div><strong>Property Manager</strong><span>Logan</span></div></div></div>`,
-    `<div class='testimonial-card' data-reveal><div class='testimonial-stars'>★★★★★</div><p>"Absolutely thrilled with the new roof. The guys worked incredibly hard and left the site spotless. Would definitely use Ascend Roofing Group again."</p><div class='testimonial-author'><div><strong>Homeowner</strong><span>Gold Coast</span></div></div></div>`,
-    `<div class='testimonial-card' data-reveal><div class='testimonial-stars'>★★★★★</div><p>"Prompt, polite, and well priced. They fixed a leak that two other companies couldn't find. Excellent service."</p><div class='testimonial-author'><div><strong>Property Owner</strong><span>Ipswich</span></div></div></div>`,
-    `<div class='testimonial-card' data-reveal><div class='testimonial-stars'>★★★★★</div><p>"From the initial quote to the final inspection, everything was seamless. High-quality Colorbond installation and friendly staff."</p><div class='testimonial-author'><div><strong>Homeowner</strong><span>Moreton Bay</span></div></div></div>`,
+    `<div class='t-review-card' data-reveal><div class='t-stars' aria-hidden='true'>★★★★★</div><p>"Ascend Roofing replaced our entire roof in just three days. The team was professional, tidy, and the new Colorbond roof looks absolutely stunning. Couldn't be happier!"</p><div class='t-who'><strong>Homeowner</strong> &middot; <span>Brisbane</span></div></div>`,
+    `<div class='t-review-card' data-reveal><div class='t-stars' aria-hidden='true'>★★★★★</div><p>"After the last big storm we needed urgent repairs. The team were out the next day and had everything sealed up perfectly. Great communication from start to finish."</p><div class='t-who'><strong>Local Resident</strong> &middot; <span>South East Queensland</span></div></div>`,
+    `<div class='t-review-card' data-reveal><div class='t-stars' aria-hidden='true'>★★★★★</div><p>"We got three quotes and Ascend was the most transparent and competitive. No hidden fees, honest advice, and the workmanship is top-notch. Highly recommend this family business."</p><div class='t-who'><strong>Property Manager</strong> &middot; <span>Logan</span></div></div>`,
+    `<div class='t-review-card' data-reveal><div class='t-stars' aria-hidden='true'>★★★★★</div><p>"Absolutely thrilled with the new roof. The guys worked incredibly hard and left the site spotless. Would definitely use Ascend Roofing Group again."</p><div class='t-who'><strong>Homeowner</strong> &middot; <span>Gold Coast</span></div></div>`,
+    `<div class='t-review-card' data-reveal><div class='t-stars' aria-hidden='true'>★★★★★</div><p>"Prompt, polite, and well priced. They fixed a leak that two other companies couldn't find. Excellent service."</p><div class='t-who'><strong>Property Owner</strong> &middot; <span>Ipswich</span></div></div>`,
+    `<div class='t-review-card' data-reveal><div class='t-stars' aria-hidden='true'>★★★★★</div><p>"From the initial quote to the final inspection, everything was seamless. High-quality Colorbond installation and friendly staff."</p><div class='t-who'><strong>Homeowner</strong> &middot; <span>Moreton Bay</span></div></div>`,
   ];
 
   // Deterministic pick from array based on suburb name hash
@@ -168,14 +181,14 @@ async function build() {
 
   // Meta description variations for unique content across pages
   const META_DESCRIPTIONS = [
-    `Looking for roofing in {{SUBURB}}? Ascend Roofing Group provides premium Colorbond® replacements, repairs, and new roofs in {{SUBURB}} {{POSTCODE}}. Call 0419 098 049.`,
-    `Expert roof replacement in {{SUBURB}} {{POSTCODE}}. Family-owned Ascend Roofing Group delivers quality Colorbond® steel roofing with free quotes and no hidden fees. QBCC licensed.`,
-    `Need a roofer in {{SUBURB}}? We specialise in Colorbond® metal roofing across {{REGION}}. 14+ years experience, 1,200+ roofs completed. Get your free quote today.`,
-    `{{SUBURB}} roofing specialists. Ascend Roofing Group offers complete roof replacements, storm repairs, and new installations in {{SUBURB}} {{POSTCODE}}. Trusted across {{REGION}}.`,
-    `Professional roofing services in {{SUBURB}} {{POSTCODE}}. From full Colorbond® re-roofs to gutters and insulation — Ascend Roofing Group has {{REGION}} covered. Call now.`,
-    `Top-rated roofers serving {{SUBURB}} and {{REGION}}. Premium Colorbond® roof replacements and repairs with transparent pricing. QBCC licensed, fully insured. 0419 098 049.`,
-    `Ascend Roofing Group — your local {{SUBURB}} roofing experts. Quality Colorbond® installations, fast turnarounds, and honest pricing across {{REGION}}. Free on-site quotes.`,
-    `Roof replacement in {{SUBURB}}? Get a free quote from Ascend Roofing Group. We install premium Colorbond® steel roofing across {{REGION}} with a focus on quality and value.`,
+    `Roofing in {{SUBURB}}? Ascend Roofing Group installs Colorbond® roofs, replacements and repairs in {{SUBURB}} {{POSTCODE}}. Free quote: 0419 098 049.`,
+    `Roof replacement in {{SUBURB}} {{POSTCODE}}. Family-owned, QBCC licensed, Colorbond® steel roofing with free written quotes and no hidden fees.`,
+    `Need a roofer in {{SUBURB}}? Colorbond® metal roofing across {{REGION}}. 14+ years, 1,200+ roofs completed. Get your free quote today.`,
+    `{{SUBURB}} roofing specialists. Roof replacements, storm repairs and new installations in {{SUBURB}} {{POSTCODE}}. Trusted across {{REGION}}.`,
+    `Roofing services in {{SUBURB}} {{POSTCODE}} — Colorbond® re-roofs, gutters and insulation. Ascend Roofing Group has {{REGION}} covered.`,
+    `Roofers serving {{SUBURB}} and {{REGION}}. Colorbond® replacements and repairs, transparent pricing, QBCC licensed and fully insured.`,
+    `Your local {{SUBURB}} roofing experts. Quality Colorbond® installations, fast turnarounds and honest pricing across {{REGION}}. Free quotes.`,
+    `Roof replacement in {{SUBURB}}? Free quote from Ascend Roofing Group. Premium Colorbond® steel roofing installed across {{REGION}}.`,
   ];
 
   // Deterministic meta description selection based on suburb name
@@ -254,7 +267,7 @@ async function build() {
       .replace(/\{\{ABOUT_US_P1\}\}/g, aboutP1)
       .replace(/\{\{ABOUT_US_P2\}\}/g, aboutP2)
       .replace(/\{\{SERVICES_GRID\}\}/g, servicesGrid)
-      .replace(/\{\{TESTIMONIALS_GRID\}\}/g, testimonialsGrid);
+      .replace(/\{\{TESTIMONIALS_GRID\}\}/g, tiltReviewCards(testimonialsGrid));
 
     // Write File
     fs.writeFileSync(filePath, content);
@@ -305,17 +318,17 @@ async function build() {
     <meta property="og:description" content="Roof replacement and metal roofing across all Brisbane, Gold Coast, Logan, Ipswich and Moreton Bay suburbs. Find your local area.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.ascendroofinggroup.com.au/locations.html">
-    <meta property="og:image" content="https://www.ascendroofinggroup.com.au/images/ROOFING GROUP.png">
+    <meta property="og:image" content="https://www.ascendroofinggroup.com.au/images/ROOFING%20GROUP.png">
     <meta property="og:site_name" content="Ascend Roofing Group">
     <meta property="og:locale" content="en_AU">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Ascend Roofing Group Service Areas | Brisbane &amp; Gold Coast">
     <meta name="twitter:description" content="Roof replacement and metal roofing across all Brisbane, Gold Coast, Logan, Ipswich and Moreton Bay suburbs.">
-    <meta name="twitter:image" content="https://www.ascendroofinggroup.com.au/images/ROOFING GROUP.png">
+    <meta name="twitter:image" content="https://www.ascendroofinggroup.com.au/images/ROOFING%20GROUP.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Caveat+Brush&display=swap"
         rel="stylesheet">
     <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
     <link rel="icon" href="/favicon-16.png" sizes="16x16" type="image/png">
@@ -355,7 +368,7 @@ async function build() {
         }
         .location-link:hover { 
             background: var(--bg-card-hover); 
-            border-color: var(--accent); 
+            border-color: var(--accent-link); 
             color: var(--text-primary); 
             transform: translateY(-2px);
         }
@@ -365,7 +378,7 @@ async function build() {
             margin-bottom: 20px; 
             padding-bottom: 10px; 
             border-bottom: 1px solid var(--border-color);
-            color: var(--accent);
+            color: var(--accent-link);
             font-family: var(--font-heading);
         }
     </style>
@@ -386,7 +399,7 @@ async function build() {
                 <div class="t-availability"><span class="t-pulse"></span> Available 7 Days</div>
                 <div class="t-utility-right">
                     <a href="tel:0419098049" class="t-btn t-btn-accent">0419 098 049</a>
-                    <a href="quote.html" class="t-btn t-btn-ghost">Get a Quote</a>
+                    <a href="/#contact" class="t-btn t-btn-ghost">Get a Quote</a>
                 </div>
             </div>
         </div>
@@ -402,7 +415,7 @@ async function build() {
                 <li><a href="faq.html">FAQ's</a></li>
                 <li><a href="/#testimonials">Reviews</a></li>
                 <li><a href="locations.html" class="active">Areas We Service</a></li>
-                <li><a href="quote.html">Contact Us</a></li>
+                <li><a href="/#contact">Contact Us</a></li>
             </ul>
         </nav>
     </header>
@@ -416,11 +429,37 @@ async function build() {
         </div>
     </section>
 
-    <section class="section">
+    <div class="t-marquee" aria-label="Why homeowners trust Ascend Roofing Group">
+        <div class="t-marquee-track">
+            <span>Workmanship Guarantee</span><span>&#9670;</span>
+            <span>QBCC Licensed &amp; Insured</span><span>&#9670;</span>
+            <span>Free Written Quotes</span><span>&#9670;</span>
+            <span>Genuine Colorbond&reg; Steel</span><span>&#9670;</span>
+            <span>Family Owned &amp; Operated</span><span>&#9670;</span>
+            <span>Workmanship Guarantee</span><span>&#9670;</span>
+            <span>QBCC Licensed &amp; Insured</span><span>&#9670;</span>
+            <span>Free Written Quotes</span><span>&#9670;</span>
+            <span>Genuine Colorbond&reg; Steel</span><span>&#9670;</span>
+            <span>Family Owned &amp; Operated</span><span>&#9670;</span>
+        </div>
+    </div>
+
+    <section class="t-section t-section--light section">
         <div class="container">
             ${locationsGridHtml}
         </div>
     </section>
+    <section class="t-cta-strip">
+        <div class="t-container">
+            <span class="t-eyebrow">Free Quote &middot; No Obligation</span>
+            <h2>Ready to Get Started?</h2>
+            <div class="t-actions">
+                <a href="tel:0419098049" class="t-btn t-btn-accent">0419 098 049</a>
+                <a href="/#contact" class="t-btn t-btn-ghost">Get a Free Quote</a>
+            </div>
+        </div>
+    </section>
+
     </main>
 
     <!-- ===================== FOOTER ===================== -->
@@ -435,7 +474,7 @@ async function build() {
                         steel solutions.</p>
                 </div>
                 <div class="footer-links">
-                    <h2 class="footer-heading">Quick Links</h2>
+                    <h2>Quick Links</h2>
                     <ul>
                         <li><a href="/#services">Services</a></li>
                         <li><a href="/#about">About Us</a></li>
@@ -448,7 +487,7 @@ async function build() {
                     </ul>
                 </div>
                 <div class="footer-links">
-                    <h2 class="footer-heading">Services</h2>
+                    <h2>Services</h2>
                     <ul>
                         <li><a href="new-roof-installation-brisbane.html">New Roof Installations</a></li>
                         <li><a href="roof-replacement.html">Roof Replacements</a></li>
@@ -459,7 +498,7 @@ async function build() {
                     </ul>
                 </div>
                 <div class="footer-contact">
-                    <h2 class="footer-heading">Get In Touch</h2>
+                    <h2>Get In Touch</h2>
                     <p><a href="tel:0419098049">📞 0419 098 049</a></p>
                     <p><a href="mailto:admin@ascendroofinggroup.com.au">✉️ admin@ascendroofinggroup.com.au</a></p>
                     <p>📍 Brisbane & Gold Coast, QLD</p>
@@ -556,23 +595,24 @@ function stampAssetVersions() {
   // styles.css edit rewrote the template, and the template is one of the
   // inputs getSiteLastmod() watches, so every styling change re-dated the
   // whole sitemap and the drift check went red.
-  const targets = [
-    ...fs
-      .readdirSync(__dirname)
-      .filter((f) => f.endsWith(".html") && f !== "template.html")
-      .map((f) => path.join(__dirname, f)),
-    ...fs
-      .readdirSync(CONFIG.outputDir)
-      .filter((f) => f.endsWith(".html"))
-      .map((f) => path.join(CONFIG.outputDir, f)),
-  ];
+  // Every directory that ships HTML. blog/ was missed on the first pass,
+  // so those pages would have kept serving stale CSS after a deploy.
+  const dirs = [__dirname, CONFIG.outputDir, path.join(__dirname, "blog")];
+  const targets = dirs
+    .filter((d) => fs.existsSync(d))
+    .flatMap((d) =>
+      fs
+        .readdirSync(d)
+        .filter((f) => f.endsWith(".html") && f !== "template.html")
+        .map((f) => path.join(d, f)),
+    );
 
   let changed = 0;
   for (const file of targets) {
     const before = fs.readFileSync(file, "utf8");
     const after = before
-      .replace(/(href="(?:\.\.\/)?styles\.css)(?:\?v=[0-9a-f]+)?"/g, `$1?v=${cssV}"`)
-      .replace(/(src="(?:\.\.\/)?script\.js)(?:\?v=[0-9a-f]+)?"/g, `$1?v=${jsV}"`);
+      .replace(/(href="(?:\.\.\/|\/)?styles\.css)(?:\?v=[0-9a-f]+)?"/g, `$1?v=${cssV}"`)
+      .replace(/(src="(?:\.\.\/|\/)?script\.js)(?:\?v=[0-9a-f]+)?"/g, `$1?v=${jsV}"`);
     if (after !== before) {
       fs.writeFileSync(file, after);
       changed++;

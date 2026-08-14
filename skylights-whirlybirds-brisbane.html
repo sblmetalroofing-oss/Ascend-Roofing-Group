@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Skylights &amp; Whirlybirds Brisbane | Ascend Roofing</title>
-    <meta name="description" content="Skylight installation &amp; Whirlybird ventilators across Brisbane &amp; Gold Coast. Reduce heat, add natural light. QBCC licensed, all roof types. Free quote — 0419 098 049.">
+    <meta name="description" content="Skylight installation &amp; Whirlybird ventilators across Brisbane &amp; Gold Coast. Reduce heat, add natural light. QBCC licensed. Free quote.">
     <link rel="canonical" href="https://www.ascendroofinggroup.com.au/skylights-whirlybirds-brisbane.html">
     <meta property="og:title" content="Skylights & Whirlybirds Brisbane & Gold Coast | Ascend Roofing Group">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.ascendroofinggroup.com.au/skylights-whirlybirds-brisbane.html">
-    <meta property="og:description" content="Skylight installation &amp; Whirlybird ventilators across Brisbane &amp; Gold Coast. Reduce heat, add natural light. QBCC licensed, all roof types. Free quote — 0419 098 049.">
+    <meta property="og:description" content="Skylight installation &amp; Whirlybird ventilators across Brisbane &amp; Gold Coast. Reduce heat, add natural light. QBCC licensed. Free quote.">
     <meta property="og:image" content="https://www.ascendroofinggroup.com.au/images/dji_fly_20250313_141642_0183_1741839576383_photo.JPEG">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -27,7 +27,7 @@
          and in <head> so it lands before first paint, and so the content stays
          visible when JS is off, blocked, or fails to load. -->
     <script>document.documentElement.className += " js";</script>
-    <link rel="stylesheet" href="styles.css?v=8a47acd7">
+    <link rel="stylesheet" href="styles.css?v=a45a7321">
     <script defer src="/_vercel/speed-insights/script.js"></script>
     <script defer src="/_vercel/insights/script.js"></script>
     <script type="application/ld+json">
@@ -59,7 +59,7 @@
                 <div class="t-utility-right">
                     <!-- TODO(owner): add the verified Google rating and review count here. -->
                     <a href="tel:0419098049" class="t-btn t-btn-accent">0419 098 049</a>
-                    <a href="quote.html" class="t-btn t-btn-ghost">Get a Quote</a>
+                    <a href="#contact" class="t-btn t-btn-ghost">Get a Quote</a>
                 </div>
             </div>
         </div>
@@ -75,7 +75,7 @@
                 <li><a href="faq.html">FAQ's</a></li>
                 <li><a href="index.html#testimonials">Reviews</a></li>
                 <li><a href="locations.html">Areas We Service</a></li>
-                <li><a href="quote.html">Contact Us</a></li>
+                <li><a href="#contact">Contact Us</a></li>
             </ul>
         </nav>
     </header>
@@ -301,7 +301,7 @@
                             <div class="form-group"><label for="phone">Phone Number</label><input type="tel" id="phone" name="phone" placeholder="04XX XXX XXX" required></div>
                         </div>
                         <div class="form-group"><label for="email">Email Address</label><input type="email" id="email" name="email" placeholder="john@example.com" required></div>
-                        <div class="form-group"><label for="address">Property Address</label><input type="text" id="address" name="address" placeholder="123 Smith St, Southport QLD" autocomplete="off"></div>
+                        <div class="form-group"><label for="address">Property Address</label><input type="text" id="address" name="address" required placeholder="123 Smith St, Southport QLD" autocomplete="off"></div>
                         <div class="form-group">
                             <label for="install_type">I'm Interested In</label>
                             <select id="install_type" name="install_type">
@@ -320,6 +320,7 @@
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                             Send Quote Request
                         </button>
+                        <p role="alert" id="contactError" style="display:none; color:#e53e3e; font-size:0.875rem; margin-top:0.75rem;"></p>
                     </form>
                 </div>
                 <div class="t-quote-visual">
@@ -381,7 +382,7 @@
         <div class="container">
             <div class="footer-grid">
                 <div class="footer-brand"><a href="/" class="nav-logo"><img src="./images/ROOFING GROUP.png" alt="Ascend Roofing Group Logo" class="logo-img" width="400" height="400"></a><p>Family-owned metal roofing specialists serving Brisbane & the Gold Coast.</p></div>
-                <div class="footer-links"><h2 class="footer-heading">Services</h2><ul>
+                <div class="footer-links"><h2>Services</h2><ul>
                     <li><a href="new-roof-installation-brisbane.html">New Roof Installations</a></li>
                     <li><a href="roof-replacement.html">Roof Replacements</a></li>
                     <li><a href="roof-repairs-brisbane.html">Roof Repairs</a></li>
@@ -389,7 +390,7 @@
                     <li><a href="gutters-downpipes-brisbane.html">Gutters & Downpipes</a></li>
                     <li><a href="skylights-whirlybirds-brisbane.html">Skylights & Whirlybirds</a></li>
                 </ul></div>
-                <div class="footer-links"><h2 class="footer-heading">Quick Links</h2><ul>
+                <div class="footer-links"><h2>Quick Links</h2><ul>
                     <li><a href="/#about">About Us</a></li>
                     <li><a href="locations.html">Locations</a></li>
                     <li><a href="blog/">Roofing Blog</a></li>
@@ -400,13 +401,13 @@
                     <li><a href="new-employee-form.html">New Employee Form</a></li>
                     <li><a href="privacy.html">Privacy Policy</a></li>
                 </ul></div>
-                <div class="footer-links"><h2 class="footer-heading">Top Areas</h2><ul>
+                <div class="footer-links"><h2>Top Areas</h2><ul>
                     <li><a href="service-areas/roofing-brisbane-city.html">Brisbane City</a></li>
                     <li><a href="service-areas/roofing-southport.html">Gold Coast</a></li>
                     <li><a href="service-areas/roofing-logan-central.html">Logan</a></li>
                     <li><a href="service-areas/roofing-ipswich.html">Ipswich</a></li>
                 </ul></div>
-                <div class="footer-contact"><h2 class="footer-heading">Get In Touch</h2><p><a href="tel:0419098049">📞 0419 098 049</a></p><p><a href="mailto:admin@ascendroofinggroup.com.au">✉️ admin@ascendroofinggroup.com.au</a></p><p>📍 Brisbane & Gold Coast, QLD</p></div>
+                <div class="footer-contact"><h2>Get In Touch</h2><p><a href="tel:0419098049">📞 0419 098 049</a></p><p><a href="mailto:admin@ascendroofinggroup.com.au">✉️ admin@ascendroofinggroup.com.au</a></p><p>📍 Brisbane & Gold Coast, QLD</p></div>
             </div>
             <!-- TODO(owner): replace "ABN Registered" with the actual ABN, e.g. "ABN 12 345 678 901" -->
             <div class="footer-bottom"><p>&copy; 2026 Ascend Roofing Group Pty Ltd. All rights reserved.</p><p>QBCC Lic. 15600031 | ABN Registered</p></div>
@@ -418,6 +419,6 @@
         0419 098 049
     </a>
 
-    <script defer src="script.js?v=40991a2c"></script>
+    <script defer src="script.js?v=de089b92"></script>
 </body>
 </html>
