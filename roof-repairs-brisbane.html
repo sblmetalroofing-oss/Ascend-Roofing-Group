@@ -21,7 +21,7 @@
     <meta name="twitter:image" content="https://www.ascendroofinggroup.com.au/images/dji_fly_20250313_141642_0183_1741839576383_photo.JPEG">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Space+Grotesk:wght@600;700&family=Caveat+Brush&display=swap" rel="stylesheet">
     <link rel="icon" href="./images/ROOFING GROUP.png" type="image/png">
     <link rel="stylesheet" href="styles.css?v=fa9fb0ad">
     <script defer src="/_vercel/speed-insights/script.js"></script>
@@ -326,7 +326,7 @@
                             <div class="form-group"><label for="phone">Phone Number</label><input type="tel" id="phone" name="phone" placeholder="04XX XXX XXX" required></div>
                         </div>
                         <div class="form-group"><label for="email">Email Address</label><input type="email" id="email" name="email" placeholder="john@example.com" required></div>
-                        <div class="form-group"><label for="address">Property Address</label><input type="text" id="address" name="address" placeholder="123 Smith St, Southport QLD" autocomplete="off"></div>
+                        <div class="form-group"><label for="address">Property Address</label><input type="text" id="address" name="address" required placeholder="123 Smith St, Southport QLD" autocomplete="off"></div>
                         <div class="form-group">
                             <label for="repair_type">Type of Repair Needed</label>
                             <select id="repair_type" name="repair_type">
@@ -346,6 +346,7 @@
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                             Send Repair Request
                         </button>
+                        <p role="alert" id="contactError" style="display:none; color:#e53e3e; font-size:0.875rem; margin-top:0.75rem;"></p>
                     </form>
                 </div>
                 <div class="t-quote-visual">
@@ -469,6 +470,6 @@
         0419 098 049
     </a>
 
-    <script defer src="script.js?v=fcb249a4"></script>
+    <script defer src="script.js?v=547c79ce"></script>
 </body>
 </html>

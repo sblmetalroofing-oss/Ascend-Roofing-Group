@@ -21,12 +21,31 @@ document.addEventListener("DOMContentLoaded", () => {
   const navMenu = document.getElementById("navMenu");
   const navOverlay = document.getElementById("navOverlay");
 
+  // Below the drawer breakpoint the menu is an off-canvas panel pushed off-screen
+  // by a transform — still focusable, so keyboard users tabbed through eight
+  // invisible links. `inert` takes it out of the tab order and the accessibility
+  // tree while closed. Above the breakpoint it is the ordinary horizontal nav and
+  // must stay reachable, so this is re-evaluated whenever the layout can change.
+  const isDrawer = () => getComputedStyle(navToggle).display !== "none";
+
+  const syncDrawerInert = () => {
+    if (isDrawer() && !navMenu.classList.contains("open")) {
+      navMenu.setAttribute("inert", "");
+    } else {
+      navMenu.removeAttribute("inert");
+    }
+  };
+
   const closeNav = () => {
+    // Move focus out before the panel goes inert, otherwise the browser drops it
+    // to <body> and the next Tab restarts from the top of the document.
+    if (navMenu.contains(document.activeElement)) navToggle.focus();
     navToggle.classList.remove("open");
     navMenu.classList.remove("open");
     navToggle.setAttribute("aria-expanded", "false");
     if (navOverlay) navOverlay.classList.remove("active");
     document.body.style.overflow = "";
+    syncDrawerInert();
   };
 
   const openNav = () => {
@@ -35,7 +54,34 @@ document.addEventListener("DOMContentLoaded", () => {
     navToggle.setAttribute("aria-expanded", "true");
     if (navOverlay) navOverlay.classList.add("active");
     document.body.style.overflow = "hidden";
+    syncDrawerInert();
+    // The drawer covers the page behind a scrim, so send focus into it rather
+    // than leaving it on the toggle with the rest of the page still tabbable.
+    const first = navMenu.querySelector('a[href], button:not([disabled])');
+    if (first) first.focus();
   };
+
+  // The drawer behaves as a modal, so Tab must cycle within it instead of
+  // wandering onto page content hidden behind the scrim.
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Tab" || !navMenu.classList.contains("open")) return;
+    const items = [
+      navToggle,
+      ...navMenu.querySelectorAll('a[href], button:not([disabled])'),
+    ];
+    if (items.length < 2) return;
+    const first = items[0];
+    const last = items[items.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  });
+
+  syncDrawerInert();
 
   navToggle.addEventListener("click", () => {
     if (navMenu.classList.contains("open")) {
@@ -76,6 +122,9 @@ document.addEventListener("DOMContentLoaded", () => {
     ) {
       closeNav();
     }
+    // Crossing the breakpoint changes whether the menu is a drawer or the
+    // desktop nav, so its inert state has to be re-evaluated either way.
+    syncDrawerInert();
   });
 
   // ---- ACTIVE NAV LINK ON SCROLL ----
