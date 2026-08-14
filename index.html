@@ -40,7 +40,11 @@
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#0a0a0a">
 
-    <link rel="stylesheet" href="styles.css?v=fa9fb0ad">
+    <!-- Sets the flag that lets styles.css hide the scroll-reveal content. Inline
+         and in <head> so it lands before first paint, and so the content stays
+         visible when JS is off, blocked, or fails to load. -->
+    <script>document.documentElement.className += " js";</script>
+    <link rel="stylesheet" href="styles.css?v=a45a7321">
     <!-- The homepage LCP is the .t-hero-bg backdrop, which the hero photo now
          shares. It previously preloaded 20240307_171821.avif, an image this
          page only uses in a lazy gallery tile — 262 KB of high-priority
@@ -972,7 +976,7 @@
         </div>
     </footer>
 
-    <script defer src="script.js?v=547c79ce"></script>
+    <script defer src="script.js?v=de089b92"></script>
 </body>
 
 </html>

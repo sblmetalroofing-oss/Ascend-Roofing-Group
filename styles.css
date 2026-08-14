@@ -1220,6 +1220,9 @@ textarea:focus-visible,
   max-width: 300px;
 }
 
+/* h2, not h4: these are top-level groups inside the footer landmark, and as
+   <h4> after the last content <h2> they skipped a level on every page. The h4
+   selectors stay for any markup still carrying one. */
 .footer-links h2,
 .footer-contact h2,
 .footer-links h4,
@@ -1276,16 +1279,39 @@ textarea:focus-visible,
 
 /* ---- SCROLL REVEAL ANIMATIONS ---- */
 [data-reveal] {
-  opacity: 0;
-  transform: translateY(30px);
   transition:
     opacity 0.7s ease,
     transform 0.7s ease;
 }
 
-[data-reveal].revealed {
+/* Only hide the content once we know something can un-hide it. The `js` class
+   is set by an inline script in <head>, so with JS switched off, blocked, or
+   failing to load, none of this applies and the page reads normally — it was
+   otherwise ~49% of the homepage's words and ~92% of a suburb page's sitting
+   at opacity 0 with nothing to reveal them.
+
+   (A timed CSS fallback was the obvious alternative, but it reveals
+   below-fold elements on a clock, which disables the scroll animation the
+   design is built around.) */
+.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+[data-reveal].revealed,
+.js [data-reveal].revealed {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* A reader who has asked for less motion still needs the content. */
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    animation: none;
+  }
 }
 
 /* ---- FORM SUCCESS STATE ---- */
@@ -2636,7 +2662,11 @@ main[id] {
   border: 1px solid var(--border-color); border-left: 5px solid var(--accent-color);
   border-radius: var(--t-radius); padding: 26px 34px; max-width: 620px; display: flex; align-items: center; gap: 24px;
 }
-.t-offer-card h3 { font-family: var(--font-heading); font-size: 1.5rem; color: #fff; margin-bottom: 4px; }
+/* Promo blurb, not a section heading — it was an <h3> sitting directly
+   under the page <h1>, which skipped a level on every page carrying the
+   card. The h3 selector stays for any markup still using one. */
+.t-offer-card h3,
+.t-offer-card .t-offer-title { font-family: var(--font-heading); font-weight: 600; font-size: 1.5rem; color: #fff; margin-bottom: 4px; }
 .t-offer-card p { color: var(--text-muted); font-size: 0.95rem; }
 .t-offer-icon { width: 62px; height: 62px; flex-shrink: 0; background: var(--accent-btn); display: grid; place-items: center; border-radius: var(--t-radius-btn); }
 
@@ -2842,7 +2872,8 @@ main[id] {
   .t-actions { gap: 12px; }
   .t-actions .t-btn { flex: 1 1 100%; justify-content: center; white-space: nowrap; }
   .t-offer-card { margin-top: 26px; padding: 20px; gap: 16px; }
-  .t-offer-card h3 { font-size: 1.2rem; }
+  .t-offer-card h3,
+  .t-offer-card .t-offer-title { font-size: 1.2rem; }
   .t-offer-card p { font-size: 0.9rem; }
   .t-offer-icon { width: 48px; height: 48px; }
 

@@ -197,6 +197,26 @@ describe('check-expiring-insurance handler', () => {
         expect(updateCalls.length).toBeGreaterThan(0);
     });
 
+    // ── Escalation across the 90/60/30 bands ──────────────
+    test('re-sends once the document crosses into a tighter urgency band', async () => {
+        mockSql.mockResolvedValueOnce({ rows: [] });
+        const res = makeRes();
+        await handler(makeReq(), res);
+
+        // The tagged-template strings are the query's static fragments.
+        const selectSql = mockSql.mock.calls[0][0].join('?');
+
+        // A previously-reminded row must still be selectable — filtering on
+        // `reminded_at IS NULL` alone chased each document exactly once, at
+        // the 90-day mark, and never again.
+        expect(selectSql).toMatch(/reminded_at IS NULL\s*\n\s*OR/);
+        // Both sides of the band comparison must be present: the band today,
+        // and the band the document was in when it was last reminded.
+        expect(selectSql).toContain('i.reminded_at::date');
+        expect(selectSql.match(/<= 30 THEN 30/g)).toHaveLength(2);
+        expect(selectSql.match(/<= 60 THEN 60/g)).toHaveLength(2);
+    });
+
     // ── Continues on email failure ────────────────────────
     test('continues processing other subcontractors when one email fails', async () => {
         mockSql
