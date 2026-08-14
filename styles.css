@@ -3303,3 +3303,41 @@ main[id] {
     transform: translateY(12px);
   }
 }
+
+/* ---- compact page hero for the utility and legal pages ----
+   They have no hero of their own; this gives them the template's
+   opening without the full split-hero furniture. */
+.t-page-hero {
+  position: relative;
+  background: linear-gradient(120deg, #101010, #1c1c1c);
+  border-bottom: 1px solid var(--border-color);
+  padding: 78px 0 62px;
+  overflow: hidden;
+}
+.t-page-hero::after {
+  content: "";
+  position: absolute;
+  right: -90px;
+  top: -90px;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  border: 22px solid var(--accent-color);
+  opacity: 0.18;
+}
+.t-page-hero h1 {
+  position: relative;
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 3.4vw, 3rem);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  color: var(--text-light);
+  margin: 0;
+}
+.t-page-hero p {
+  position: relative;
+  color: var(--text-muted);
+  max-width: 640px;
+  margin-top: 16px;
+}

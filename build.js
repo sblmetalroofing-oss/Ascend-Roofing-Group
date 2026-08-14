@@ -368,7 +368,7 @@ async function build() {
         }
         .location-link:hover { 
             background: var(--bg-card-hover); 
-            border-color: var(--accent); 
+            border-color: var(--accent-link); 
             color: var(--text-primary); 
             transform: translateY(-2px);
         }
@@ -378,7 +378,7 @@ async function build() {
             margin-bottom: 20px; 
             padding-bottom: 10px; 
             border-bottom: 1px solid var(--border-color);
-            color: var(--accent);
+            color: var(--accent-link);
             font-family: var(--font-heading);
         }
     </style>
@@ -399,7 +399,7 @@ async function build() {
                 <div class="t-availability"><span class="t-pulse"></span> Available 7 Days</div>
                 <div class="t-utility-right">
                     <a href="tel:0419098049" class="t-btn t-btn-accent">0419 098 049</a>
-                    <a href="quote.html" class="t-btn t-btn-ghost">Get a Quote</a>
+                    <a href="/#contact" class="t-btn t-btn-ghost">Get a Quote</a>
                 </div>
             </div>
         </div>
@@ -415,7 +415,7 @@ async function build() {
                 <li><a href="faq.html">FAQ's</a></li>
                 <li><a href="/#testimonials">Reviews</a></li>
                 <li><a href="locations.html" class="active">Areas We Service</a></li>
-                <li><a href="quote.html">Contact Us</a></li>
+                <li><a href="/#contact">Contact Us</a></li>
             </ul>
         </nav>
     </header>
@@ -429,11 +429,37 @@ async function build() {
         </div>
     </section>
 
-    <section class="section">
+    <div class="t-marquee" aria-label="Why homeowners trust Ascend Roofing Group">
+        <div class="t-marquee-track">
+            <span>Workmanship Guarantee</span><span>&#9670;</span>
+            <span>QBCC Licensed &amp; Insured</span><span>&#9670;</span>
+            <span>Free Written Quotes</span><span>&#9670;</span>
+            <span>Genuine Colorbond&reg; Steel</span><span>&#9670;</span>
+            <span>Family Owned &amp; Operated</span><span>&#9670;</span>
+            <span>Workmanship Guarantee</span><span>&#9670;</span>
+            <span>QBCC Licensed &amp; Insured</span><span>&#9670;</span>
+            <span>Free Written Quotes</span><span>&#9670;</span>
+            <span>Genuine Colorbond&reg; Steel</span><span>&#9670;</span>
+            <span>Family Owned &amp; Operated</span><span>&#9670;</span>
+        </div>
+    </div>
+
+    <section class="t-section t-section--light section">
         <div class="container">
             ${locationsGridHtml}
         </div>
     </section>
+    <section class="t-cta-strip">
+        <div class="t-container">
+            <span class="t-eyebrow">Free Quote &middot; No Obligation</span>
+            <h2>Ready to Get Started?</h2>
+            <div class="t-actions">
+                <a href="tel:0419098049" class="t-btn t-btn-accent">0419 098 049</a>
+                <a href="/#contact" class="t-btn t-btn-ghost">Get a Free Quote</a>
+            </div>
+        </div>
+    </section>
+
     </main>
 
     <!-- ===================== FOOTER ===================== -->
@@ -585,8 +611,8 @@ function stampAssetVersions() {
   for (const file of targets) {
     const before = fs.readFileSync(file, "utf8");
     const after = before
-      .replace(/(href="(?:\.\.\/)?styles\.css)(?:\?v=[0-9a-f]+)?"/g, `$1?v=${cssV}"`)
-      .replace(/(src="(?:\.\.\/)?script\.js)(?:\?v=[0-9a-f]+)?"/g, `$1?v=${jsV}"`);
+      .replace(/(href="(?:\.\.\/|\/)?styles\.css)(?:\?v=[0-9a-f]+)?"/g, `$1?v=${cssV}"`)
+      .replace(/(src="(?:\.\.\/|\/)?script\.js)(?:\?v=[0-9a-f]+)?"/g, `$1?v=${jsV}"`);
     if (after !== before) {
       fs.writeFileSync(file, after);
       changed++;
