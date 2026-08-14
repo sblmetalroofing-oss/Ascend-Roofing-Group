@@ -21,9 +21,13 @@
     <meta name="twitter:image" content="https://www.ascendroofinggroup.com.au/images/dji_fly_20250313_141642_0183_1741839576383_photo.JPEG">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Caveat+Brush&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
     <link rel="icon" href="./images/ROOFING GROUP.png" type="image/png">
-    <link rel="stylesheet" href="styles.css?v=6a2409fb">
+    <!-- Sets the flag that lets styles.css hide the scroll-reveal content. Inline
+         and in <head> so it lands before first paint, and so the content stays
+         visible when JS is off, blocked, or fails to load. -->
+    <script>document.documentElement.className += " js";</script>
+    <link rel="stylesheet" href="styles.css?v=8a47acd7">
     <script defer src="/_vercel/speed-insights/script.js"></script>
     <script defer src="/_vercel/insights/script.js"></script>
     <script type="application/ld+json">
@@ -96,7 +100,7 @@
                 <picture>
                     <source srcset="./images/dji_fly_20250313_141642_0183_1741839576383_photo.avif" type="image/avif">
                     <source srcset="./images/dji_fly_20250313_141642_0183_1741839576383_photo.webp" type="image/webp">
-                    <img class="t-hero-photo" src="./images/dji_fly_20250313_141642_0183_1741839576383_photo.JPEG" alt="" width="1200" height="800">
+                    <img class="t-hero-photo" src="./images/dji_fly_20250313_141642_0183_1741839576383_photo.JPEG" alt="" width="1920" height="1080">
                 </picture>
             </div>
         </div>
@@ -106,7 +110,7 @@
                     <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
                 </div>
                 <div>
-                    <h3>Free Roof Inspection</h3>
+                    <p class="t-offer-title">Free Roof Inspection</p>
                     <p>Free written quote, no obligation and no surprises &mdash; we assess the roof before we price it.</p>
                 </div>
             </div>
@@ -331,7 +335,7 @@
                             <picture>
                                 <source srcset="./images/dji_fly_20250313_141642_0183_1741839576383_photo.avif" type="image/avif">
                                 <source srcset="./images/dji_fly_20250313_141642_0183_1741839576383_photo.webp" type="image/webp">
-                                <img src="./images/dji_fly_20250313_141642_0183_1741839576383_photo.jpg" alt="Gutter and downpipe installation" loading="lazy">
+                                <img src="./images/dji_fly_20250313_141642_0183_1741839576383_photo.JPEG" alt="Skylight and whirlybird installation on a metal roof" loading="lazy">
                             </picture>
                         </figure>
                         <figure>
@@ -377,7 +381,7 @@
         <div class="container">
             <div class="footer-grid">
                 <div class="footer-brand"><a href="/" class="nav-logo"><img src="./images/ROOFING GROUP.png" alt="Ascend Roofing Group Logo" class="logo-img" width="400" height="400"></a><p>Family-owned metal roofing specialists serving Brisbane & the Gold Coast.</p></div>
-                <div class="footer-links"><h4>Services</h4><ul>
+                <div class="footer-links"><h2 class="footer-heading">Services</h2><ul>
                     <li><a href="new-roof-installation-brisbane.html">New Roof Installations</a></li>
                     <li><a href="roof-replacement.html">Roof Replacements</a></li>
                     <li><a href="roof-repairs-brisbane.html">Roof Repairs</a></li>
@@ -385,7 +389,7 @@
                     <li><a href="gutters-downpipes-brisbane.html">Gutters & Downpipes</a></li>
                     <li><a href="skylights-whirlybirds-brisbane.html">Skylights & Whirlybirds</a></li>
                 </ul></div>
-                <div class="footer-links"><h4>Quick Links</h4><ul>
+                <div class="footer-links"><h2 class="footer-heading">Quick Links</h2><ul>
                     <li><a href="/#about">About Us</a></li>
                     <li><a href="locations.html">Locations</a></li>
                     <li><a href="blog/">Roofing Blog</a></li>
@@ -396,13 +400,13 @@
                     <li><a href="new-employee-form.html">New Employee Form</a></li>
                     <li><a href="privacy.html">Privacy Policy</a></li>
                 </ul></div>
-                <div class="footer-links"><h4>Top Areas</h4><ul>
+                <div class="footer-links"><h2 class="footer-heading">Top Areas</h2><ul>
                     <li><a href="service-areas/roofing-brisbane-city.html">Brisbane City</a></li>
                     <li><a href="service-areas/roofing-southport.html">Gold Coast</a></li>
                     <li><a href="service-areas/roofing-logan-central.html">Logan</a></li>
                     <li><a href="service-areas/roofing-ipswich.html">Ipswich</a></li>
                 </ul></div>
-                <div class="footer-contact"><h4>Get In Touch</h4><p><a href="tel:0419098049">📞 0419 098 049</a></p><p><a href="mailto:admin@ascendroofinggroup.com.au">✉️ admin@ascendroofinggroup.com.au</a></p><p>📍 Brisbane & Gold Coast, QLD</p></div>
+                <div class="footer-contact"><h2 class="footer-heading">Get In Touch</h2><p><a href="tel:0419098049">📞 0419 098 049</a></p><p><a href="mailto:admin@ascendroofinggroup.com.au">✉️ admin@ascendroofinggroup.com.au</a></p><p>📍 Brisbane & Gold Coast, QLD</p></div>
             </div>
             <!-- TODO(owner): replace "ABN Registered" with the actual ABN, e.g. "ABN 12 345 678 901" -->
             <div class="footer-bottom"><p>&copy; 2026 Ascend Roofing Group Pty Ltd. All rights reserved.</p><p>QBCC Lic. 15600031 | ABN Registered</p></div>
@@ -414,6 +418,6 @@
         0419 098 049
     </a>
 
-    <script defer src="script.js?v=4665e0c0"></script>
+    <script defer src="script.js?v=40991a2c"></script>
 </body>
 </html>

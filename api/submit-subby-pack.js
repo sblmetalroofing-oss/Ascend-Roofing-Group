@@ -227,7 +227,11 @@ export default async function handler(req, res) {
         const { data, error } = await resend.emails.send({
             from: process.env.FROM_EMAIL || 'Ascend Website <onboarding@resend.dev>',
             to: process.env.BUSINESS_EMAIL || 'admin@ascendroofinggroup.com.au',
-            subject: `Subcontractor Pack: ${safeData.businessName} — ${safeData.firstName} ${safeData.lastName}`,
+            // The body already notes a database failure, but it sits under a
+            // table of bank details. When the DB write failed this email is the
+            // ONLY record of the submission and the numbers in it are masked,
+            // so the subject has to carry the warning or it gets missed.
+            subject: `${res.locals?.dbFailed ? '⚠ ACTION REQUIRED (not saved) — ' : ''}Subcontractor Pack: ${safeData.businessName} — ${safeData.firstName} ${safeData.lastName}`,
             attachments: attachments,
             html: `
                 <h2>Subcontractor Pack Submission</h2>
@@ -318,7 +322,10 @@ export default async function handler(req, res) {
             success: true,
             data,
             subcontractorId,
-            ...(dbFailed && { warning: 'Submission received but could not be saved to database. Our team has been notified via email.' }),
+            // The email carries bank numbers masked to the last 3 digits, so a
+            // failed DB write means the full details are gone. Tell the person
+            // to call rather than leaving them on a clean success screen.
+            ...(dbFailed && { warning: 'Your documents were emailed to us, but your payment details could not be saved. Please call 0419 098 049 so we can re-collect them.' }),
         });
 
     } catch (error) {

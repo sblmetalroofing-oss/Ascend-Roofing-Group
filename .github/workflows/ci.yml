@@ -23,5 +23,12 @@ jobs:
       - run: npm test
       - name: Build smoke test
         run: npm run build
+      # The whole tree, not just service-areas/locations/sitemap: the build
+      # also stamps the asset hash onto every root page, and that was outside
+      # the old path list. Editing styles.css without rebuilding therefore
+      # left index.html and the service pages pointing at a stale ?v= while
+      # CI stayed green — reintroducing the exact stale-CSS problem the
+      # stamping was added to prevent. `npm run build` writes nothing else,
+      # so a clean tree afterwards is the right invariant.
       - name: Generated files must be committed and drift-free
-        run: git diff --exit-code -- service-areas locations.html sitemap.xml
+        run: git diff --exit-code

@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Space+Grotesk:wght@600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Caveat+Brush&family=Space+Grotesk:wght@600;700&display=swap"
         rel="stylesheet">
     <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
     <link rel="icon" href="/favicon-16.png" sizes="16x16" type="image/png">
@@ -20,6 +20,10 @@
     <meta name="theme-color" content="#0a0a0a">
     <!-- All paths root-absolute: Vercel serves this page at the *requested*
          URL path (e.g. under /service-areas/), where relative paths break. -->
+    <!-- Sets the flag that lets styles.css hide the scroll-reveal content. Inline
+         and in <head> so it lands before first paint, and so the content stays
+         visible when JS is off, blocked, or fails to load. -->
+    <script>document.documentElement.className += " js";</script>
     <link rel="stylesheet" href="/styles.css">
 </head>
 

@@ -12,10 +12,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Space+Grotesk:wght@600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Caveat+Brush&family=Space+Grotesk:wght@600;700&display=swap"
         rel="stylesheet">
     <link rel="icon" href="./images/ROOFING GROUP.png" type="image/png">
-    <link rel="stylesheet" href="styles.css?v=6a2409fb">
+    <!-- Sets the flag that lets styles.css hide the scroll-reveal content. Inline
+         and in <head> so it lands before first paint, and so the content stays
+         visible when JS is off, blocked, or fails to load. -->
+    <script>document.documentElement.className += " js";</script>
+    <link rel="stylesheet" href="styles.css?v=8a47acd7">
     <style>
         .colour-hero {
             padding: 160px 0 60px;
@@ -488,7 +492,7 @@
             <div class="colour-form-container">
                 <form class="colour-form" id="colourForm">
 
-                    <h3 class="form-section-title">Customer Details</h3>
+                    <h2 class="form-section-title">Customer Details</h2>
 
                     <div class="form-row">
                         <div class="form-group">
@@ -507,7 +511,7 @@
                             placeholder="Enter the job site address">
                     </div>
 
-                    <h3 class="form-section-title">Colorbond&reg; Colour Selections</h3>
+                    <h2 class="form-section-title">Colorbond&reg; Colour Selections</h2>
 
                     <div class="colour-reference">
                         <button type="button" class="colour-toggle-btn" id="colourToggleBtn">
@@ -752,7 +756,7 @@
                         </select>
                     </div>
 
-                    <h3 class="form-section-title">Signature</h3>
+                    <h2 class="form-section-title">Signature</h2>
 
                     <div class="signature-section">
                         <div class="signature-tabs">
@@ -784,7 +788,7 @@
                         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
                         <polyline points="22 4 12 14.01 9 11.01" />
                     </svg>
-                    <h3>Colour Confirmation Submitted</h3>
+                    <h2>Colour Confirmation Submitted</h2>
                     <p>Thank you! Your colour selections have been recorded. We'll be in touch to confirm your project
                         details.</p>
                 </div>
@@ -809,7 +813,7 @@
                         Colorbond&reg; steel solutions.</p>
                 </div>
                 <div class="footer-links">
-                    <h4>Quick Links</h4>
+                    <h2 class="footer-heading">Quick Links</h2>
                     <ul>
                         <li><a href="/#services">Services</a></li>
                         <li><a href="/#about">About Us</a></li>
@@ -826,7 +830,7 @@
                     </ul>
                 </div>
                 <div class="footer-links">
-                    <h4>Services</h4>
+                    <h2 class="footer-heading">Services</h2>
                     <ul>
                         <li><a href="new-roof-installation-brisbane.html">New Roof Installations</a></li>
                         <li><a href="roof-replacement.html">Roof Replacements</a></li>
@@ -836,7 +840,7 @@
                     </ul>
                 </div>
                 <div class="footer-contact">
-                    <h4>Get In Touch</h4>
+                    <h2 class="footer-heading">Get In Touch</h2>
                     <p><a href="tel:0419098049">&#128222; 0419 098 049</a></p>
                     <p><a href="mailto:admin@ascendroofinggroup.com.au">&#9993;&#65039; admin@ascendroofinggroup.com.au</a></p>
                     <p>&#128205; Brisbane & Gold Coast, QLD</p>
@@ -850,7 +854,7 @@
         </div>
     </footer>
 
-    <script defer src="script.js?v=4665e0c0"></script>
+    <script defer src="script.js?v=40991a2c"></script>
     <script>
         // ===================== COLOUR SWATCHES TOGGLE =====================
         (function () {

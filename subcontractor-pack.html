@@ -24,10 +24,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Space+Grotesk:wght@600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Caveat+Brush&family=Space+Grotesk:wght@600;700&display=swap"
         rel="stylesheet">
     <link rel="icon" href="./images/ROOFING GROUP.png" type="image/png">
-    <link rel="stylesheet" href="styles.css?v=6a2409fb">
+    <!-- Sets the flag that lets styles.css hide the scroll-reveal content. Inline
+         and in <head> so it lands before first paint, and so the content stays
+         visible when JS is off, blocked, or fails to load. -->
+    <script>document.documentElement.className += " js";</script>
+    <link rel="stylesheet" href="styles.css?v=8a47acd7">
     <style>
         .subby-hero {
             padding: 160px 0 60px;
@@ -395,7 +399,7 @@
             <div class="subby-form-container">
                 <form class="subby-form" id="subbyForm">
 
-                    <h3 class="form-section-title">Personal Details</h3>
+                    <h2 class="form-section-title">Personal Details</h2>
 
                     <div class="form-row">
                         <div class="form-group">
@@ -423,7 +427,7 @@
                         </div>
                     </div>
 
-                    <h3 class="form-section-title">Business Information</h3>
+                    <h2 class="form-section-title">Business Information</h2>
 
                     <div class="form-group">
                         <label for="businessName">Business/Company Name *</label>
@@ -446,7 +450,7 @@
                         </div>
                     </div>
 
-                    <h3 class="form-section-title">Banking Details</h3>
+                    <h2 class="form-section-title">Banking Details</h2>
 
                     <div class="form-row">
                         <div class="form-group">
@@ -470,7 +474,7 @@
                         <div class="error-message" id="accountName-error"></div>
                     </div>
 
-                    <h3 class="form-section-title">Insurance Documents</h3>
+                    <h2 class="form-section-title">Insurance Documents</h2>
 
                     <div class="form-group">
                         <label for="publicLiability">Public Liability Insurance *</label>
@@ -542,7 +546,7 @@
                         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
                         <polyline points="22 4 12 14.01 9 11.01" />
                     </svg>
-                    <h3>Submission Successful</h3>
+                    <h2>Submission Successful</h2>
                     <p>Thank you! Your subcontractor pack has been submitted. We'll review your information and be in
                         touch soon.</p>
                 </div>
@@ -563,7 +567,7 @@
                         Colorbond® steel solutions.</p>
                 </div>
                 <div class="footer-links">
-                    <h4>Quick Links</h4>
+                    <h2 class="footer-heading">Quick Links</h2>
                     <ul>
                         <li><a href="/#services">Services</a></li>
                         <li><a href="/#about">About Us</a></li>
@@ -580,7 +584,7 @@
                     </ul>
                 </div>
                 <div class="footer-links">
-                    <h4>Services</h4>
+                    <h2 class="footer-heading">Services</h2>
                     <ul>
                         <li><a href="new-roof-installation-brisbane.html">New Roof Installations</a></li>
                         <li><a href="roof-replacement.html">Roof Replacements</a></li>
@@ -590,7 +594,7 @@
                     </ul>
                 </div>
                 <div class="footer-contact">
-                    <h4>Get In Touch</h4>
+                    <h2 class="footer-heading">Get In Touch</h2>
                     <p><a href="tel:0419098049">📞 0419 098 049</a></p>
                     <p><a href="mailto:admin@ascendroofinggroup.com.au">✉️ admin@ascendroofinggroup.com.au</a></p>
                     <p>📍 Brisbane & Gold Coast, QLD</p>
@@ -604,7 +608,7 @@
         </div>
     </footer>
 
-    <script defer src="script.js?v=4665e0c0"></script>
+    <script defer src="script.js?v=40991a2c"></script>
     <script>
         // ===================== FILE UPLOAD HANDLING =====================
         (function () {
@@ -788,6 +792,17 @@
                         // Show success message
                         formContainer.style.display = 'none';
                         successMessage.style.display = 'block';
+                        // The server sets `warning` when the database write
+                        // failed. The email that did go out masks bank numbers
+                        // to the last 3 digits, so those details are gone —
+                        // never leave the person on a clean success screen.
+                        if (result.warning) {
+                            const notice = document.createElement('p');
+                            notice.setAttribute('role', 'alert');
+                            notice.style.cssText = 'margin-top:16px;padding:14px 16px;border-left:4px solid #f59e0b;background:rgba(245,158,11,0.12);color:#f0f0f0;text-align:left;';
+                            notice.textContent = result.warning;
+                            successMessage.appendChild(notice);
+                        }
                     } else {
                         throw new Error(result.message || 'Submission failed');
                     }

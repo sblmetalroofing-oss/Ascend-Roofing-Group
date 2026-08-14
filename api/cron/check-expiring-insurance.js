@@ -39,7 +39,20 @@ export default async function handler(req, res) {
         const ninetyDaysStr = new Date(todayUTC.getTime() + (90 * 24 * 60 * 60 * 1000))
             .toISOString().split('T')[0];
 
-        // Query for insurance expiring in the next 30, 60, or 90 days (whichever hasn't been reminded yet)
+        // Insurance expiring within 90 days, escalating through the 90/60/30
+        // day bands.
+        //
+        // `reminded_at IS NULL` alone meant a document was only ever chased
+        // once — at the first run after it entered the 90-day window — and
+        // `reminded_at` is never cleared anywhere, so the Urgent (<=30) and
+        // Soon (<=60) tiers below could never fire for it. A policy first seen
+        // at 89 days got one "Warning" email and was never mentioned again,
+        // including the week it lapsed.
+        //
+        // Re-send only when the document has crossed into a tighter band than
+        // the one it was in when last reminded, which is derivable from
+        // expiry_date and reminded_at without a schema change. Three emails
+        // over the life of a policy, one per band.
         const result = await sql`
             SELECT 
                 i.id as insurance_id,
@@ -59,7 +72,19 @@ export default async function handler(req, res) {
             WHERE i.expiry_date IS NOT NULL
               AND i.expiry_date <= ${ninetyDaysStr}
               AND i.expiry_date >= ${todayStr}
-              AND i.reminded_at IS NULL
+              AND (
+                i.reminded_at IS NULL
+                OR CASE
+                     WHEN (i.expiry_date - ${todayStr}::date) <= 30 THEN 30
+                     WHEN (i.expiry_date - ${todayStr}::date) <= 60 THEN 60
+                     ELSE 90
+                   END
+                 < CASE
+                     WHEN (i.expiry_date - i.reminded_at::date) <= 30 THEN 30
+                     WHEN (i.expiry_date - i.reminded_at::date) <= 60 THEN 60
+                     ELSE 90
+                   END
+              )
             ORDER BY i.expiry_date ASC
         `;
 

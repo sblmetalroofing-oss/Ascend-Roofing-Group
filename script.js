@@ -8,6 +8,35 @@ document.addEventListener("DOMContentLoaded", () => {
     "(prefers-reduced-motion: reduce)",
   ).matches;
 
+  // ---- SCROLL REVEAL ----
+  // First, deliberately. Everything with [data-reveal] is hidden by CSS until
+  // this runs, and that is most of the page — so if anything below throws,
+  // the reader must not be left staring at a blank page.
+  const revealElements = document.querySelectorAll("[data-reveal]");
+  const revealObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          // Stagger reveal if inside a grid
+          const parent = entry.target.parentElement;
+          const siblings = parent.querySelectorAll("[data-reveal]");
+          let delay = 0;
+          if (siblings.length > 1) {
+            const idx = Array.from(siblings).indexOf(entry.target);
+            delay = idx * 100;
+          }
+          setTimeout(() => {
+            entry.target.classList.add("revealed");
+          }, delay);
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.1, rootMargin: "0px 0px -40px 0px" },
+  );
+
+  revealElements.forEach((el) => revealObserver.observe(el));
+
   // ---- NAVBAR SCROLL EFFECT ----
   const navbar = document.getElementById("navbar");
   const handleNavScroll = () => {
@@ -99,32 +128,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   };
   window.addEventListener("scroll", updateActiveNav, { passive: true });
-
-  // ---- SCROLL REVEAL ----
-  const revealElements = document.querySelectorAll("[data-reveal]");
-  const revealObserver = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry, index) => {
-        if (entry.isIntersecting) {
-          // Stagger reveal if inside a grid
-          const parent = entry.target.parentElement;
-          const siblings = parent.querySelectorAll("[data-reveal]");
-          let delay = 0;
-          if (siblings.length > 1) {
-            const idx = Array.from(siblings).indexOf(entry.target);
-            delay = idx * 100;
-          }
-          setTimeout(() => {
-            entry.target.classList.add("revealed");
-          }, delay);
-          revealObserver.unobserve(entry.target);
-        }
-      });
-    },
-    { threshold: 0.1, rootMargin: "0px 0px -40px 0px" },
-  );
-
-  revealElements.forEach((el) => revealObserver.observe(el));
 
   // ---- STATS COUNTER ANIMATION ----
   const statNumbers = document.querySelectorAll("[data-count]");
