@@ -1220,6 +1220,8 @@ textarea:focus-visible,
   max-width: 300px;
 }
 
+.footer-links h2,
+.footer-contact h2,
 .footer-links h4,
 .footer-contact h4 {
   font-size: 1rem;
@@ -3340,4 +3342,23 @@ main[id] {
   color: var(--text-muted);
   max-width: 640px;
   margin-top: 16px;
+}
+
+/* Offer-card title: a promo callout, not a section heading — it carried an
+   <h3> that sat between the hero <h1> and the first <h2>, skipping a level
+   in the document outline on every page that uses the hero. */
+.t-offer-title {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.5rem;
+  line-height: 1.1;
+  color: var(--text-light);
+  margin-bottom: 4px;
+}
+
+/* Form/tool card headings moved from h3 to h2 for a valid outline; keep the
+   smaller display size they were designed at. */
+.colour-form-section h2,
+.subby-form-section h2 {
+  font-size: 1.35rem;
 }
