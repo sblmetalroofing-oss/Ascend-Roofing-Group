@@ -23,6 +23,21 @@ export default async function handler(req, res) {
 
   const { name, email, phone, address, roof_type, service, message } = req.body;
 
+  // Each service page asks one tailored qualifying question under its own field
+  // name. Listing them here keeps the answer in the lead instead of dropping it —
+  // roof_type alone left "Active Leak" and friends nowhere in the email.
+  const DETAIL_LABELS = {
+    roof_type: "Current Roof Type",
+    repair_type: "Repair Type",
+    roof_profile: "Roof Profile",
+    gutter_type: "Gutter Profile",
+    insulation_type: "Insulation Type",
+    install_type: "Installation Type",
+  };
+  const details = Object.entries(DETAIL_LABELS)
+    .filter(([key]) => req.body[key])
+    .map(([key, label]) => ({ label, value: sanitize(req.body[key]) }));
+
   // Validate required fields
   if (!name || !email || !phone || !address) {
     return res.status(400).json({ success: false, message: 'Missing required fields: name, email, phone, address.' });
@@ -51,7 +66,6 @@ export default async function handler(req, res) {
   const safeEmail = sanitize(email);
   const safePhone = sanitize(phone);
   const safeAddress = sanitize(displayAddress);
-  const safeRoofType = sanitize(roof_type);
   const safeService = sanitize(service);
   const safeMessage = sanitize(message);
 
@@ -63,7 +77,7 @@ export default async function handler(req, res) {
         email: safeEmail,
         phone: safePhone,
         address: safeAddress,
-        roof_type: safeRoofType,
+        ...Object.fromEntries(details.map((d) => [d.label, d.value])),
         service: safeService,
         message: safeMessage,
       });
@@ -86,7 +100,7 @@ export default async function handler(req, res) {
         <p><strong>Email:</strong> ${safeEmail}</p>
         <p><strong>Phone:</strong> ${safePhone}</p>
         <p><strong>Property Address:</strong> ${safeAddress}</p>
-        <p><strong>Current Roof Type:</strong> ${safeRoofType}</p>
+        ${details.map((d) => `<p><strong>${d.label}:</strong> ${d.value}</p>`).join("\n        ")}
         <p><strong>Service required:</strong> ${safeService}</p>
         <p><strong>Message:</strong></p>
         <p>${safeMessage}</p>
