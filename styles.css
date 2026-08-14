@@ -86,16 +86,20 @@ body {
   background-color: var(--bg-body);
   color: var(--text-main);
   line-height: 1.6;
-  /* `overflow-x: hidden` computes overflow-y to `auto`, which makes body a
-     scroll container — and a sticky descendant then sticks to body's box,
-     which never scrolls, so the header could not stick at all. `clip` does
-     the same clipping without creating a scroll container. The `hidden`
-     declaration stays first as the fallback for engines without `clip`. */
-  overflow-x: hidden;
-  overflow-x: clip;
+  /* No overflow-x here on purpose. Overflow set on <body> propagates to the
+     viewport when <html> is `visible`, and a clipped viewport makes iOS
+     Safari treat position:fixed children as if they scrolled with the page —
+     which detached the floating call button and left it mid-content.
+     Measured at 320/390/768/1024px across the homepage, a service page, a
+     generated suburb page, the blog, locations, faq, quote and 404: document
+     scrollWidth equals clientWidth everywhere, so there is nothing to clip.
+     The two elements that extend past the viewport (the closed mobile drawer
+     and the marquee track) are clipped by their own containers.
+
+     -webkit-overflow-scrolling was also removed: it is a no-op since iOS 13
+     and is a known cause of fixed-position elements drifting during scroll. */
   -webkit-font-smoothing: antialiased;
   -webkit-text-size-adjust: 100%;
-  -webkit-overflow-scrolling: touch;
 }
 
 h1,
@@ -2073,7 +2077,7 @@ textarea:focus-visible,
    ============================================ */
 .floating-phone-cta {
   position: fixed;
-  bottom: 24px;
+  bottom: calc(24px + env(safe-area-inset-bottom));
   right: 24px;
   background: var(--accent-btn, #0056b3);
   color: #fff;
@@ -2641,7 +2645,7 @@ main[id] {
 .t-offer-icon { width: 62px; height: 62px; flex-shrink: 0; background: var(--accent-btn); display: grid; place-items: center; border-radius: var(--t-radius-btn); }
 
 /* ---- marquee ---- */
-.t-marquee { background: var(--accent-color); overflow: hidden; padding: 20px 0; margin-top: 70px; white-space: nowrap; }
+.t-marquee { background: var(--accent-color); overflow: hidden; max-width: 100vw; padding: 20px 0; margin-top: 70px; white-space: nowrap; }
 .t-marquee-track { display: inline-flex; gap: 46px; align-items: center; animation: t-scroll 32s linear infinite; }
 @keyframes t-scroll { to { transform: translateX(-50%); } }
 .t-marquee span { font-family: var(--font-heading); font-weight: 700; font-size: 1rem; letter-spacing: 0.09em; text-transform: uppercase; color: #001b3d; }
