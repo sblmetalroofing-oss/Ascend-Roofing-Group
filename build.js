@@ -399,7 +399,7 @@ async function build() {
                 <div class="t-availability"><span class="t-pulse"></span> Available 7 Days</div>
                 <div class="t-utility-right">
                     <a href="tel:0419098049" class="t-btn t-btn-accent">0419 098 049</a>
-                    <a href="quote.html" class="t-btn t-btn-ghost">Get a Quote</a>
+                    <a href="/#contact" class="t-btn t-btn-ghost">Get a Quote</a>
                 </div>
             </div>
         </div>
@@ -415,7 +415,7 @@ async function build() {
                 <li><a href="faq.html">FAQ's</a></li>
                 <li><a href="/#testimonials">Reviews</a></li>
                 <li><a href="locations.html" class="active">Areas We Service</a></li>
-                <li><a href="quote.html">Contact Us</a></li>
+                <li><a href="/#contact">Contact Us</a></li>
             </ul>
         </nav>
     </header>
