@@ -181,14 +181,14 @@ async function build() {
 
   // Meta description variations for unique content across pages
   const META_DESCRIPTIONS = [
-    `Looking for roofing in {{SUBURB}}? Ascend Roofing Group provides premium Colorbond® replacements, repairs, and new roofs in {{SUBURB}} {{POSTCODE}}. Call 0419 098 049.`,
-    `Expert roof replacement in {{SUBURB}} {{POSTCODE}}. Family-owned Ascend Roofing Group delivers quality Colorbond® steel roofing with free quotes and no hidden fees. QBCC licensed.`,
-    `Need a roofer in {{SUBURB}}? We specialise in Colorbond® metal roofing across {{REGION}}. 14+ years experience, 1,200+ roofs completed. Get your free quote today.`,
-    `{{SUBURB}} roofing specialists. Ascend Roofing Group offers complete roof replacements, storm repairs, and new installations in {{SUBURB}} {{POSTCODE}}. Trusted across {{REGION}}.`,
-    `Professional roofing services in {{SUBURB}} {{POSTCODE}}. From full Colorbond® re-roofs to gutters and insulation — Ascend Roofing Group has {{REGION}} covered. Call now.`,
-    `Top-rated roofers serving {{SUBURB}} and {{REGION}}. Premium Colorbond® roof replacements and repairs with transparent pricing. QBCC licensed, fully insured. 0419 098 049.`,
-    `Ascend Roofing Group — your local {{SUBURB}} roofing experts. Quality Colorbond® installations, fast turnarounds, and honest pricing across {{REGION}}. Free on-site quotes.`,
-    `Roof replacement in {{SUBURB}}? Get a free quote from Ascend Roofing Group. We install premium Colorbond® steel roofing across {{REGION}} with a focus on quality and value.`,
+    `Roofing in {{SUBURB}}? Ascend Roofing Group installs Colorbond® roofs, replacements and repairs in {{SUBURB}} {{POSTCODE}}. Free quote: 0419 098 049.`,
+    `Roof replacement in {{SUBURB}} {{POSTCODE}}. Family-owned, QBCC licensed, Colorbond® steel roofing with free written quotes and no hidden fees.`,
+    `Need a roofer in {{SUBURB}}? Colorbond® metal roofing across {{REGION}}. 14+ years, 1,200+ roofs completed. Get your free quote today.`,
+    `{{SUBURB}} roofing specialists. Roof replacements, storm repairs and new installations in {{SUBURB}} {{POSTCODE}}. Trusted across {{REGION}}.`,
+    `Roofing services in {{SUBURB}} {{POSTCODE}} — Colorbond® re-roofs, gutters and insulation. Ascend Roofing Group has {{REGION}} covered.`,
+    `Roofers serving {{SUBURB}} and {{REGION}}. Colorbond® replacements and repairs, transparent pricing, QBCC licensed and fully insured.`,
+    `Your local {{SUBURB}} roofing experts. Quality Colorbond® installations, fast turnarounds and honest pricing across {{REGION}}. Free quotes.`,
+    `Roof replacement in {{SUBURB}}? Free quote from Ascend Roofing Group. Premium Colorbond® steel roofing installed across {{REGION}}.`,
   ];
 
   // Deterministic meta description selection based on suburb name
@@ -474,7 +474,7 @@ async function build() {
                         steel solutions.</p>
                 </div>
                 <div class="footer-links">
-                    <h4>Quick Links</h4>
+                    <h2>Quick Links</h2>
                     <ul>
                         <li><a href="/#services">Services</a></li>
                         <li><a href="/#about">About Us</a></li>
@@ -487,7 +487,7 @@ async function build() {
                     </ul>
                 </div>
                 <div class="footer-links">
-                    <h4>Services</h4>
+                    <h2>Services</h2>
                     <ul>
                         <li><a href="new-roof-installation-brisbane.html">New Roof Installations</a></li>
                         <li><a href="roof-replacement.html">Roof Replacements</a></li>
@@ -498,7 +498,7 @@ async function build() {
                     </ul>
                 </div>
                 <div class="footer-contact">
-                    <h4>Get In Touch</h4>
+                    <h2>Get In Touch</h2>
                     <p><a href="tel:0419098049">📞 0419 098 049</a></p>
                     <p><a href="mailto:admin@ascendroofinggroup.com.au">✉️ admin@ascendroofinggroup.com.au</a></p>
                     <p>📍 Brisbane & Gold Coast, QLD</p>
