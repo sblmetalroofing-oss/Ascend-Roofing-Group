@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Caveat+Brush&family=Space+Grotesk:wght@600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Caveat+Brush&family=Dancing+Script&family=Space+Grotesk:wght@600;700&display=swap"
         rel="stylesheet">
     <link rel="icon" href="./images/ROOFING GROUP.png" type="image/png">
     <!-- Sets the flag that lets styles.css hide the scroll-reveal content. Inline
@@ -147,7 +147,10 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            color: var(--accent-color);
+            /* --accent-color (#007bff) measured 4.37:1 on this dark card.
+               --accent-link is the existing token for accents on dark and
+               reaches 5.8:1. */
+            color: var(--accent-link);
             font-size: 0.9rem;
             font-weight: 600;
             background: none;
