@@ -171,7 +171,9 @@
         }
 
         .qf-group input::placeholder {
-            color: #555;
+            /* #555 measured 2.47:1 on the #141414 field — below WCAG AA.
+               #8a8a8a lifts it to 5.4:1 while still reading as hint text. */
+            color: #8a8a8a;
         }
 
         .qf-hint {

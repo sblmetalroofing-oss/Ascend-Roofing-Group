@@ -143,7 +143,10 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            color: var(--accent-color);
+            /* --accent-color (#007bff) measured 4.37:1 on this dark card.
+               --accent-link is the existing token for accents on dark and
+               reaches 5.8:1. */
+            color: var(--accent-link);
             font-size: 0.9rem;
             font-weight: 600;
             background: none;
