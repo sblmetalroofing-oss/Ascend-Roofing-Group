@@ -131,7 +131,12 @@ function validateInputs(address, jobType, email) {
   if (address.length > 300) {
     return "Address is too long.";
   }
-  if (!CONFIG.JOB_TYPE_MULTIPLIERS[jobType]) {
+  // Object.hasOwn, not truthiness: a plain object inherits Object.prototype,
+  // so job_type=constructor (or toString, hasOwnProperty, …) looked up to a
+  // function, passed this check, and then multiplied the base rate by a
+  // function in calculateQuote — returning HTTP 200 with a NaN quote and
+  // emailing the office a lead worth $NaN.
+  if (!Object.hasOwn(CONFIG.JOB_TYPE_MULTIPLIERS, jobType)) {
     return `Invalid job type. Must be one of: ${Object.keys(CONFIG.JOB_TYPE_MULTIPLIERS).join(", ")}`;
   }
   if (email) {
@@ -302,7 +307,9 @@ function calculateQuote(roofData, jobType, postcode) {
 
   // Base
   let base = areaSqm * CONFIG.BASE_RATE_PER_SQM;
-  const multiplier = CONFIG.JOB_TYPE_MULTIPLIERS[jobType] || 1.0;
+  const multiplier = Object.hasOwn(CONFIG.JOB_TYPE_MULTIPLIERS, jobType)
+    ? CONFIG.JOB_TYPE_MULTIPLIERS[jobType]
+    : 1.0;
   base *= multiplier;
 
   // Surcharges
