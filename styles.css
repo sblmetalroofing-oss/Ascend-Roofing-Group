@@ -691,7 +691,9 @@ textarea {
 .exp-label {
   font-size: 0.7rem;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.8);
+  /* Dark, not translucent white: on the #007bff fill even solid white reaches
+     only 4.00:1, so no white value can pass AA here. #00132b gives 4.68:1. */
+  color: #00132b;
   text-transform: uppercase;
   letter-spacing: 2px;
   margin-top: 8px;
@@ -2694,7 +2696,7 @@ main[id] {
 .t-marquee { background: var(--accent-color); overflow: hidden; max-width: 100vw; padding: 20px 0; margin-top: 70px; white-space: nowrap; }
 .t-marquee-track { display: inline-flex; gap: 46px; align-items: center; animation: t-scroll 32s linear infinite; }
 @keyframes t-scroll { to { transform: translateX(-50%); } }
-.t-marquee span { font-family: var(--font-heading); font-weight: 700; font-size: 1rem; letter-spacing: 0.09em; text-transform: uppercase; color: #001b3d; }
+.t-marquee span { font-family: var(--font-heading); font-weight: 700; font-size: 1rem; letter-spacing: 0.09em; text-transform: uppercase; color: #00132b; } /* #001b3d was 4.31:1 on the accent fill; this is 4.68:1 */
 
 /* ---- section scaffold ---- */
 .t-section { padding: 110px 0; }
@@ -2853,6 +2855,27 @@ main[id] {
    and rebuild the hero as a linear stack (the desktop hero layers an
    absolutely-positioned photo over the call button). ------------------- */
 @media (max-width: 768px) {
+  /* A phone never needs the 1920px hero. The 800px AVIF is 29KB against
+     164KB, and it is behind a grayscale+brightness(0.32) filter and a
+     gradient, so the resolution drop is invisible. */
+  .t-hero-bg {
+    background: image-set(
+        url("./images/DJI_20240427080531_0013_D_edited_edited-800.avif") type("image/avif"),
+        url("./images/DJI_20240427080531_0013_D_edited_edited-800.webp") type("image/webp"),
+        url("./images/DJI_20240427080531_0013_D_edited_edited.jpg") type("image/jpeg")
+      ) center/cover;
+  }
+  .hero-bg {
+    background:
+      linear-gradient(to bottom, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.85) 100%),
+      image-set(
+        url("./images/20240307_171821-800.avif") type("image/avif"),
+        url("./images/20240307_171821-800.webp") type("image/webp"),
+        url("./images/20240307_171821.jpg") type("image/jpeg")
+      );
+    background-size: cover;
+    background-position: center center;
+  }
   .t-container { padding: 0 20px; }
   .t-section { padding: 64px 0; }
   .t-eyebrow { font-size: 1.3rem; margin-bottom: 6px; }
@@ -3475,7 +3498,11 @@ main[id] {
   color: var(--text-main);
 }
 
-#article-content a {
+/* :not(.btn) — this ID selector outranks `.btn-primary { color: #fff }`, so
+   every call-to-action inside an article rendered accent-blue on the accent
+   button fill: 2.34:1, a button you can barely read. Prose links still get
+   the accent treatment; buttons keep their own. */
+#article-content a:not(.btn) {
   color: var(--accent-link);
   text-decoration: underline;
   text-underline-offset: 3px;

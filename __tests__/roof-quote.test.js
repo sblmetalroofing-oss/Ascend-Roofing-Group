@@ -120,6 +120,20 @@ describe('roof-quote handler', () => {
         expect(res.json.mock.calls[0][0].error).toMatch(/invalid job type/i);
     });
 
+    // JOB_TYPE_MULTIPLIERS is a plain object, so it inherits Object.prototype.
+    // A truthiness check let these through, and calculateQuote then multiplied
+    // the base rate by a function: HTTP 200 with a NaN quote, and a lead email
+    // quoting $NaN.
+    test.each(['constructor', 'toString', 'hasOwnProperty', 'valueOf'])(
+        'rejects inherited Object.prototype key as job type: %s',
+        async (jobType) => {
+            const res = makeRes();
+            await handler(makeReq({ address: '1 Valid Street Brisbane', job_type: jobType }), res);
+            expect(res.status).toHaveBeenCalledWith(422);
+            expect(res.json.mock.calls[0][0].error).toMatch(/invalid job type/i);
+        },
+    );
+
     test('rejects invalid email format', async () => {
         const res = makeRes();
         await handler(makeReq({ address: '1 Valid Street Brisbane', job_type: 'replacement', email: 'not-an-email' }), res);
