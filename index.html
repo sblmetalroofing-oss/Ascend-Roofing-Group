@@ -44,7 +44,7 @@
          and in <head> so it lands before first paint, and so the content stays
          visible when JS is off, blocked, or fails to load. -->
     <script>document.documentElement.className += " js";</script>
-    <link rel="stylesheet" href="styles.css?v=f29912c9">
+    <link rel="stylesheet" href="styles.css?v=a9051c3b">
     <!-- The homepage LCP is the .t-hero-bg backdrop, which the hero photo now
          shares. It previously preloaded 20240307_171821.avif, an image this
          page only uses in a lazy gallery tile — 262 KB of high-priority
@@ -159,8 +159,15 @@
             <div class="t-utility-inner">
                 <div class="t-availability"><span class="t-pulse"></span> Available 7 Days</div>
                 <div class="t-utility-right">
-                    <!-- TODO(owner): add the verified Google rating and review count here.
-                         Do not publish figures that have not been checked on the Business Profile. -->
+                    <!-- Filled from the live Google Business Profile by
+                         initGoogleReviews() in script.js. Stays hidden if the
+                         lookup is unavailable, so no unverified figure is shown. -->
+                    <a class="t-google-rating" id="googleRating" href="#" rel="noopener" hidden>
+                        <span class="t-google-mark" aria-hidden="true">G</span>
+                        <span class="t-google-score"><strong data-gr-rating></strong>
+                            <span class="t-google-stars" data-gr-stars aria-hidden="true"></span></span>
+                        <span class="t-google-count"><span data-gr-total></span> Google reviews</span>
+                    </a>
                     <a href="tel:0419098049" class="t-btn t-btn-accent">0419 098 049</a>
                     <a href="#contact" class="t-btn t-btn-ghost">Get a Quote</a>
                 </div>
@@ -620,11 +627,12 @@
             <div class="t-head-center">
                 <span class="t-eyebrow">What Our Clients Say</span>
                 <h2>Committed to Quality Workmanship and Customer Satisfaction</h2>
-                <!-- TODO(owner): replace these representative testimonials with real,
-                     attributed customer reviews (name used with permission). -->
-                <p>Representative feedback from Brisbane and Gold Coast homeowners.</p>
+                <!-- Live Google reviews replace the rail below when the
+                     Business Profile lookup succeeds; these representative
+                     quotes remain the fallback and are labelled as such. -->
+                <p data-gr-subtitle>Representative feedback from Brisbane and Gold Coast homeowners.</p>
             </div>
-            <div class="t-review-rail">
+            <div class="t-review-rail" id="reviewRail" data-gr-fallback>
                 <div class="t-review-card t-tilt-l">
                     <div class="t-stars" aria-hidden="true">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
                     <div class="t-who">Homeowner &middot; Ashgrove</div>
@@ -1034,7 +1042,7 @@
         </div>
     </footer>
 
-    <script defer src="script.js?v=de089b92"></script>
+    <script defer src="script.js?v=c418e821"></script>
 </body>
 
 </html>
