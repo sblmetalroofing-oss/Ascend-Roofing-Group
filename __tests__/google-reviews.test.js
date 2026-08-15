@@ -83,14 +83,56 @@ describe('google-reviews handler', () => {
 
     // The page must never invent a rating: with no place id configured the
     // endpoint reports unavailable rather than guessing.
-    test('reports unavailable when GOOGLE_PLACE_ID is not set', async () => {
-        delete process.env.GOOGLE_PLACE_ID;
+    test('reports unavailable when no API key is configured', async () => {
+        delete process.env.GOOGLE_MAPS_API_KEY;
         const res = makeRes();
         await handler(makeReq(), res);
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
             available: false, reason: 'not-configured'
         }));
+    });
+
+    // A profile URL yields a CID, which the Places API cannot accept, so the
+    // place id is resolved by text search when it is not configured.
+    test('resolves the place id by text search when GOOGLE_PLACE_ID is absent', async () => {
+        delete process.env.GOOGLE_PLACE_ID;
+        global.fetch = jest.fn()
+            .mockReturnValueOnce(Promise.resolve({
+                ok: true, status: 200,
+                json: () => Promise.resolve({ places: [{ id: 'ChIJresolved', displayName: { text: 'Ascend Roofing Group' } }] })
+            }))
+            .mockReturnValueOnce(mockPlaceSuccess());
+        const res = makeRes();
+        await handler(makeReq(), res);
+
+        const [searchUrl, searchOpts] = global.fetch.mock.calls[0];
+        expect(searchUrl).toContain('places:searchText');
+        expect(JSON.parse(searchOpts.body).regionCode).toBe('AU');
+        expect(global.fetch.mock.calls[1][0]).toContain('/v1/places/ChIJresolved');
+        expect(res.json.mock.calls[0][0].available).toBe(true);
+    });
+
+    test('reports place-not-found when the text search matches nothing', async () => {
+        delete process.env.GOOGLE_PLACE_ID;
+        global.fetch = jest.fn().mockReturnValue(Promise.resolve({
+            ok: true, status: 200, json: () => Promise.resolve({ places: [] })
+        }));
+        const res = makeRes();
+        await handler(makeReq(), res);
+        expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+            available: false, reason: 'place-not-found'
+        }));
+    });
+
+    test('falls back to the CID for the profile link when Google returns none', async () => {
+        process.env.GOOGLE_PLACE_CID = '15490046902175708787';
+        global.fetch = jest.fn().mockReturnValue(mockPlaceSuccess({ googleMapsUri: undefined }));
+        const res = makeRes();
+        await handler(makeReq(), res);
+        expect(res.json.mock.calls[0][0].profileUrl)
+            .toBe('https://maps.google.com/?cid=15490046902175708787');
+        delete process.env.GOOGLE_PLACE_CID;
     });
 
     test('returns rating, count and reviews from Place Details', async () => {
