@@ -200,7 +200,11 @@ export default async function handler(req, res) {
         const { data, error } = await resend.emails.send({
             from: process.env.FROM_EMAIL || 'Ascend Website <onboarding@resend.dev>',
             to: process.env.BUSINESS_EMAIL || 'admin@ascendroofinggroup.com.au',
-            subject: `New Employee: ${safe.firstName} ${safe.lastName} — ${safe.position}`,
+            // The body already notes a database failure, but it sits under a
+            // table of payroll details. When the DB write failed this email is
+            // the ONLY record and the numbers in it are masked, so the subject
+            // has to carry the warning or it gets missed.
+            subject: `${res.locals?.dbFailed ? '⚠ ACTION REQUIRED (not saved) — ' : ''}New Employee: ${safe.firstName} ${safe.lastName} — ${safe.position}`,
             attachments,
             html: `
                 <h2>New Employee Onboarding Submission</h2>
@@ -268,7 +272,10 @@ export default async function handler(req, res) {
             success: true,
             data,
             employeeId,
-            ...(dbFailed && { warning: 'Submission received but could not be saved to database. Our team has been notified via email.' }),
+            // The email masks TFN and bank numbers to the last 3 digits, so a
+            // failed DB write means the full details are gone. Tell the person
+            // to call rather than leaving them on a clean success screen.
+            ...(dbFailed && { warning: 'Your form was emailed to us, but your TFN and payment details could not be saved. Please call 0419 098 049 so we can re-collect them.' }),
         });
 
     } catch (error) {

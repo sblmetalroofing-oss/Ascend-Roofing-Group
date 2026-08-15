@@ -53,10 +53,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Space+Grotesk:wght@600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Caveat+Brush&family=Space+Grotesk:wght@600;700&display=swap"
         rel="stylesheet">
     <link rel="icon" href="./images/ROOFING GROUP.png" type="image/png">
-    <link rel="stylesheet" href="styles.css?v=1087122a">
+    <!-- Sets the flag that lets styles.css hide the scroll-reveal content. Inline
+         and in <head> so it lands before first paint, and so the content stays
+         visible when JS is off, blocked, or fails to load. -->
+    <script>document.documentElement.className += " js";</script>
+    <link rel="stylesheet" href="styles.css?v=f154568d">
     <script defer src="/_vercel/speed-insights/script.js"></script>
     <script defer src="/_vercel/insights/script.js"></script>
     <style>
@@ -171,7 +175,9 @@
         }
 
         .qf-group input::placeholder {
-            color: #555;
+            /* #555 measured 2.47:1 on the #141414 field — below WCAG AA.
+               #8a8a8a lifts it to 5.4:1 while still reading as hint text. */
+            color: #8a8a8a;
         }
 
         .qf-hint {
@@ -1106,7 +1112,7 @@
         0419 098 049
     </a>
 
-    <script defer src="script.js?v=fcb249a4"></script>
+    <script defer src="script.js?v=de089b92"></script>
     <script>
         (function () {
             'use strict';

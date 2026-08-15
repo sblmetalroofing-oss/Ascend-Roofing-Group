@@ -14,7 +14,7 @@
         content="Family-owned metal roofing experts serving Nerang. Quality Colorbond® steel roofing solutions.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.ascendroofinggroup.com.au/service-areas/roofing-nerang.html">
-    <meta property="og:image" content="https://www.ascendroofinggroup.com.au/images/ROOFING GROUP.png">
+    <meta property="og:image" content="https://www.ascendroofinggroup.com.au/images/ROOFING%20GROUP.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:site_name" content="Ascend Roofing Group">
@@ -23,12 +23,12 @@
     <meta name="twitter:site" content="@AscendRoofing">
     <meta name="twitter:title" content="Nerang Roofing &amp; Colorbond® Specialists | Ascend Roofing Group">
     <meta name="twitter:description" content="Family-owned metal roofing experts serving Nerang. Quality Colorbond® steel roofing solutions.">
-    <meta name="twitter:image" content="https://www.ascendroofinggroup.com.au/images/ROOFING GROUP.png">
+    <meta name="twitter:image" content="https://www.ascendroofinggroup.com.au/images/ROOFING%20GROUP.png">
     <link rel="canonical" href="https://www.ascendroofinggroup.com.au/service-areas/roofing-nerang.html">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Space+Grotesk:wght@600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Space+Grotesk:wght@600;700&family=Caveat+Brush&display=swap"
         rel="stylesheet">
     <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
     <link rel="icon" href="/favicon-16.png" sizes="16x16" type="image/png">
@@ -44,7 +44,11 @@
 
       gtag('config', 'YOUR_ID_HERE');
     </script> -->
-    <link rel="stylesheet" href="../styles.css?v=1087122a">
+    <!-- Sets the flag that lets styles.css hide the scroll-reveal content. Inline
+         and in <head> so it lands before first paint, and so the content stays
+         visible when JS is off, blocked, or fails to load. -->
+    <script>document.documentElement.className += " js";</script>
+    <link rel="stylesheet" href="../styles.css?v=f154568d">
     <link rel="preload" as="image" type="image/avif" href="/images/20240307_171821.avif" fetchpriority="high">
     <script defer src="/_vercel/speed-insights/script.js"></script>
     <script defer src="/_vercel/insights/script.js"></script>
@@ -53,7 +57,7 @@
         "@context": "https://schema.org",
         "@type": "RoofingContractor",
         "name": "Ascend Roofing Group",
-        "image": "https://www.ascendroofinggroup.com.au/images/ROOFING GROUP.png",
+        "image": "https://www.ascendroofinggroup.com.au/images/ROOFING%20GROUP.png",
         "url": "https://www.ascendroofinggroup.com.au",
         "telephone": "+61419098049",
         "email": "admin@ascendroofinggroup.com.au",
@@ -199,8 +203,12 @@
             </div>
             <div class="t-hero-visual" aria-hidden="true">
                 <div class="t-ring"></div>
-                <img class="t-hero-photo" src="../images/DJI_20240427080531_0013_D_edited_edited.jpg"
-                     alt="" loading="eager" fetchpriority="high" width="1920" height="1234">
+                <picture>
+                    <source srcset="../images/DJI_20240427080531_0013_D_edited_edited.avif" type="image/avif">
+                    <source srcset="../images/DJI_20240427080531_0013_D_edited_edited.webp" type="image/webp">
+                    <img class="t-hero-photo" src="../images/DJI_20240427080531_0013_D_edited_edited.jpg"
+                         alt="" loading="eager" fetchpriority="high" width="1920" height="1234">
+                </picture>
             </div>
         </div>
         <div class="t-container">
@@ -589,7 +597,7 @@
                         </div>
                         <div class="form-group">
                             <label for="address">Property Address</label>
-                            <input type="text" id="address" name="address" placeholder="Start typing your address..." autocomplete="off">
+                            <input type="text" id="address" name="address" placeholder="Start typing your address..." required autocomplete="off">
                         </div>
                         <div class="form-group">
                             <label for="roof_type">Current Roof Type</label>
@@ -629,6 +637,7 @@
                             </svg>
                             Send Quote Request
                         </button>
+                        <p role="alert" id="contactError" style="display:none; color:#e53e3e; font-size:0.875rem; margin-top:0.75rem;"></p>
                     </form>
                 </div>
                 <div class="t-quote-visual">
@@ -832,7 +841,7 @@
         0419 098 049
     </a>
 
-    <script defer src="../script.js?v=fcb249a4"></script>
+    <script defer src="../script.js?v=de089b92"></script>
 </body>
 
 </html>

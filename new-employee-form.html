@@ -11,23 +11,27 @@
     <meta property="og:description" content="New employee onboarding form for Ascend Roofing Group. Submit your personal details, tax, superannuation, banking, and identification documents.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.ascendroofinggroup.com.au/new-employee-form.html">
-    <meta property="og:image" content="https://www.ascendroofinggroup.com.au/images/ROOFING GROUP.png">
+    <meta property="og:image" content="https://www.ascendroofinggroup.com.au/images/ROOFING%20GROUP.png">
     <meta property="og:site_name" content="Ascend Roofing Group">
     <meta property="og:locale" content="en_AU">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@AscendRoofing">
     <meta name="twitter:title" content="New Employee Form | Ascend Roofing Group">
     <meta name="twitter:description" content="New employee onboarding form for Ascend Roofing Group.">
-    <meta name="twitter:image" content="https://www.ascendroofinggroup.com.au/images/ROOFING GROUP.png">
+    <meta name="twitter:image" content="https://www.ascendroofinggroup.com.au/images/ROOFING%20GROUP.png">
     <meta name="robots" content="noindex, follow">
     <link rel="canonical" href="https://www.ascendroofinggroup.com.au/new-employee-form.html">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Space+Grotesk:wght@600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Caveat+Brush&family=Space+Grotesk:wght@600;700&display=swap"
         rel="stylesheet">
     <link rel="icon" href="./images/ROOFING GROUP.png" type="image/png">
-    <link rel="stylesheet" href="styles.css?v=1087122a">
+    <!-- Sets the flag that lets styles.css hide the scroll-reveal content. Inline
+         and in <head> so it lands before first paint, and so the content stays
+         visible when JS is off, blocked, or fails to load. -->
+    <script>document.documentElement.className += " js";</script>
+    <link rel="stylesheet" href="styles.css?v=f154568d">
     <style>
         .subby-hero {
             padding: 160px 0 60px;
@@ -785,7 +789,7 @@
         </div>
     </footer>
 
-    <script defer src="script.js?v=fcb249a4"></script>
+    <script defer src="script.js?v=de089b92"></script>
     <script>
         // ===================== FILE UPLOAD HANDLING =====================
         (function () {
@@ -968,6 +972,18 @@
                     if (response.ok && result.success) {
                         formContainer.style.display = 'none';
                         successMessage.style.display = 'block';
+                        // The server sets `warning` when the database write
+                        // failed. The email that did go out masks TFN and bank
+                        // numbers to the last 3 digits, so those details are
+                        // gone — never leave the person on a clean success
+                        // screen.
+                        if (result.warning) {
+                            const notice = document.createElement('p');
+                            notice.setAttribute('role', 'alert');
+                            notice.style.cssText = 'margin-top:16px;padding:14px 16px;border-left:4px solid #f59e0b;background:rgba(245,158,11,0.12);color:#f0f0f0;text-align:left;';
+                            notice.textContent = result.warning;
+                            successMessage.appendChild(notice);
+                        }
                     } else {
                         throw new Error(result.message || 'Submission failed');
                     }

@@ -318,17 +318,17 @@ async function build() {
     <meta property="og:description" content="Roof replacement and metal roofing across all Brisbane, Gold Coast, Logan, Ipswich and Moreton Bay suburbs. Find your local area.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.ascendroofinggroup.com.au/locations.html">
-    <meta property="og:image" content="https://www.ascendroofinggroup.com.au/images/ROOFING GROUP.png">
+    <meta property="og:image" content="https://www.ascendroofinggroup.com.au/images/ROOFING%20GROUP.png">
     <meta property="og:site_name" content="Ascend Roofing Group">
     <meta property="og:locale" content="en_AU">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Ascend Roofing Group Service Areas | Brisbane &amp; Gold Coast">
     <meta name="twitter:description" content="Roof replacement and metal roofing across all Brisbane, Gold Coast, Logan, Ipswich and Moreton Bay suburbs.">
-    <meta name="twitter:image" content="https://www.ascendroofinggroup.com.au/images/ROOFING GROUP.png">
+    <meta name="twitter:image" content="https://www.ascendroofinggroup.com.au/images/ROOFING%20GROUP.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Caveat+Brush&display=swap"
         rel="stylesheet">
     <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
     <link rel="icon" href="/favicon-16.png" sizes="16x16" type="image/png">

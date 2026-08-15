@@ -8,6 +8,35 @@ document.addEventListener("DOMContentLoaded", () => {
     "(prefers-reduced-motion: reduce)",
   ).matches;
 
+  // ---- SCROLL REVEAL ----
+  // First, deliberately. Everything with [data-reveal] is hidden by CSS until
+  // this runs, and that is most of the page — so if anything below throws,
+  // the reader must not be left staring at a blank page.
+  const revealElements = document.querySelectorAll("[data-reveal]");
+  const revealObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          // Stagger reveal if inside a grid
+          const parent = entry.target.parentElement;
+          const siblings = parent.querySelectorAll("[data-reveal]");
+          let delay = 0;
+          if (siblings.length > 1) {
+            const idx = Array.from(siblings).indexOf(entry.target);
+            delay = idx * 100;
+          }
+          setTimeout(() => {
+            entry.target.classList.add("revealed");
+          }, delay);
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.1, rootMargin: "0px 0px -40px 0px" },
+  );
+
+  revealElements.forEach((el) => revealObserver.observe(el));
+
   // ---- NAVBAR SCROLL EFFECT ----
   const navbar = document.getElementById("navbar");
   const handleNavScroll = () => {
@@ -21,12 +50,31 @@ document.addEventListener("DOMContentLoaded", () => {
   const navMenu = document.getElementById("navMenu");
   const navOverlay = document.getElementById("navOverlay");
 
+  // Below the drawer breakpoint the menu is an off-canvas panel pushed off-screen
+  // by a transform — still focusable, so keyboard users tabbed through eight
+  // invisible links. `inert` takes it out of the tab order and the accessibility
+  // tree while closed. Above the breakpoint it is the ordinary horizontal nav and
+  // must stay reachable, so this is re-evaluated whenever the layout can change.
+  const isDrawer = () => getComputedStyle(navToggle).display !== "none";
+
+  const syncDrawerInert = () => {
+    if (isDrawer() && !navMenu.classList.contains("open")) {
+      navMenu.setAttribute("inert", "");
+    } else {
+      navMenu.removeAttribute("inert");
+    }
+  };
+
   const closeNav = () => {
+    // Move focus out before the panel goes inert, otherwise the browser drops it
+    // to <body> and the next Tab restarts from the top of the document.
+    if (navMenu.contains(document.activeElement)) navToggle.focus();
     navToggle.classList.remove("open");
     navMenu.classList.remove("open");
     navToggle.setAttribute("aria-expanded", "false");
     if (navOverlay) navOverlay.classList.remove("active");
     document.body.style.overflow = "";
+    syncDrawerInert();
   };
 
   const openNav = () => {
@@ -35,7 +83,34 @@ document.addEventListener("DOMContentLoaded", () => {
     navToggle.setAttribute("aria-expanded", "true");
     if (navOverlay) navOverlay.classList.add("active");
     document.body.style.overflow = "hidden";
+    syncDrawerInert();
+    // The drawer covers the page behind a scrim, so send focus into it rather
+    // than leaving it on the toggle with the rest of the page still tabbable.
+    const first = navMenu.querySelector('a[href], button:not([disabled])');
+    if (first) first.focus();
   };
+
+  // The drawer behaves as a modal, so Tab must cycle within it instead of
+  // wandering onto page content hidden behind the scrim.
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Tab" || !navMenu.classList.contains("open")) return;
+    const items = [
+      navToggle,
+      ...navMenu.querySelectorAll('a[href], button:not([disabled])'),
+    ];
+    if (items.length < 2) return;
+    const first = items[0];
+    const last = items[items.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  });
+
+  syncDrawerInert();
 
   navToggle.addEventListener("click", () => {
     if (navMenu.classList.contains("open")) {
@@ -76,6 +151,9 @@ document.addEventListener("DOMContentLoaded", () => {
     ) {
       closeNav();
     }
+    // Crossing the breakpoint changes whether the menu is a drawer or the
+    // desktop nav, so its inert state has to be re-evaluated either way.
+    syncDrawerInert();
   });
 
   // ---- ACTIVE NAV LINK ON SCROLL ----
@@ -99,32 +177,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   };
   window.addEventListener("scroll", updateActiveNav, { passive: true });
-
-  // ---- SCROLL REVEAL ----
-  const revealElements = document.querySelectorAll("[data-reveal]");
-  const revealObserver = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry, index) => {
-        if (entry.isIntersecting) {
-          // Stagger reveal if inside a grid
-          const parent = entry.target.parentElement;
-          const siblings = parent.querySelectorAll("[data-reveal]");
-          let delay = 0;
-          if (siblings.length > 1) {
-            const idx = Array.from(siblings).indexOf(entry.target);
-            delay = idx * 100;
-          }
-          setTimeout(() => {
-            entry.target.classList.add("revealed");
-          }, delay);
-          revealObserver.unobserve(entry.target);
-        }
-      });
-    },
-    { threshold: 0.1, rootMargin: "0px 0px -40px 0px" },
-  );
-
-  revealElements.forEach((el) => revealObserver.observe(el));
 
   // ---- STATS COUNTER ANIMATION ----
   const statNumbers = document.querySelectorAll("[data-count]");

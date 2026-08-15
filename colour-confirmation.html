@@ -12,10 +12,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Space+Grotesk:wght@600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Caveat+Brush&family=Dancing+Script&family=Space+Grotesk:wght@600;700&display=swap"
         rel="stylesheet">
     <link rel="icon" href="./images/ROOFING GROUP.png" type="image/png">
-    <link rel="stylesheet" href="styles.css?v=1087122a">
+    <!-- Sets the flag that lets styles.css hide the scroll-reveal content. Inline
+         and in <head> so it lands before first paint, and so the content stays
+         visible when JS is off, blocked, or fails to load. -->
+    <script>document.documentElement.className += " js";</script>
+    <link rel="stylesheet" href="styles.css?v=f154568d">
     <style>
         .colour-hero {
             padding: 160px 0 60px;
@@ -143,7 +147,10 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            color: var(--accent-color);
+            /* --accent-color (#007bff) measured 4.37:1 on this dark card.
+               --accent-link is the existing token for accents on dark and
+               reaches 5.8:1. */
+            color: var(--accent-link);
             font-size: 0.9rem;
             font-weight: 600;
             background: none;
@@ -876,7 +883,7 @@
         </div>
     </footer>
 
-    <script defer src="script.js?v=fcb249a4"></script>
+    <script defer src="script.js?v=de089b92"></script>
     <script>
         // ===================== COLOUR SWATCHES TOGGLE =====================
         (function () {
