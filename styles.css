@@ -3400,3 +3400,51 @@ main[id] {
     margin: 0;
   }
 }
+
+/* ---- long-form article typography ----
+   Blog posts were rendering with headings flush against the paragraph
+   above them and no rhythm between blocks, which makes a 1,000-word
+   guide hard to scan. */
+#article-content .container > p {
+  font-size: 1.05rem;
+  line-height: 1.75;
+  margin-bottom: 20px;
+  color: var(--text-main);
+}
+
+#article-content h2 {
+  font-family: var(--font-heading);
+  font-size: clamp(1.5rem, 2.4vw, 1.9rem);
+  line-height: 1.2;
+  color: var(--text-light);
+  margin: 48px 0 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+}
+
+#article-content h3 {
+  font-size: 1.15rem;
+  color: var(--text-light);
+  margin: 28px 0 10px;
+}
+
+#article-content ul {
+  margin: 0 0 24px 0;
+  padding-left: 22px;
+}
+
+#article-content li {
+  margin-bottom: 10px;
+  line-height: 1.7;
+  color: var(--text-main);
+}
+
+#article-content a {
+  color: var(--accent-link);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+#article-content .why-card h3 {
+  margin-top: 0;
+}
