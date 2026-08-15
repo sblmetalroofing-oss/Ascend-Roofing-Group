@@ -3536,3 +3536,27 @@ main[id] {
 .related-guides li {
   margin-bottom: 10px;
 }
+
+/* ---- author bio ----
+   Google's guidance on people-first content wants the author visible on
+   the page, not only inside the JSON-LD. */
+.author-bio {
+  margin: 40px 0 8px;
+  padding: 28px 30px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--accent-color);
+  border-radius: var(--radius-lg);
+}
+
+.author-bio h2 {
+  margin: 0 0 12px;
+  padding-top: 0;
+  border-top: 0;
+  font-size: 1.15rem;
+}
+
+.author-bio p {
+  margin-bottom: 12px;
+  color: var(--text-main);
+}
