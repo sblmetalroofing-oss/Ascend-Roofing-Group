@@ -1,0 +1,258 @@
+# The Page indexing report, read against this site
+
+Google Search Console's **Page indexing** report lists every URL Google knows
+about on `www.ascendroofinggroup.com.au` and why each one is or isn't indexed.
+Google's own documentation explains the report generically. This document does
+the part Google can't: it maps each reason to *this* repository — which file
+produces it, whether it's a problem here, and what to change.
+
+The invariants described below are enforced by `npm run check:indexing`
+(`scripts/check-indexing-hygiene.js`), which runs in CI via
+`__tests__/indexing-hygiene.test.js`. If you change how pages, canonicals,
+`sitemap.xml`, `robots.txt`, or `vercel.json` fit together, that checker is
+what tells you before Google does.
+
+---
+
+## 1. What Google should find here
+
+Verified against the tree on 2026-08-15; `npm run check:indexing` prints the
+first two counts on every run:
+
+| | Count | Notes |
+|---|---|---|
+| HTML pages in the repo | 346 | everything Vercel serves from the root |
+| URLs in `sitemap.xml` | 340 | the pages meant to rank |
+| Deliberately non-indexable | 6 | see the table below |
+| Suburb pages (`service-areas/`) | 314 | generated from `template.html` + `suburbs.json` |
+| Blog pages (`blog/`) | 14 | 13 posts + the index |
+| Root pages | 18 | home, services, locations, legal, forms |
+
+**The steady-state target is roughly 340 indexed pages** — not 346. The six
+excluded pages are excluded on purpose:
+
+| Page | How it's excluded | Why |
+|---|---|---|
+| `quote.html` | `<meta name="robots" content="noindex, nofollow">` | conversion form, no search value |
+| `colour-confirmation.html` | `noindex, follow` | post-submission confirmation |
+| `new-employee-form.html` | `noindex, follow` | internal onboarding form |
+| `subcontractor-pack.html` | `noindex, follow` | internal contractor form |
+| `404.html` | `noindex` | error page |
+| `template.html` | `X-Robots-Tag: noindex, nofollow` in `vercel.json` | build input with `{{SUBURB}}` placeholders |
+
+`template.html` is the one worth understanding: it is a real file at a real URL,
+so without that header Google could index a page full of unreplaced
+`{{SUBURB}}` placeholders. It's noindexed by response header rather than markup
+because the build copies its markup into all 314 suburb pages — a `<meta>` tag
+would be copied too.
+
+### The invariant that keeps this stable
+
+> **A page is in `sitemap.xml` if and only if it is indexable.**
+
+Every one of the 6 excluded pages is noindex *and* absent from the sitemap;
+every one of the 340 sitemap URLs is indexable *and* resolves to a file. That
+single rule prevents the most common contradictory-signal bugs, and the checker
+enforces it in both directions — a new indexable page that nobody added to the
+sitemap fails CI, and so does a noindex page that somebody submitted.
+
+---
+
+## 2. Reading the report
+
+**Status** is binary: *Indexed* or *Not indexed*. **Reason** is why. **Source**
+tells you whether you can fix it (`Website`) or not (`Google`).
+
+Two things not to chase:
+
+- **100% coverage.** Only canonical pages get indexed. On this site every
+  indexable page is self-canonical, so the ceiling really is ~340 — but Google
+  choosing not to index some thin suburb pages is a judgement call, not a bug
+  (see §4).
+- **Immediate indexing.** New pages take days to weeks. `lastmod` in
+  `sitemap.xml` is set from the last commit that touched the build inputs, so
+  it is honest about what actually changed and Google isn't told that 340
+  unchanged pages are all new.
+
+**Use the sitemap filter.** The dropdown above the chart defaults to *All known
+pages*, which includes URLs Google found by other means — old links, scraped
+copies, guessed URLs. Switch to **All submitted pages** to see only the 340 URLs
+this repo actually claims. Most alarming-looking numbers in the default view are
+URLs that were never ours to fix.
+
+---
+
+## 3. Reasons you may legitimately see, and what they mean here
+
+### Expected and benign
+
+**Page with redirect.** `vercel.json` defines five permanent redirects, and
+these URLs will accumulate here forever. That is the correct outcome — a
+redirecting URL is never the indexed one.
+
+| Redirect | Destination |
+|---|---|
+| `/roofing-logan.html`, `/service-areas/roofing-logan.html` | `/service-areas/roofing-logan-central.html` |
+| `/roofing-tweed-heads.html`, `/service-areas/roofing-tweed-heads.html` | `/locations.html` |
+| `/roofing-(.*)\.html` (catch-all) | `/service-areas/roofing-$1.html` |
+
+The catch-all is anchored at the root, so it rewrites the legacy flat URLs into
+`service-areas/` without matching the pages it redirects *to* — no loop. The
+checker asserts this, and also asserts that no sitemap URL is shadowed by any of
+these rules.
+
+**URL marked 'noindex'.** Expect the six pages in §1 here. Nothing to fix; this
+is the report confirming the exclusion worked.
+
+**Alternate page with proper canonical tag.** Should be empty or near-empty.
+There are no AMP or m-dot variants, and `vercel.json` sets neither `cleanUrls`
+nor `trailingSlash`, so each page has exactly one URL form.
+
+### Investigate if they appear
+
+**Not found (404).** Only `404.html` should ever produce this, for URLs that
+were never real. If a *sitemap* URL 404s, that's a build bug — `npm run
+check:indexing` fails on any `<loc>` without a file behind it, so it should
+never reach Google. A 404 for a suburb page that used to exist means a suburb
+was removed from `suburbs.json`; add a redirect to `vercel.json` rather than
+leaving it dead.
+
+**Server error (5xx).** The static pages are files on a CDN and shouldn't 5xx.
+If this appears, it's the serverless functions in `api/` — but those are
+`Disallow`ed in `robots.txt` and not linked, so investigate how Googlebot
+reached one at all.
+
+**Blocked by robots.txt / Indexed, though blocked by robots.txt.** `robots.txt`
+blocks only `/api/`. The second reason is the one to act on: it means Google
+indexed an `/api/` URL from an external link without being able to read it.
+Robots.txt does not prevent indexing — if it ever appears, unblock the path and
+return a `noindex` header instead so Google can read the page and honour it.
+
+**Soft 404.** No known source. Worth a look if it appears on a suburb page, as
+it would suggest the enrichment step (`scripts/enrich-service-areas.cjs`) left a
+page too thin to look like real content.
+
+**Duplicate, Google chose different canonical than user.** The one to take
+seriously — see §4. Note that *"Duplicate without user-selected canonical"*
+should stay empty, because every indexable page here declares a canonical.
+Pages landing in the *"Google chose different"* bucket instead means Google
+read our canonical and overrode it.
+
+**Blocked due to unauthorized request (401) / access forbidden (403).**
+Not expected — nothing here is behind auth.
+
+---
+
+## 4. The real risk: 314 near-identical suburb pages
+
+This is the section that matters. Everything above is hygiene; this is judgement.
+
+The 314 pages in `service-areas/` are generated from one template. Measured
+between `roofing-ascot.html` and `roofing-annerley.html`, after normalising away
+the suburb name and postcode:
+
+- **97.8% of the page text is identical** (36 of 1,648 lines differ)
+- **~8% of each page is genuinely unique** (167 of 2,063 words, the
+  `ENRICH:START`/`ENRICH:END` block)
+- the unique part is one intro paragraph plus a list of ~10 neighbouring suburbs
+
+The rest — services, FAQs, credentials, storm-season copy — is the same
+sentences with a different place name substituted in.
+
+**What Google does with that.** Expect a meaningful share of the 314 to sit in
+**"Crawled – currently not indexed"**: Google fetched the page, decided it added
+nothing over the 313 siblings, and declined to index it. Some may instead appear
+as **"Duplicate, Google chose different canonical than user"**, with a sibling
+suburb page named as the chosen canonical. Newly added suburbs may sit in
+**"Discovered – currently not indexed"** for a long time.
+
+**This is not a bug to fix in code, and the checker deliberately does not flag
+it.** Every one of those pages is technically perfect — self-canonical, unique
+title, unique meta description, valid `RoofingContractor` and `FAQPage`
+structured data, linked from `locations.html`, and cross-linked with siblings
+(each page links out to ~21 others; inbound counts run from about 13 to 38).
+There is no configuration change that makes Google index thin pages.
+
+**What actually moves it,** in order of effect:
+
+1. **Genuinely local content.** Real jobs done in that suburb, local roof stock
+   and its typical problems (post-war timber vs. 1980s brick veneer), council
+   or heritage-overlay specifics, actual project photos. The enrichment step
+   already has the right anchor — it needs better material, not more of it.
+2. **Prune.** 314 suburb pages for one roofing business is a lot. Fewer, richer
+   pages for the suburbs that actually convert will out-perform 314 thin ones,
+   and the pages you drop were mostly not indexed anyway.
+3. **Earn links.** A suburb page with a real inbound link gets indexed.
+
+**How to measure it rather than guess:** filter the report to *All submitted
+pages*, open **Crawled – currently not indexed**, and see how many of the 314
+are listed. If it's under ~10%, the current approach is working. If it's over
+half, options 1 and 2 are overdue. Track that number over time — it is the
+single most informative figure in the report for this site.
+
+Do not respond by noindexing the affected pages or by pointing their canonicals
+at `locations.html`. "Crawled – currently not indexed" costs nothing; a page
+Google might index later is worth more than one you've told it to forget.
+
+---
+
+## 5. Validating a fix
+
+After fixing all instances of an issue, open its details page and click
+**Validate fix**. Validation typically takes up to two weeks; don't click it
+again while it's running. A single remaining instance stops the whole run, so
+fix every instance first — for issues that map to a repo invariant, `npm run
+check:indexing` tells you whether you did.
+
+Google's sitemap trick applies well here: a validation request scoped to a
+smaller sitemap finishes faster than one covering all 340 URLs. If you're
+validating a fix that only affects root pages, a temporary sitemap of just those
+18 URLs will confirm it much sooner than the full set.
+
+Note that an issue also counts as "fixed" when the page becomes unavailable —
+removed, noindexed, or auth-walled. Validation passing is not by itself proof
+the page is indexable; check the URL Inspection tool for the pages you care about.
+
+---
+
+## 6. Troubleshooting playbook
+
+**Indexed count drops with no new errors.** Check in this order: (1) did a
+deploy add `noindex` somewhere — `npm run check:indexing` catches a noindex page
+still sitting in the sitemap; (2) did `sitemap.xml` shrink — `git log -p
+sitemap.xml`; (3) is the drop concentrated in `service-areas/`, which points at
+§4 rather than at a bug.
+
+**Indexed count is well below 340 but stable.** Almost certainly §4. Confirm by
+filtering to *All submitted pages* and reading the non-indexed reasons.
+
+**A specific page won't index.** Run URL Inspection on it, then *Test live URL*.
+Confirm the canonical Google reports matches the page's own URL, and that it's
+in `sitemap.xml`. If both are right and it still won't index, it's a content
+judgement, not a configuration one.
+
+**Errors spike right after a deploy.** Compare against `vercel.json` — a new
+redirect or header rule with a broader pattern than intended is the usual cause.
+`sourceToRegExp` in the checker interprets those patterns the same way this
+document describes, so adding the new rule and re-running the checker will show
+you which sitemap URLs it swallows.
+
+---
+
+## 7. When you change the site
+
+Run `npm run check:indexing` (or just `npm test`) after touching any of:
+
+- **a new page** — add it to `sitemap.xml`, or mark it `noindex`; the checker
+  requires exactly one of the two
+- **`build.js`, `template.html`, `suburbs.json`** — run `npm run build` and
+  commit the regenerated output, as CI enforces a clean tree afterwards
+- **`vercel.json` redirects or headers** — the checker re-derives which sitemap
+  URLs are shadowed
+- **`robots.txt`** — the checker re-derives which sitemap URLs are blocked
+- **the canonical host** — it is set in more than one place (`CONFIG.baseUrl`
+  in `build.js`, the markup `build.js` emits, and `BASE_URL` in
+  `scripts/check-indexing-hygiene.js`); changing some but not all fails CI
+
+What the checker cannot tell you is whether a page deserves to be indexed. That
+is §4, and it is answered in Search Console, not in this repo.
