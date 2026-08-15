@@ -44,7 +44,7 @@
          and in <head> so it lands before first paint, and so the content stays
          visible when JS is off, blocked, or fails to load. -->
     <script>document.documentElement.className += " js";</script>
-    <link rel="stylesheet" href="styles.css?v=2bf45384">
+    <link rel="stylesheet" href="styles.css?v=f154568d">
     <!-- The homepage LCP is the .t-hero-bg backdrop, which the hero photo now
          shares. It previously preloaded 20240307_171821.avif, an image this
          page only uses in a lazy gallery tile — 262 KB of high-priority
@@ -244,17 +244,17 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="name">Full Name *</label>
-                                <input type="text" id="name" name="name" placeholder="John Smith" required>
+                                <input type="text" id="name" name="name" placeholder="John Smith" required autocomplete="name">
                             </div>
                             <div class="form-group">
                                 <label for="phone">Phone Number *</label>
-                                <input type="tel" id="phone" name="phone" placeholder="04XX XXX XXX" required>
+                                <input type="tel" id="phone" name="phone" placeholder="04XX XXX XXX" required autocomplete="tel" inputmode="tel">
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="email">Email Address *</label>
-                                <input type="email" id="email" name="email" placeholder="john@example.com" required>
+                                <input type="email" id="email" name="email" placeholder="john@example.com" required autocomplete="email" inputmode="email">
                             </div>
                             <div class="form-group">
                                 <label for="address">Property Address *</label>
