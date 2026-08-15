@@ -2613,7 +2613,20 @@ main[id] {
    which is most of the mobile traffic. */
 .t-hero-bg {
   position: absolute; inset: 0;
+  /* image-set lets the browser take the 160KB avif (or 232KB webp) instead of
+     the 348KB jpeg. The plain url() below stays as the fallback for engines
+     without image-set support. */
   background: url("./images/DJI_20240427080531_0013_D_edited_edited.jpg") center/cover;
+  background-image: -webkit-image-set(
+    url("./images/DJI_20240427080531_0013_D_edited_edited.avif") type("image/avif"),
+    url("./images/DJI_20240427080531_0013_D_edited_edited.webp") type("image/webp"),
+    url("./images/DJI_20240427080531_0013_D_edited_edited.jpg") type("image/jpeg"));
+  background-image: image-set(
+    url("./images/DJI_20240427080531_0013_D_edited_edited.avif") type("image/avif"),
+    url("./images/DJI_20240427080531_0013_D_edited_edited.webp") type("image/webp"),
+    url("./images/DJI_20240427080531_0013_D_edited_edited.jpg") type("image/jpeg"));
+  background-position: center;
+  background-size: cover;
   background: image-set(
       url("./images/DJI_20240427080531_0013_D_edited_edited.avif") type("image/avif"),
       url("./images/DJI_20240427080531_0013_D_edited_edited.webp") type("image/webp"),
@@ -3365,4 +3378,25 @@ main[id] {
 .colour-form-section h2,
 .subby-form-section h2 {
   font-size: 1.35rem;
+}
+
+
+/* ---- touch targets ----
+   Footer, nav and inline list links measured 17px tall on a 390px viewport,
+   under the 44px minimum for comfortable tapping. */
+@media (max-width: 1100px) {
+  .footer-links a,
+  .footer-contact a,
+  .t-pin-list a,
+  .breadcrumb-list a,
+  .nearby-card {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  .footer-links li,
+  .footer-contact p {
+    margin: 0;
+  }
 }

@@ -23,7 +23,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
     <link rel="icon" href="./images/ROOFING GROUP.png" type="image/png">
-    <link rel="stylesheet" href="styles.css?v=fa9fb0ad">
+    <link rel="stylesheet" href="styles.css?v=43b9ca94">
     <script defer src="/_vercel/speed-insights/script.js"></script>
     <script defer src="/_vercel/insights/script.js"></script>
     <script type="application/ld+json">
@@ -274,10 +274,10 @@
                     <h3 class="t-form-title">Send Us a <em>Message</em></h3>
                     <form class="contact-form" id="contactForm" action="/api/submit-quote" method="POST">
                         <div class="form-row">
-                            <div class="form-group"><label for="name">Full Name</label><input type="text" id="name" name="name" placeholder="John Smith" required></div>
-                            <div class="form-group"><label for="phone">Phone Number</label><input type="tel" id="phone" name="phone" placeholder="04XX XXX XXX" required></div>
+                            <div class="form-group"><label for="name">Full Name</label><input type="text" id="name" name="name" placeholder="John Smith" required autocomplete="name"></div>
+                            <div class="form-group"><label for="phone">Phone Number</label><input type="tel" id="phone" name="phone" placeholder="04XX XXX XXX" required autocomplete="tel" inputmode="tel"></div>
                         </div>
-                        <div class="form-group"><label for="email">Email Address</label><input type="email" id="email" name="email" placeholder="john@example.com" required></div>
+                        <div class="form-group"><label for="email">Email Address</label><input type="email" id="email" name="email" placeholder="john@example.com" required autocomplete="email" inputmode="email"></div>
                         <div class="form-group"><label for="address">Property Address</label><input type="text" id="address" name="address" placeholder="123 Smith St, Southport QLD" autocomplete="off"></div>
                         <div class="form-group">
                             <label for="insulation_type">Insulation Scenario</label>
