@@ -414,7 +414,7 @@ async function build() {
                 <li><a href="blog/">Blog</a></li>
                 <li><a href="faq.html">FAQ's</a></li>
                 <li><a href="/#testimonials">Reviews</a></li>
-                <li><a href="locations.html" class="active">Areas We Service</a></li>
+                <li><a href="locations.html" class="active" aria-current="page">Areas We Service</a></li>
                 <li><a href="/#contact">Contact Us</a></li>
             </ul>
         </nav>

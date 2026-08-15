@@ -44,7 +44,7 @@
          and in <head> so it lands before first paint, and so the content stays
          visible when JS is off, blocked, or fails to load. -->
     <script>document.documentElement.className += " js";</script>
-    <link rel="stylesheet" href="styles.css?v=29fb4dd8">
+    <link rel="stylesheet" href="styles.css?v=f29912c9">
     <!-- The homepage LCP is the .t-hero-bg backdrop, which the hero photo now
          shares. It previously preloaded 20240307_171821.avif, an image this
          page only uses in a lazy gallery tile — 262 KB of high-priority
@@ -171,7 +171,7 @@
                 <span></span><span></span><span></span>
             </button>
             <ul class="t-nav-menu" id="navMenu">
-                <li><a href="#hero" class="active">Home</a></li>
+                <li><a href="#hero" class="active" aria-current="page">Home</a></li>
                 <li><a href="#about">About Us</a></li>
                 <li><a href="#services">Our Services</a></li>
                 <li><a href="blog/">Blog</a></li>
@@ -318,28 +318,28 @@
                             <picture>
                                 <source type="image/avif" srcset="./images/DJI_20240427080531_0013_D_edited_edited-800.avif 800w, ./images/DJI_20240427080531_0013_D_edited_edited.avif 1920w">
                                 <source type="image/webp" srcset="./images/DJI_20240427080531_0013_D_edited_edited-800.webp 800w, ./images/DJI_20240427080531_0013_D_edited_edited.webp 1920w">
-                                <img src="./images/DJI_20240427080531_0013_D_edited_edited.jpg" alt="Aerial view of a completed metal roof" loading="lazy">
+                                <img src="./images/DJI_20240427080531_0013_D_edited_edited.jpg" alt="Aerial view of a completed metal roof" loading="lazy" width="1920" height="1234">
                             </picture>
                         </figure>
                         <figure>
                             <picture>
                                 <source type="image/avif" srcset="./images/20231130_153142-800.avif 800w, ./images/20231130_153142.avif 1440w">
                                 <source type="image/webp" srcset="./images/20231130_153142-800.webp 800w, ./images/20231130_153142.webp 1440w">
-                                <img src="./images/20231130_153142.jpg" alt="New Colorbond roof on a waterfront home" loading="lazy">
+                                <img src="./images/20231130_153142.jpg" alt="New Colorbond roof on a waterfront home" loading="lazy" width="1440" height="1920">
                             </picture>
                         </figure>
                         <figure>
                             <picture>
                                 <source type="image/avif" srcset="./images/20240307_171821-800.avif 800w, ./images/20240307_171821.avif 1440w">
                                 <source type="image/webp" srcset="./images/20240307_171821-800.webp 800w, ./images/20240307_171821.webp 1440w">
-                                <img src="./images/20240307_171821.jpg" alt="Grey Colorbond hip roof with whirlybirds" loading="lazy">
+                                <img src="./images/20240307_171821.jpg" alt="Grey Colorbond hip roof with whirlybirds" loading="lazy" width="1440" height="1920">
                             </picture>
                         </figure>
                         <figure>
                             <picture>
                                 <source type="image/avif" srcset="./images/dji_fly_20250220_134822_0091_1740023538708_photo_edited-800.avif 800w, ./images/dji_fly_20250220_134822_0091_1740023538708_photo_edited.avif 1920w">
                                 <source type="image/webp" srcset="./images/dji_fly_20250220_134822_0091_1740023538708_photo_edited-800.webp 800w, ./images/dji_fly_20250220_134822_0091_1740023538708_photo_edited.webp 1920w">
-                                <img src="./images/dji_fly_20250220_134822_0091_1740023538708_photo_edited.jpg" alt="Aerial view of a completed Colorbond roof" loading="lazy">
+                                <img src="./images/dji_fly_20250220_134822_0091_1740023538708_photo_edited.jpg" alt="Aerial view of a completed Colorbond roof" loading="lazy" width="1920" height="816">
                             </picture>
                         </figure>
                     </div>
@@ -428,7 +428,7 @@
                     <div class="t-promo-media"><picture>
     <source type="image/avif" srcset="./images/IMG_4703-800.avif 800w, ./images/IMG_4703.avif 1920w">
     <source type="image/webp" srcset="./images/IMG_4703-800.webp 800w, ./images/IMG_4703.webp 1920w">
-    <img src="./images/IMG_4703.JPG" alt="Colorbond roof replacement in progress" loading="lazy">
+    <img src="./images/IMG_4703.JPG" alt="Colorbond roof replacement in progress" loading="lazy" width="1920" height="1440">
 </picture></div>
                     <div class="t-promo-body">
                         <h3>Roof<br>Replacement</h3>
@@ -439,7 +439,7 @@
                     <div class="t-promo-media"><picture>
     <source type="image/avif" srcset="./images/20240307_171821-800.avif 800w, ./images/20240307_171821.avif 1440w">
     <source type="image/webp" srcset="./images/20240307_171821-800.webp 800w, ./images/20240307_171821.webp 1440w">
-    <img src="./images/20240307_171821.jpg" alt="Roof repair work" loading="lazy">
+    <img src="./images/20240307_171821.jpg" alt="Roof repair work" loading="lazy" width="1440" height="1920">
 </picture></div>
                     <div class="t-promo-body">
                         <h3>Roof<br>Repairs</h3>
@@ -450,7 +450,7 @@
                     <div class="t-promo-media"><picture>
     <source type="image/avif" srcset="./images/dji_fly_20250313_141642_0183_1741839576383_photo-800.avif 800w, ./images/dji_fly_20250313_141642_0183_1741839576383_photo.avif 1920w">
     <source type="image/webp" srcset="./images/dji_fly_20250313_141642_0183_1741839576383_photo-800.webp 800w, ./images/dji_fly_20250313_141642_0183_1741839576383_photo.webp 1920w">
-    <img src="./images/dji_fly_20250313_141642_0183_1741839576383_photo.JPEG" alt="Gutter and downpipe installation" loading="lazy">
+    <img src="./images/dji_fly_20250313_141642_0183_1741839576383_photo.JPEG" alt="Gutter and downpipe installation" loading="lazy" width="1920" height="1080">
 </picture></div>
                     <div class="t-promo-body">
                         <h3>Gutters &amp;<br>Downpipes</h3>
@@ -483,7 +483,7 @@
                     <picture>
     <source type="image/avif" srcset="./images/dji_fly_20250220_134822_0091_1740023538708_photo_edited-800.avif 800w, ./images/dji_fly_20250220_134822_0091_1740023538708_photo_edited.avif 1920w">
     <source type="image/webp" srcset="./images/dji_fly_20250220_134822_0091_1740023538708_photo_edited-800.webp 800w, ./images/dji_fly_20250220_134822_0091_1740023538708_photo_edited.webp 1920w">
-    <img src="./images/dji_fly_20250220_134822_0091_1740023538708_photo_edited.jpg" alt="New Roof Installations" loading="lazy">
+    <img src="./images/dji_fly_20250220_134822_0091_1740023538708_photo_edited.jpg" alt="New Roof Installations" loading="lazy" width="1920" height="816">
 </picture>
                     <span class="t-bar"></span>
                     <h3>New Roof Installations</h3>
@@ -492,7 +492,7 @@
                     <picture>
     <source type="image/avif" srcset="./images/DJI_20240427080531_0013_D_edited_edited-800.avif 800w, ./images/DJI_20240427080531_0013_D_edited_edited.avif 1920w">
     <source type="image/webp" srcset="./images/DJI_20240427080531_0013_D_edited_edited-800.webp 800w, ./images/DJI_20240427080531_0013_D_edited_edited.webp 1920w">
-    <img src="./images/DJI_20240427080531_0013_D_edited_edited.jpg" alt="Roof Replacements" loading="lazy">
+    <img src="./images/DJI_20240427080531_0013_D_edited_edited.jpg" alt="Roof Replacements" loading="lazy" width="1920" height="1234">
 </picture>
                     <span class="t-bar"></span>
                     <h3>Roof Replacements</h3>
@@ -501,7 +501,7 @@
                     <picture>
     <source type="image/avif" srcset="./images/20240307_171821-800.avif 800w, ./images/20240307_171821.avif 1440w">
     <source type="image/webp" srcset="./images/20240307_171821-800.webp 800w, ./images/20240307_171821.webp 1440w">
-    <img src="./images/20240307_171821.jpg" alt="Roof Repairs" loading="lazy">
+    <img src="./images/20240307_171821.jpg" alt="Roof Repairs" loading="lazy" width="1440" height="1920">
 </picture>
                     <span class="t-bar"></span>
                     <h3>Roof Repairs</h3>
@@ -510,7 +510,7 @@
                     <picture>
     <source type="image/avif" srcset="./images/20231130_153142-800.avif 800w, ./images/20231130_153142.avif 1440w">
     <source type="image/webp" srcset="./images/20231130_153142-800.webp 800w, ./images/20231130_153142.webp 1440w">
-    <img src="./images/20231130_153142.jpg" alt="Insulation Upgrades" loading="lazy">
+    <img src="./images/20231130_153142.jpg" alt="Insulation Upgrades" loading="lazy" width="1440" height="1920">
 </picture>
                     <span class="t-bar"></span>
                     <h3>Insulation Upgrades</h3>
@@ -519,7 +519,7 @@
                     <picture>
     <source type="image/avif" srcset="./images/IMG_4703-800.avif 800w, ./images/IMG_4703.avif 1920w">
     <source type="image/webp" srcset="./images/IMG_4703-800.webp 800w, ./images/IMG_4703.webp 1920w">
-    <img src="./images/IMG_4703.JPG" alt="Gutters and Downpipes" loading="lazy">
+    <img src="./images/IMG_4703.JPG" alt="Gutters and Downpipes" loading="lazy" width="1920" height="1440">
 </picture>
                     <span class="t-bar"></span>
                     <h3>Gutters &amp; Downpipes</h3>
@@ -528,7 +528,7 @@
                     <picture>
     <source type="image/avif" srcset="./images/dji_fly_20250313_141642_0183_1741839576383_photo-800.avif 800w, ./images/dji_fly_20250313_141642_0183_1741839576383_photo.avif 1920w">
     <source type="image/webp" srcset="./images/dji_fly_20250313_141642_0183_1741839576383_photo-800.webp 800w, ./images/dji_fly_20250313_141642_0183_1741839576383_photo.webp 1920w">
-    <img src="./images/dji_fly_20250313_141642_0183_1741839576383_photo.JPEG" alt="Skylights and Whirlybirds" loading="lazy">
+    <img src="./images/dji_fly_20250313_141642_0183_1741839576383_photo.JPEG" alt="Skylights and Whirlybirds" loading="lazy" width="1920" height="1080">
 </picture>
                     <span class="t-bar"></span>
                     <h3>Skylights &amp; Whirlybirds</h3>
@@ -916,7 +916,7 @@
                     <div class="t-photo"><picture>
     <source type="image/avif" srcset="./images/dji_fly_20250220_134822_0091_1740023538708_photo_edited-800.avif 800w, ./images/dji_fly_20250220_134822_0091_1740023538708_photo_edited.avif 1920w">
     <source type="image/webp" srcset="./images/dji_fly_20250220_134822_0091_1740023538708_photo_edited-800.webp 800w, ./images/dji_fly_20250220_134822_0091_1740023538708_photo_edited.webp 1920w">
-    <img src="./images/dji_fly_20250220_134822_0091_1740023538708_photo_edited.jpg" alt="" loading="lazy">
+    <img src="./images/dji_fly_20250220_134822_0091_1740023538708_photo_edited.jpg" alt="" loading="lazy" width="1920" height="816">
 </picture></div>
                 </div>
             </div>
@@ -930,7 +930,7 @@
                 <picture>
     <source type="image/avif" srcset="./images/20240307_171821-800.avif 800w, ./images/20240307_171821.avif 1440w">
     <source type="image/webp" srcset="./images/20240307_171821-800.webp 800w, ./images/20240307_171821.webp 1440w">
-    <img src="./images/20240307_171821.jpg" alt="Ascend Roofing Group crew installing a Colorbond roof" loading="lazy">
+    <img src="./images/20240307_171821.jpg" alt="Ascend Roofing Group crew installing a Colorbond roof" loading="lazy" width="1440" height="1920">
 </picture>
             </div>
             <div>
