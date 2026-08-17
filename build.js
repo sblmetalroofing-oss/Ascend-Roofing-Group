@@ -392,7 +392,7 @@ async function build() {
         <div class="t-utility-bar">
             <div class="t-logo-panel">
                 <a href="/" aria-label="Ascend Roofing Group home">
-                    <img src="./images/ROOFING GROUP.png" alt="Ascend Roofing Group Logo" width="400" height="400">
+                    <img src="./images/logo-wordmark.png" alt="Ascend Roofing Group Logo" width="400" height="400">
                 </a>
             </div>
             <div class="t-utility-inner">
