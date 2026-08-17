@@ -14,14 +14,21 @@ Source code for the Ascend Roofing Group website, a static site for a Brisbane &
 - **`service-areas/`, `locations.html`, `sitemap.xml`**: Generated output. These files **are committed** — regenerate with `npm run build` and commit the result whenever `template.html`, `suburbs.json`, or `build.js` changes.
 - **`api/`**: Vercel serverless functions (quote, forms, cron). See `.env.example` for required environment variables.
 - **`images/`**: Project assets (each photo has `.avif`/`.webp`/`.jpg` variants).
+- **`scripts/check-indexing-hygiene.js`**: Verifies the canonical/sitemap/robots/redirect rules that keep Google's Page indexing report clean. Runs in CI via `__tests__/indexing-hygiene.test.js`.
+- **`docs/page-indexing-report.md`**: How to read Search Console's Page indexing report for this site — what each non-indexing reason means here, and which are expected.
 
 ## How to Build
 
 ```bash
 npm install
-npm run build   # node build.js && node scripts/enrich-service-areas.cjs
-npm test        # jest suite for the api/ functions and build helpers
+npm run build            # node build.js && node scripts/enrich-service-areas.cjs
+npm test                 # jest suite for the api/ functions, build helpers and indexing hygiene
+npm run check:indexing   # canonical/sitemap/robots/redirect check on its own
 ```
+
+**Adding a page?** It must be either listed in `sitemap.xml` or marked
+`noindex` — `npm run check:indexing` fails on anything that is neither or both.
+See `docs/page-indexing-report.md`.
 
 The build is deterministic: running it twice produces no diff. CI enforces this.
 

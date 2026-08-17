@@ -31,13 +31,13 @@
          and in <head> so it lands before first paint, and so the content stays
          visible when JS is off, blocked, or fails to load. -->
     <script>document.documentElement.className += " js";</script>
-    <link rel="stylesheet" href="styles.css?v=115f4ff6">
+    <link rel="stylesheet" href="styles.css?v=d84ea4d0">
     <style>
         .subby-hero {
             padding: 160px 0 60px;
             text-align: center;
             background: linear-gradient(rgba(10, 10, 10, 0.85), rgba(10, 10, 10, 0.95)),
-                url('./images/20240307_171821.jpg') no-repeat center center/cover;
+                image-set(url('./images/20240307_171821-800.avif') type('image/avif'), url('./images/20240307_171821-800.webp') type('image/webp'), url('./images/20240307_171821.jpg') type('image/jpeg')) no-repeat center center/cover;
             color: #ffffff;
         }
 
@@ -353,7 +353,11 @@
         <div class="t-utility-bar">
             <div class="t-logo-panel">
                 <a href="index.html" aria-label="Ascend Roofing Group home">
-                    <img src="./images/ROOFING GROUP.png" alt="Ascend Roofing Group Logo" width="400" height="400">
+                    <picture>
+    <source type="image/avif" srcset="./images/ROOFING%20GROUP-120.avif 120w, ./images/ROOFING%20GROUP-240.avif 240w" sizes="72px">
+    <source type="image/webp" srcset="./images/ROOFING%20GROUP-120.webp 120w, ./images/ROOFING%20GROUP-240.webp 240w" sizes="72px">
+    <img src="./images/ROOFING GROUP.png" alt="Ascend Roofing Group Logo" width="400" height="400">
+</picture>
                 </a>
             </div>
             <div class="t-utility-inner">
@@ -432,12 +436,12 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="email">Email *</label>
-                            <input type="email" id="email" name="email" required placeholder="your.email@example.com">
+                            <input type="email" id="email" name="email" required placeholder="your.email@example.com" autocomplete="email" inputmode="email">
                             <div class="error-message" id="email-error"></div>
                         </div>
                         <div class="form-group">
                             <label for="phone">Phone *</label>
-                            <input type="tel" id="phone" name="phone" required placeholder="0412 345 678">
+                            <input type="tel" id="phone" name="phone" required placeholder="0412 345 678" autocomplete="tel" inputmode="tel">
                             <div class="error-message" id="phone-error"></div>
                         </div>
                     </div>
@@ -587,7 +591,11 @@
             <div class="footer-grid">
                 <div class="footer-brand">
                     <a href="/" class="nav-logo">
-                        <img src="./images/ROOFING GROUP.png" alt="Ascend Roofing Group Logo" class="logo-img" width="400" height="400">
+                        <picture>
+    <source type="image/avif" srcset="./images/ROOFING%20GROUP-120.avif 120w, ./images/ROOFING%20GROUP-240.avif 240w" sizes="72px">
+    <source type="image/webp" srcset="./images/ROOFING%20GROUP-120.webp 120w, ./images/ROOFING%20GROUP-240.webp 240w" sizes="72px">
+    <img src="./images/ROOFING GROUP.png" alt="Ascend Roofing Group Logo" class="logo-img" width="400" height="400">
+</picture>
                     </a>
                     <p>Family-owned metal roofing specialists serving Brisbane &amp; the Gold Coast with premium
                         Colorbond® steel solutions.</p>
@@ -634,7 +642,7 @@
         </div>
     </footer>
 
-    <script defer src="script.js?v=987e3382"></script>
+    <script defer src="script.js?v=e47c5781"></script>
     <script>
         // ===================== FILE UPLOAD HANDLING =====================
         (function () {

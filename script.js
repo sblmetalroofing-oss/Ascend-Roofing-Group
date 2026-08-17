@@ -183,10 +183,21 @@ document.addEventListener("DOMContentLoaded", () => {
     return (header ? header.getBoundingClientRect().height : 120) + 8;
   };
 
+  // Screen readers take the current item from aria-current, not from a CSS class,
+  // so the two are kept in step. Only the spied links are touched: the generated
+  // pages mark a cross-page item (Blog, Areas) active in the markup, and that is
+  // not this function's to move.
+  const spiedLinks = [...linkByTarget.values()];
+  const markCurrent = (link, on) => {
+    link.classList.toggle("active", on);
+    if (on) link.setAttribute("aria-current", "true");
+    else link.removeAttribute("aria-current");
+  };
+
   const updateActiveNav = () => {
     if (!spiedSections.length) return;
     const line = window.scrollY + headerOffset();
-    let current = spiedSections[0];
+    let current = null;
     for (const section of spiedSections) {
       if (docTop(section) <= line) current = section;
       else break;
@@ -199,8 +210,11 @@ document.addEventListener("DOMContentLoaded", () => {
     ) {
       current = spiedSections[spiedSections.length - 1];
     }
-    const active = linkByTarget.get(current.id);
-    navLinks.forEach((link) => link.classList.toggle("active", link === active));
+    // Above the first spied section nothing is current. Suburb pages link only
+    // #contact, far down the page — defaulting to the first section lit "Contact
+    // Us" from page load on all 314 of them.
+    const active = current ? linkByTarget.get(current.id) : null;
+    spiedLinks.forEach((link) => markCurrent(link, link === active));
   };
   window.addEventListener("scroll", updateActiveNav, { passive: true });
   // Set the initial state rather than trusting the class baked into the markup,
@@ -571,3 +585,73 @@ function attachAddressAutocomplete(input) {
   // Delay so a click/tap on a suggestion registers before the list hides.
   input.addEventListener("blur", () => setTimeout(hide, 150));
 }
+
+/* ============================================
+   LIVE GOOGLE REVIEWS
+   ------------------------------------------------
+   The header rating and the review rail were hard
+   to keep honest: a number typed into the markup
+   is stale the moment another review lands, and an
+   unverified one should never be published at all.
+   Both now come from /api/google-reviews, which
+   reads the Business Profile.
+
+   Everything here is additive. If the endpoint is
+   unconfigured, rate-limited or failing, the rating
+   stays hidden and the rail keeps the representative
+   quotes already in the HTML.
+   ============================================ */
+(function initGoogleReviews() {
+  const ratingEl = document.getElementById("googleRating");
+  const rail = document.getElementById("reviewRail");
+  if (!ratingEl && !rail) return;
+
+  const escapeHtml = (s) =>
+    String(s).replace(/[&<>"']/g, (c) => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+    })[c]);
+
+  const stars = (n) => "★★★★★".slice(0, Math.max(0, Math.round(n))) +
+                       "☆☆☆☆☆".slice(0, 5 - Math.max(0, Math.round(n)));
+
+  fetch("/api/google-reviews", { headers: { Accept: "application/json" } })
+    .then((r) => (r.ok ? r.json() : null))
+    .then((data) => {
+      if (!data || !data.available) return;
+
+      if (ratingEl && typeof data.rating === "number") {
+        ratingEl.querySelector("[data-gr-rating]").textContent = data.rating.toFixed(1);
+        ratingEl.querySelector("[data-gr-stars]").textContent = stars(data.rating);
+        ratingEl.querySelector("[data-gr-total]").textContent = data.total;
+        if (data.profileUrl) {
+          ratingEl.href = data.profileUrl;
+          ratingEl.target = "_blank";
+        }
+        ratingEl.hidden = false;
+      }
+
+      // Only replace the fallback quotes when there are enough real ones to
+      // fill the rail; a single live review beside two placeholders would
+      // read as inconsistent.
+      if (rail && Array.isArray(data.reviews) && data.reviews.length >= 3) {
+        const tilt = ["t-review-card t-tilt-l", "t-review-card t-feature", "t-review-card t-tilt-r"];
+        rail.innerHTML = data.reviews.slice(0, 3).map((rev, i) => `
+                <div class="${tilt[i]}">
+                    <div class="t-stars" aria-hidden="true">${stars(rev.rating || 5)}</div>
+                    <div class="t-who">${escapeHtml(rev.author)}${rev.when ? " &middot; " + escapeHtml(rev.when) : ""}</div>
+                    <p>${escapeHtml(rev.text)}</p>
+                </div>`).join("");
+        rail.removeAttribute("data-gr-fallback");
+
+        const subtitle = document.querySelector("[data-gr-subtitle]");
+        if (subtitle) {
+          subtitle.innerHTML = data.profileUrl
+            ? `Recent reviews from our <a href="${escapeHtml(data.profileUrl)}" target="_blank" rel="noopener">Google Business Profile</a>.`
+            : "Recent reviews from our Google Business Profile.";
+        }
+      }
+    })
+    .catch(() => {
+      /* keep the page exactly as served */
+    });
+})();

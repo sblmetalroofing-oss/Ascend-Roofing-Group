@@ -86,16 +86,20 @@ body {
   background-color: var(--bg-body);
   color: var(--text-main);
   line-height: 1.6;
-  /* `overflow-x: hidden` computes overflow-y to `auto`, which makes body a
-     scroll container — and a sticky descendant then sticks to body's box,
-     which never scrolls, so the header could not stick at all. `clip` does
-     the same clipping without creating a scroll container. The `hidden`
-     declaration stays first as the fallback for engines without `clip`. */
-  overflow-x: hidden;
-  overflow-x: clip;
+  /* No overflow-x here on purpose. Overflow set on <body> propagates to the
+     viewport when <html> is `visible`, and a clipped viewport makes iOS
+     Safari treat position:fixed children as if they scrolled with the page —
+     which detached the floating call button and left it mid-content.
+     Measured at 320/390/768/1024px across the homepage, a service page, a
+     generated suburb page, the blog, locations, faq, quote and 404: document
+     scrollWidth equals clientWidth everywhere, so there is nothing to clip.
+     The two elements that extend past the viewport (the closed mobile drawer
+     and the marquee track) are clipped by their own containers.
+
+     -webkit-overflow-scrolling was also removed: it is a no-op since iOS 13
+     and is a known cause of fixed-position elements drifting during scroll. */
   -webkit-font-smoothing: antialiased;
   -webkit-text-size-adjust: 100%;
-  -webkit-overflow-scrolling: touch;
 }
 
 h1,
@@ -687,7 +691,9 @@ textarea {
 .exp-label {
   font-size: 0.7rem;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.8);
+  /* Dark, not translucent white: on the #007bff fill even solid white reaches
+     only 4.00:1, so no white value can pass AA here. #00132b gives 4.68:1. */
+  color: #00132b;
   text-transform: uppercase;
   letter-spacing: 2px;
   margin-top: 8px;
@@ -2099,7 +2105,7 @@ textarea:focus-visible,
    ============================================ */
 .floating-phone-cta {
   position: fixed;
-  bottom: 24px;
+  bottom: calc(24px + env(safe-area-inset-bottom));
   right: 24px;
   background: var(--accent-btn, #0056b3);
   color: #fff;
@@ -2651,7 +2657,20 @@ main[id] {
    which is most of the mobile traffic. */
 .t-hero-bg {
   position: absolute; inset: 0;
+  /* image-set lets the browser take the 160KB avif (or 232KB webp) instead of
+     the 348KB jpeg. The plain url() below stays as the fallback for engines
+     without image-set support. */
   background: url("./images/DJI_20240427080531_0013_D_edited_edited.jpg") center/cover;
+  background-image: -webkit-image-set(
+    url("./images/DJI_20240427080531_0013_D_edited_edited.avif") type("image/avif"),
+    url("./images/DJI_20240427080531_0013_D_edited_edited.webp") type("image/webp"),
+    url("./images/DJI_20240427080531_0013_D_edited_edited.jpg") type("image/jpeg"));
+  background-image: image-set(
+    url("./images/DJI_20240427080531_0013_D_edited_edited.avif") type("image/avif"),
+    url("./images/DJI_20240427080531_0013_D_edited_edited.webp") type("image/webp"),
+    url("./images/DJI_20240427080531_0013_D_edited_edited.jpg") type("image/jpeg"));
+  background-position: center;
+  background-size: cover;
   background: image-set(
       url("./images/DJI_20240427080531_0013_D_edited_edited.avif") type("image/avif"),
       url("./images/DJI_20240427080531_0013_D_edited_edited.webp") type("image/webp"),
@@ -2687,10 +2706,10 @@ main[id] {
 .t-offer-icon { width: 62px; height: 62px; flex-shrink: 0; background: var(--accent-btn); display: grid; place-items: center; border-radius: var(--t-radius-btn); }
 
 /* ---- marquee ---- */
-.t-marquee { background: var(--accent-color); overflow: hidden; padding: 20px 0; margin-top: 70px; white-space: nowrap; }
+.t-marquee { background: var(--accent-color); overflow: hidden; max-width: 100vw; padding: 20px 0; margin-top: 70px; white-space: nowrap; }
 .t-marquee-track { display: inline-flex; gap: 46px; align-items: center; animation: t-scroll 32s linear infinite; }
 @keyframes t-scroll { to { transform: translateX(-50%); } }
-.t-marquee span { font-family: var(--font-heading); font-weight: 700; font-size: 1rem; letter-spacing: 0.09em; text-transform: uppercase; color: #001b3d; }
+.t-marquee span { font-family: var(--font-heading); font-weight: 700; font-size: 1rem; letter-spacing: 0.09em; text-transform: uppercase; color: #00132b; } /* #001b3d was 4.31:1 on the accent fill; this is 4.68:1 */
 
 /* ---- section scaffold ---- */
 .t-section { padding: 110px 0; }
@@ -2852,6 +2871,27 @@ main[id] {
    and rebuild the hero as a linear stack (the desktop hero layers an
    absolutely-positioned photo over the call button). ------------------- */
 @media (max-width: 768px) {
+  /* A phone never needs the 1920px hero. The 800px AVIF is 29KB against
+     164KB, and it is behind a grayscale+brightness(0.32) filter and a
+     gradient, so the resolution drop is invisible. */
+  .t-hero-bg {
+    background: image-set(
+        url("./images/DJI_20240427080531_0013_D_edited_edited-800.avif") type("image/avif"),
+        url("./images/DJI_20240427080531_0013_D_edited_edited-800.webp") type("image/webp"),
+        url("./images/DJI_20240427080531_0013_D_edited_edited.jpg") type("image/jpeg")
+      ) center/cover;
+  }
+  .hero-bg {
+    background:
+      linear-gradient(to bottom, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.85) 100%),
+      image-set(
+        url("./images/20240307_171821-800.avif") type("image/avif"),
+        url("./images/20240307_171821-800.webp") type("image/webp"),
+        url("./images/20240307_171821.jpg") type("image/jpeg")
+      );
+    background-size: cover;
+    background-position: center center;
+  }
   .t-container { padding: 0 20px; }
   .t-section { padding: 64px 0; }
   .t-eyebrow { font-size: 1.3rem; margin-bottom: 6px; }
@@ -3413,4 +3453,222 @@ main[id] {
 .colour-form-section h2,
 .subby-form-section h2 {
   font-size: 1.35rem;
+}
+
+
+/* ---- touch targets ----
+   Footer, nav and inline list links measured 17px tall on a 390px viewport,
+   under the 44px minimum for comfortable tapping. */
+@media (max-width: 1100px) {
+  .footer-links a,
+  .footer-contact a,
+  .t-pin-list a,
+  .breadcrumb-list a,
+  .nearby-card {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  .footer-links li,
+  .footer-contact p {
+    margin: 0;
+  }
+}
+
+/* ---- long-form article typography ----
+   Blog posts were rendering with headings flush against the paragraph
+   above them and no rhythm between blocks, which makes a 1,000-word
+   guide hard to scan. */
+#article-content .container > p {
+  font-size: 1.05rem;
+  line-height: 1.75;
+  margin-bottom: 20px;
+  color: var(--text-main);
+}
+
+#article-content h2 {
+  font-family: var(--font-heading);
+  font-size: clamp(1.5rem, 2.4vw, 1.9rem);
+  line-height: 1.2;
+  color: var(--text-light);
+  margin: 48px 0 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+}
+
+#article-content h3 {
+  font-size: 1.15rem;
+  color: var(--text-light);
+  margin: 28px 0 10px;
+}
+
+#article-content ul {
+  margin: 0 0 24px 0;
+  padding-left: 22px;
+}
+
+#article-content li {
+  margin-bottom: 10px;
+  line-height: 1.7;
+  color: var(--text-main);
+}
+
+/* :not(.btn) — this ID selector outranks `.btn-primary { color: #fff }`, so
+   every call-to-action inside an article rendered accent-blue on the accent
+   button fill: 2.34:1, a button you can barely read. Prose links still get
+   the accent treatment; buttons keep their own. */
+#article-content a:not(.btn) {
+  color: var(--accent-link);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+#article-content .why-card h3 {
+  margin-top: 0;
+}
+
+/* ---- in-article imagery and related guides ----
+   Posts previously carried no images inside the article at all, and no
+   links to sibling guides. */
+.article-figure {
+  margin: 32px 0;
+}
+
+.article-figure picture {
+  display: block;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.article-figure img {
+  width: 100%;
+  height: auto;
+  max-height: 420px;
+  object-fit: cover;
+  display: block;
+}
+
+.article-figure figcaption {
+  margin-top: 10px;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.related-guides {
+  margin: 48px 0 8px;
+  padding: 28px 30px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+}
+
+.related-guides h2 {
+  margin: 0 0 14px;
+  padding-top: 0;
+  border-top: 0;
+  font-size: 1.25rem;
+}
+
+.related-guides ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.related-guides li {
+  margin-bottom: 10px;
+}
+
+/* ---- author bio ----
+   Google's guidance on people-first content wants the author visible on
+   the page, not only inside the JSON-LD. */
+.author-bio {
+  margin: 40px 0 8px;
+  padding: 28px 30px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--accent-color);
+  border-radius: var(--radius-lg);
+}
+
+.author-bio h2 {
+  margin: 0 0 12px;
+  padding-top: 0;
+  border-top: 0;
+  font-size: 1.15rem;
+}
+
+.author-bio p {
+  margin-bottom: 12px;
+  color: var(--text-main);
+}
+/* Focus rings must appear instantly. The components carry
+   `transition: var(--transition)`, which applies to every animatable
+   property — so the keyboard focus outline was fading in over 300ms
+   instead of showing the moment an element is focused. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  transition-property: background-color, color, border-color, transform;
+}
+
+/* The AI quote tool fills this image after the satellite lookup returns, so
+   it has no dimensions in the markup. Reserve the space up front rather
+   than letting the result card jump when the image arrives. */
+.qr-img-wrap {
+  aspect-ratio: 4 / 3;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+}
+
+.qr-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ---- live Google rating in the header ---- */
+.t-google-rating {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-right: 18px;
+  border-right: 1px solid #333;
+  text-decoration: none;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  line-height: 1.25;
+}
+
+.t-google-rating[hidden] { display: none; }
+
+.t-google-mark {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.t-google-score strong {
+  color: #fff;
+  font-size: 1rem;
+}
+
+.t-google-stars {
+  color: #ffc107;
+  letter-spacing: 1px;
+  margin-left: 4px;
+}
+
+.t-google-count { white-space: nowrap; }
+
+@media (max-width: 1100px) {
+  .t-google-rating { display: none; }
 }
