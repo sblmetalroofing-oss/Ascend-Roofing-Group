@@ -159,6 +159,18 @@ the suburb name and postcode:
 The rest — services, FAQs, credentials, storm-season copy — is the same
 sentences with a different place name substituted in.
 
+**Measured across all 314, not just a pair.** `npm run check:uniqueness` groups
+every suburb page by its body text with the name and postcode normalised away:
+
+- **314 pages collapse to 103 distinct bodies**
+- **211 pages (67%) say exactly what another page already says**
+- the largest single group is **12 pages sharing one body**
+
+The template rotates a handful of hand-written variants (3 "about us" openers,
+4 hero lines, 8 meta descriptions) selected by a hash of the suburb name, so
+the page count outruns the copy by roughly three to one. That ratio, not the
+number of suburbs, is what sets the ceiling.
+
 **What Google does with that.** Expect a meaningful share of the 314 to sit in
 **"Crawled – currently not indexed"**: Google fetched the page, decided it added
 nothing over the 313 siblings, and declined to index it. Some may instead appear
@@ -181,14 +193,41 @@ There is no configuration change that makes Google index thin pages.
    already has the right anchor — it needs better material, not more of it.
 2. **Prune.** 314 suburb pages for one roofing business is a lot. Fewer, richer
    pages for the suburbs that actually convert will out-perform 314 thin ones,
-   and the pages you drop were mostly not indexed anyway.
+   and the pages you drop were mostly not indexed anyway. `npm run
+   prune:service-areas` carries this out from a keep-list in
+   `service-areas/keep.json`: it drops the pages, removes them from
+   `suburbs.json` so the build cannot recreate them, and writes a 301 for each
+   one to the closest page still standing (same postcode, then same region,
+   then `locations.html`). It is a dry run until you pass `--apply`.
+
+   Set the target below the distinct-body count, not above it — pruning to more
+   pages than you have copy for just redistributes the duplicates. At 314 pages
+   against 103 bodies, a keep-list of 60–80 would put uniqueness near 100%
+   without writing a word of new copy.
 3. **Earn links.** A suburb page with a real inbound link gets indexed.
 
-**How to measure it rather than guess:** filter the report to *All submitted
-pages*, open **Crawled – currently not indexed**, and see how many of the 314
-are listed. If it's under ~10%, the current approach is working. If it's over
-half, options 1 and 2 are overdue. Track that number over time — it is the
-single most informative figure in the report for this site.
+**How to measure it rather than guess:** run `npm run check:uniqueness` for the
+repo-side number (distinct bodies), and filter the report to *All submitted
+pages* → **Crawled – currently not indexed** for Google's side. If duplicates
+are under ~10%, the current approach is working. If they're over half, options
+1 and 2 are overdue. Track both over time — together they are the single most
+informative figure in the report for this site.
+
+**Reading as at 2026-08-17:** 117 indexed, 521 not indexed. Against 103 distinct
+bodies and 340 sitemap URLs, the two sides agree: indexed pages track distinct
+bodies, not page count. Duplicates are at 67%, so options 1 and 2 are overdue.
+
+That 521 is less alarming than it looks, and it breaks down as:
+
+| Bucket | Approx. | Verdict |
+| --- | --- | --- |
+| Legacy `/roofing-*.html` URLs, 301'd to `/service-areas/` by `vercel.json` | ~300 | Benign — "Page with redirect" is the correct end state |
+| Suburb pages Google crawled and declined as duplicates | ~200 | The real problem, addressed by options 1–3 above |
+| Everything else | ~20 | Ordinary noise |
+
+Only the middle row is worth acting on. Chasing the redirect bucket to zero is
+not a goal: those URLs are supposed to redirect, and the count only falls as
+Google slowly stops re-checking them.
 
 Do not respond by noindexing the affected pages or by pointing their canonicals
 at `locations.html`. "Crawled – currently not indexed" costs nothing; a page
@@ -254,5 +293,11 @@ Run `npm run check:indexing` (or just `npm test`) after touching any of:
   in `build.js`, the markup `build.js` emits, and `BASE_URL` in
   `scripts/check-indexing-hygiene.js`); changing some but not all fails CI
 
-What the checker cannot tell you is whether a page deserves to be indexed. That
-is §4, and it is answered in Search Console, not in this repo.
+- **the copy variants in `build.js` or the `ENRICH` block** — run
+  `npm run check:uniqueness`; adding a suburb without adding copy lowers the
+  share of pages that are one of a kind
+
+What the checker cannot tell you is whether a page deserves to be indexed.
+`npm run check:uniqueness` gets you the closest thing available offline — how
+many pages say something no other page says. Whether Google agrees is §4, and
+that part is answered in Search Console, not in this repo.
