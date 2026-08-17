@@ -193,7 +193,17 @@ There is no configuration change that makes Google index thin pages.
    already has the right anchor — it needs better material, not more of it.
 2. **Prune.** 314 suburb pages for one roofing business is a lot. Fewer, richer
    pages for the suburbs that actually convert will out-perform 314 thin ones,
-   and the pages you drop were mostly not indexed anyway.
+   and the pages you drop were mostly not indexed anyway. `npm run
+   prune:service-areas` carries this out from a keep-list in
+   `service-areas/keep.json`: it drops the pages, removes them from
+   `suburbs.json` so the build cannot recreate them, and writes a 301 for each
+   one to the closest page still standing (same postcode, then same region,
+   then `locations.html`). It is a dry run until you pass `--apply`.
+
+   Set the target below the distinct-body count, not above it — pruning to more
+   pages than you have copy for just redistributes the duplicates. At 314 pages
+   against 103 bodies, a keep-list of 60–80 would put uniqueness near 100%
+   without writing a word of new copy.
 3. **Earn links.** A suburb page with a real inbound link gets indexed.
 
 **How to measure it rather than guess:** run `npm run check:uniqueness` for the

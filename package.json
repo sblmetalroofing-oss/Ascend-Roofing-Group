@@ -7,6 +7,7 @@
         "build": "node build.js && node scripts/enrich-service-areas.cjs",
         "check:indexing": "node scripts/check-indexing-hygiene.js",
         "check:uniqueness": "node scripts/content-uniqueness.js",
+        "prune:service-areas": "node scripts/prune-service-areas.js",
         "serve": "npx serve .",
         "test": "NODE_OPTIONS=--experimental-vm-modules jest",
         "test:coverage": "NODE_OPTIONS=--experimental-vm-modules jest --coverage"
