@@ -3,6 +3,8 @@ import os from 'os';
 import path from 'path';
 import {
     BASE_URL,
+    CANONICAL_HOST,
+    appliesToCanonicalHost,
     canonicalOf,
     checkIndexingHygiene,
     listPages,
@@ -196,6 +198,58 @@ describe('checkIndexingHygiene — regressions it must catch', () => {
         });
         // Header-noindexed, so neither the sitemap nor the canonical rules apply.
         expect(checkIndexingHygiene(dir)).toEqual([]);
+    });
+});
+
+// Search Console showed 61% of impressions landing on the apex host while
+// every canonical pointed at www, so vercel.json now redirects apex to www.
+// That rule matches "/(.*)", and without the host condition being honoured it
+// would read as a redirect shadowing every sitemap URL.
+describe('appliesToCanonicalHost', () => {
+    const apexRule = {
+        source: '/(.*)',
+        has: [{ type: 'host', value: 'ascendroofinggroup.com.au' }],
+        destination: 'https://www.ascendroofinggroup.com.au/$1',
+        permanent: true,
+    };
+
+    test('an unconditional rule applies', () => {
+        expect(appliesToCanonicalHost({ source: '/a.html', destination: '/b.html' })).toBe(true);
+    });
+
+    test('a rule scoped to another host does not apply', () => {
+        expect(appliesToCanonicalHost(apexRule)).toBe(false);
+    });
+
+    test('a rule scoped to the canonical host still applies', () => {
+        expect(
+            appliesToCanonicalHost({ source: '/(.*)', has: [{ type: 'host', value: CANONICAL_HOST }] }),
+        ).toBe(true);
+    });
+
+    test('request-dependent conditions are not treated as unconditional', () => {
+        expect(appliesToCanonicalHost({ source: '/(.*)', has: [{ type: 'cookie', key: 'beta' }] })).toBe(false);
+        expect(appliesToCanonicalHost({ source: '/(.*)', missing: [{ type: 'header', key: 'x' }] })).toBe(false);
+    });
+
+    test('the apex redirect does not flag sitemap URLs as shadowed', () => {
+        const page = `<html><head><link rel="canonical" href="${BASE_URL}/a.html"></head></html>`;
+        const dir = makeSite({
+            pages: { 'a.html': page },
+            sitemap: [`${BASE_URL}/a.html`],
+            vercel: { redirects: [apexRule] },
+        });
+        expect(checkIndexingHygiene(dir)).toEqual([]);
+    });
+
+    test('an unconditional catch-all redirect is still reported', () => {
+        const page = `<html><head><link rel="canonical" href="${BASE_URL}/a.html"></head></html>`;
+        const dir = makeSite({
+            pages: { 'a.html': page },
+            sitemap: [`${BASE_URL}/a.html`],
+            vercel: { redirects: [{ source: '/(.*)', destination: '/b.html', permanent: true }] },
+        });
+        expect(checkIndexingHygiene(dir).join('\n')).toMatch(/is redirected by vercel\.json/);
     });
 });
 

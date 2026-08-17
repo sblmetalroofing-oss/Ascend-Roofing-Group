@@ -84,6 +84,23 @@ export function sourceToRegExp(source) {
   return new RegExp("^" + out + "$");
 }
 
+export const CANONICAL_HOST = new URL(BASE_URL).host;
+
+// Whether a redirect rule fires for an ordinary Googlebot GET of a canonical-
+// host URL. Rules carrying `has`/`missing` conditions mostly do not: the
+// apex-to-www rule is scoped to a host these URLs are never requested on, so
+// treating it as an unconditional shadow would flag all 340 sitemap entries as
+// redirected. Only a host condition naming the canonical host still binds;
+// anything else (cookie, query, header) depends on the request, so it is not
+// evidence the sitemap is wrong.
+export function appliesToCanonicalHost(rule) {
+  if (rule.missing?.length) return false;
+  for (const cond of rule.has || []) {
+    if (cond.type !== "host" || cond.value !== CANONICAL_HOST) return false;
+  }
+  return true;
+}
+
 // A page is non-indexable if its own markup says noindex, or if vercel.json
 // sends an X-Robots-Tag: noindex header for its path. Both are equally binding
 // on Googlebot, so both have to count.
@@ -130,11 +147,13 @@ export function checkIndexingHygiene(root = ROOT) {
   const sitemapUrls = readSitemapUrls(root);
   const sitemapSet = new Set(sitemapUrls);
 
-  const redirects = (vercel.redirects || []).map((r) => ({
-    re: sourceToRegExp(r.source),
-    source: r.source,
-    destination: r.destination,
-  }));
+  const redirects = (vercel.redirects || [])
+    .filter(appliesToCanonicalHost)
+    .map((r) => ({
+      re: sourceToRegExp(r.source),
+      source: r.source,
+      destination: r.destination,
+    }));
 
   for (const rel of listPages(root)) {
     const html = fs.readFileSync(path.join(root, rel), "utf8");
