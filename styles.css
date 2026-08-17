@@ -2595,7 +2595,7 @@ main[id] {
 }
 /* display:block — as an inline image it sat on a text baseline, and the
    descender slack under it made the panel taller than the bar. */
-.t-logo-panel img { height: 72px; width: auto; display: block; }
+.t-logo-panel img { height: 56px; width: auto; display: block; }
 .t-utility-inner { flex: 1; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 0 32px 0 56px; }
 .t-availability {
   display: flex; align-items: center; gap: 12px; font-family: var(--font-heading);
@@ -2830,7 +2830,7 @@ main[id] {
   .t-utility-bar { flex-direction: row; align-items: center; height: var(--t-utility-h); min-height: 0; }
   .t-logo-panel { padding: 6px 20px; }
   .t-logo-panel::after { display: none; }
-  .t-logo-panel img { height: 52px; }
+  .t-logo-panel img { height: 42px; }
   .t-utility-inner { padding: 6px 20px; flex-wrap: nowrap; gap: 12px; }
   .t-rating { display: none; }
   .t-promo-card { grid-template-columns: 1fr; }
@@ -2907,7 +2907,7 @@ main[id] {
      bar with a fixed height and, because the row is centred, the overflow
      splits above the header's own top edge and clips the logo. */
   .t-logo-panel { padding: 6px 0 6px 16px; }
-  .t-logo-panel img { height: 52px; }
+  .t-logo-panel img { height: 42px; }
   .t-utility-inner { padding: 6px 16px 6px 10px; gap: 10px; flex-wrap: nowrap; justify-content: flex-end; }
   .t-availability { font-size: 0.7rem; gap: 8px; letter-spacing: 0.05em; }
   .t-pulse { width: 9px; height: 9px; }
@@ -2976,7 +2976,7 @@ main[id] {
 /* Landscape phones: the drawer scrolls either way, but a shorter header lets
    more of the menu fit without it. */
 @media (max-width: 1100px) and (max-height: 500px) {
-  .t-logo-panel img { height: 44px; }
+  .t-logo-panel img { height: 34px; }
   .t-nav-menu { padding-top: 116px; }
   .t-nav-menu a { min-height: 42px; }
 }
@@ -3671,4 +3671,12 @@ textarea:focus-visible,
 
 @media (max-width: 1100px) {
   .t-google-rating { display: none; }
+}
+
+/* The contact email is long enough to wrap mid-domain in a four-across card
+   ("...ascendroofinggrou / p.com.au"). A <wbr> after the @ gives it a clean
+   break point; this keeps the type from being forced to break anywhere else. */
+.t-contact-details .info-card a[href^="mailto:"] {
+  overflow-wrap: break-word;
+  font-size: 0.92rem;
 }
