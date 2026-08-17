@@ -170,6 +170,14 @@ export default async function handler(req, res) {
       reviews,
     };
 
+    // One line per cold fetch, so the logs show whether the profile is
+    // actually being read without having to reproduce a browser request
+    // (the origin guard makes this endpoint awkward to curl).
+    console.log(
+      `Google profile: rating=${payload.rating} of ${payload.total} ratings, ` +
+        `${payload.reviews.length} review(s) with text, available=${payload.available}`,
+    );
+
     cache = { at: Date.now(), payload };
     res.setHeader("Cache-Control", "public, s-maxage=21600, stale-while-revalidate=86400");
     return res.status(200).json(payload);
