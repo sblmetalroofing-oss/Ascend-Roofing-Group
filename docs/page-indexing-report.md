@@ -217,17 +217,45 @@ informative figure in the report for this site.
 bodies and 340 sitemap URLs, the two sides agree: indexed pages track distinct
 bodies, not page count. Duplicates are at 67%, so options 1 and 2 are overdue.
 
-That 521 is less alarming than it looks, and it breaks down as:
+Exported from the Page indexing report, the 521 breaks down as:
 
-| Bucket | Approx. | Verdict |
+| Reason | Pages | Source |
 | --- | --- | --- |
-| Legacy `/roofing-*.html` URLs, 301'd to `/service-areas/` by `vercel.json` | ~300 | Benign — "Page with redirect" is the correct end state |
-| Suburb pages Google crawled and declined as duplicates | ~200 | The real problem, addressed by options 1–3 above |
-| Everything else | ~20 | Ordinary noise |
+| Discovered – currently not indexed | 283 | Google systems |
+| Crawled – currently not indexed | 222 | Google systems |
+| Alternate page with proper canonical tag | 12 | Website |
+| Page with redirect | 3 | Website |
+| Not found (404) | 1 | Website |
 
-Only the middle row is worth acting on. Chasing the redirect bucket to zero is
-not a goal: those URLs are supposed to redirect, and the count only falls as
-Google slowly stops re-checking them.
+Two separate problems sit inside those top two rows, and the larger one is not
+the duplicate copy.
+
+**The host split.** 193 of the 222 "Crawled – currently not indexed" URLs are on
+the apex host, `ascendroofinggroup.com.au`, not `www`. The apex served the site
+directly instead of redirecting, so Google crawled it, read a canonical
+pointing at `www`, and declined to index what it had just fetched. Meanwhile
+all 283 "Discovered – currently not indexed" URLs are on `www` with a last-
+crawled date of `1970-01-01` — Google's null sentinel, meaning never crawled.
+The two halves deadlocked: the copy Google had was disowned by its own
+canonical, and the copy the canonical named had never been fetched. Every core
+service page, `locations.html`, and five blog posts sat in that second bucket.
+
+The Performance report showed how lopsided it had become — 61% of impressions
+(19,993 of 32,807) were earned by apex URLs that the site was telling Google to
+ignore.
+
+`vercel.json` now 301s apex to `www` ahead of every other rule. That rule is
+scoped with `has: [{type: "host"}]`, and `appliesToCanonicalHost()` in the
+checker exists so a host-scoped catch-all is not mistaken for a redirect
+shadowing all 340 sitemap URLs.
+
+**The duplicate copy.** The remaining 29 crawled-and-declined URLs are on `www`,
+and that is the thin-content ceiling: 314 suburb pages carry 103 distinct
+bodies, and 92 of them are indexed. That is what options 1–3 above address.
+
+Fix the host split first and let Google recrawl before pruning. Until the two
+hosts are consolidated, per-page impression data is split across both and is
+not a sound basis for deciding which suburbs to keep.
 
 Do not respond by noindexing the affected pages or by pointing their canonicals
 at `locations.html`. "Crawled – currently not indexed" costs nothing; a page
