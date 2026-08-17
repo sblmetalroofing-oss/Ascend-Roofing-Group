@@ -160,23 +160,52 @@ document.addEventListener("DOMContentLoaded", () => {
   const sections = document.querySelectorAll("section[id]");
   const navLinks = navMenu.querySelectorAll("a:not(.nav-cta)");
 
+  // Only sections a nav link actually points at can be "current". Spying on every
+  // section[id] meant scrolling into one with no link (#gallery, #process,
+  // #why-us, #team) ran the toggle with false for every link and blanked the
+  // highlight — so which link lit up depended on the path taken, not the position.
+  const linkByTarget = new Map();
+  navLinks.forEach((link) => {
+    const href = link.getAttribute("href") || "";
+    if (href.startsWith("#") && href.length > 1) {
+      linkByTarget.set(href.slice(1), link);
+    }
+  });
+  const docTop = (el) => el.getBoundingClientRect().top + window.scrollY;
+  const spiedSections = [...sections]
+    .filter((section) => linkByTarget.has(section.id))
+    .sort((a, b) => docTop(a) - docTop(b));
+
+  // offsetTop is relative to the offset parent, and the old +120 was a guess at
+  // the header height. Measure the header instead so the line sits just under it.
+  const headerOffset = () => {
+    const header = document.querySelector(".t-header, .navbar");
+    return (header ? header.getBoundingClientRect().height : 120) + 8;
+  };
+
   const updateActiveNav = () => {
-    const scrollY = window.scrollY + 120;
-    sections.forEach((section) => {
-      const top = section.offsetTop;
-      const height = section.offsetHeight;
-      const id = section.getAttribute("id");
-      if (scrollY >= top && scrollY < top + height) {
-        navLinks.forEach((link) => {
-          link.classList.toggle(
-            "active",
-            link.getAttribute("href") === `#${id}`,
-          );
-        });
-      }
-    });
+    if (!spiedSections.length) return;
+    const line = window.scrollY + headerOffset();
+    let current = spiedSections[0];
+    for (const section of spiedSections) {
+      if (docTop(section) <= line) current = section;
+      else break;
+    }
+    // The final section can be shorter than the viewport, so it never reaches the
+    // line. At the bottom of the document it is the one being read.
+    if (
+      window.innerHeight + window.scrollY >=
+      document.documentElement.scrollHeight - 2
+    ) {
+      current = spiedSections[spiedSections.length - 1];
+    }
+    const active = linkByTarget.get(current.id);
+    navLinks.forEach((link) => link.classList.toggle("active", link === active));
   };
   window.addEventListener("scroll", updateActiveNav, { passive: true });
+  // Set the initial state rather than trusting the class baked into the markup,
+  // which is wrong whenever the page is opened at a hash or restored mid-scroll.
+  updateActiveNav();
 
   // ---- STATS COUNTER ANIMATION ----
   const statNumbers = document.querySelectorAll("[data-count]");

@@ -2622,6 +2622,19 @@ main[id] {
   letter-spacing: 0.07em; text-transform: uppercase; color: #e8e8e8; text-decoration: none;
 }
 .t-nav-menu a:hover, .t-nav-menu a.active { color: var(--accent-link); }
+/* Hover and current-section were both just blue, so a hovered link was
+   indistinguishable from the section you are actually in. The bar marks the
+   current one; hover keeps the colour change on its own. */
+.t-nav-menu a.active { position: relative; }
+.t-nav-menu a.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -7px;
+  height: 2px;
+  background: currentColor;
+}
 /* Sits above the open drawer so the same control closes it (the bars become
    an X) — the drawer covers the right edge of the bar where the button is. */
 .t-nav-toggle { display: none; position: relative; z-index: 1002; background: none; border: 0; cursor: pointer; padding: 14px 32px; }
@@ -2823,6 +2836,9 @@ main[id] {
   .t-nav-menu li { width: 100%; border-bottom: 1px solid #262626; padding: 0; }
   /* Full-width block links: the inline <a> was a 16px-tall tap target. */
   .t-nav-menu a { display: flex; align-items: center; min-height: 48px; width: 100%; padding: 4px 0; font-size: 0.95rem; }
+  /* In the drawer the links are full-width rows; a full-width underline reads as
+     a divider rather than a marker, and the rows already have borders. */
+  .t-nav-menu a.active::after { content: none; }
   /* 998 — below .t-navbar (1000) so the toggle and the drawer nested in the
      bar both stay tappable while the overlay dims everything else. */
   .t-nav-overlay { display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.6); opacity: 0; pointer-events: none; transition: var(--transition); z-index: 998; }
