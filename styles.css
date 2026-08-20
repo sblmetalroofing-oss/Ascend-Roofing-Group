@@ -1342,6 +1342,17 @@ textarea:focus-visible,
 }
 
 /* ============ RESPONSIVE ============ */
+/* The footer carries five blocks. auto-fit at a 200px minimum yields four
+   columns between about 1025px and 1250px, which orphaned the fifth onto a row
+   of its own and doubled the footer's height on tablets — 852px against 548 on
+   desktop. A smaller minimum and a tighter gap fit all five across. */
+@media (max-width: 1250px) {
+  .footer-grid {
+    grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
+    gap: 32px;
+  }
+}
+
 @media (max-width: 1024px) {
   .services-grid,
   .testimonials-grid,
@@ -1354,8 +1365,10 @@ textarea:focus-visible,
     grid-template-columns: repeat(2, 1fr);
   }
 
+  /* Two columns split five blocks into 2+2+1 — three rows and another orphan.
+     Three gives 3+2 and drops the footer from 1147px to about 848. */
   .footer-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .hero-stats {
@@ -3479,6 +3492,12 @@ main[id] {
     align-items: center;
     min-height: 44px;
   }
+
+  /* The 44px target already provides the spacing, so the list's own 16px gap
+     is added on top of it: 11 links became 660px of column instead of 484,
+     and the footer ballooned on tablets. The 768px block zeroes this gap for
+     the same reason — it belongs wherever the 44px minimum starts. */
+  .footer-links ul { gap: 0; }
 
   .footer-links li,
   .footer-contact p {
