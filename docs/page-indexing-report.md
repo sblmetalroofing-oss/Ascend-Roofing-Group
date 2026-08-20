@@ -261,6 +261,53 @@ Do not respond by noindexing the affected pages or by pointing their canonicals
 at `locations.html`. "Crawled – currently not indexed" costs nothing; a page
 Google might index later is worth more than one you've told it to forget.
 
+### Reading as at 2026-08-20 — the failed validation is a false alarm
+
+The **Crawled – currently not indexed** drilldown exported on 2026-08-20 lists
+**228 URLs**, up from 222 on 2026-08-17. Search Console also shows a validation
+attempt for this issue **started 2026-08-13 and failed 2026-08-15**.
+
+That failure says nothing about the fix, because the fix had not shipped yet.
+The apex→www redirect landed in `982e86d1` on **2026-08-17**, two days *after*
+the validation was marked failed. Google re-tested a site that still served the
+apex host directly, so the re-test could only fail.
+
+The export confirms the fix has not yet been re-crawled either:
+
+| | 2026-08-17 | 2026-08-20 |
+|---|---|---|
+| Apex host (`ascendroofinggroup.com.au`) | 193 | 194 |
+| `www` host | 29 | 34 |
+| **Total** | **222** | **228** |
+
+- **Zero** of the 194 apex URLs have been crawled on or after 2026-08-17. The
+  most recent apex crawl in the export is **2026-07-07**, six weeks before the
+  redirect shipped. Every one of those rows is a verdict Google reached against
+  the pre-fix site and has not revisited.
+- Only **two** `www` suburb pages have been crawled since the redirect shipped
+  (`roofing-munruben`, `roofing-clontarf`, both 2026-08-18). Two pages is not a
+  sample worth acting on.
+
+So 85% of the 228 is stale by construction. As Google re-crawls the apex host it
+should reclassify those URLs to **Page with redirect**, which §3 already lists as
+expected and benign — they will accumulate there permanently and that is correct.
+
+**What to do with it:** re-run **Validate fix** on this issue now that
+`982e86d1` is deployed, and leave the 228 alone in the meantime. Confirm the
+redirect is live first — `curl -sSI https://ascendroofinggroup.com.au/ | head -1`
+should report `301`, with `Location:` on the `www` host.
+
+**What not to do:** do not prune, noindex, or re-canonical anything on the
+strength of this export. The prune-sizing rule in option 2 above needs per-page
+data from a single consolidated host, and that data does not exist yet. The
+repo-side number is unchanged — `npm run check:uniqueness` still reports 314
+pages over 103 distinct bodies, and `npm run check:indexing` is clean, so there
+is no configuration defect underneath any of these 228 rows.
+
+The reading that will actually settle it is the next export in which apex URLs
+carry a post-2026-08-17 crawl date. Take the `www` count from that one; that is
+the real thin-content number, and the only one the prune decision should use.
+
 ---
 
 ## 5. Validating a fix
