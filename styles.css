@@ -2812,7 +2812,17 @@ main[id] {
 @media (max-width: 1100px) {
   .t-hero-grid, .t-areas-grid, .t-faq-grid, .t-head-split { grid-template-columns: 1fr; }
   .t-promo-grid, .t-tile-grid { grid-template-columns: 1fr; }
-  .t-hero-visual { min-height: 380px; }
+  /* The grid collapses to one column here, but the photo stayed absolutely
+     positioned at 470px inside a 380px box, so it overflowed upward and sat on
+     top of the call button — the same fault the 768px block already describes
+     for phones. It belongs at the breakpoint where the columns actually
+     collapse, which is here, not 332px lower. */
+  .t-ring { display: none; }
+  .t-hero-visual { min-height: 0; align-self: stretch; }
+  .t-hero-photo {
+    position: static; display: block; width: 100%; height: 320px;
+    clip-path: none; border-radius: var(--t-radius);
+  }
   .t-review-rail { flex-direction: column; }
   .t-review-card, .t-review-card.t-feature { width: 100%; transform: none; }
   /* Pin the whole header, logo included. The utility bar is compacted to
