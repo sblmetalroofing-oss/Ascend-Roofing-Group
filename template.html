@@ -470,8 +470,12 @@
             <div class="t-head-center">
                 <span class="t-eyebrow">What Our Clients Say</span>
                 <h2>Committed to Quality Workmanship and Customer Satisfaction</h2>
+                <!-- Live Google reviews replace the rail below when the
+                     Business Profile lookup succeeds; these representative
+                     quotes remain the fallback and are labelled as such. -->
+                <p data-gr-subtitle>Representative feedback from homeowners across {{REGION}}.</p>
             </div>
-            <div class="t-review-rail">
+            <div class="t-review-rail" id="reviewRail" data-gr-fallback>
                 {{TESTIMONIALS_GRID}}
             </div>
         </div>

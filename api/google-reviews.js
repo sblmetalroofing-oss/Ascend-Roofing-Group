@@ -99,7 +99,15 @@ export default async function handler(req, res) {
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
 
   if (!apiKey) {
-    // Not an error condition: the site simply keeps its existing content.
+    // Not an error condition for the visitor — the site simply keeps its
+    // existing content — but it is always a misconfiguration, and returning
+    // 200 in silence made a missing variable look identical to a working
+    // one in the logs. Say so.
+    console.warn(
+      "GOOGLE_MAPS_API_KEY is not set for this environment, so the Google " +
+        "rating cannot be read. Check the variable name and that Production " +
+        "is ticked in the Vercel project settings.",
+    );
     return res.status(200).json(unavailable("not-configured"));
   }
 

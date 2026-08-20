@@ -1,6 +1,12 @@
 {
   "redirects": [
     {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "ascendroofinggroup.com.au" }],
+      "destination": "https://www.ascendroofinggroup.com.au/$1",
+      "permanent": true
+    },
+    {
       "source": "/roofing-logan.html",
       "destination": "/service-areas/roofing-logan-central.html",
       "permanent": true
