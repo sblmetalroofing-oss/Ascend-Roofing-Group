@@ -265,3 +265,66 @@ describe('the real site', () => {
         expect(listPages().length).toBeGreaterThanOrEqual(urls.length);
     });
 });
+
+// sitemap.xml is now a sitemap index — one child per page bucket, so Search
+// Console reports indexed counts for core pages and suburb pages separately.
+describe('readSitemapUrls with a sitemap index', () => {
+    function makeIndexSite({ children = {}, missingChild = null } = {}) {
+        const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'indexing-'));
+        const entries = [];
+        for (const [file, urls] of Object.entries(children)) {
+            const locs = urls.map((u) => `    <url><loc>${u}</loc></url>`).join('\n');
+            fs.writeFileSync(path.join(dir, file), `<urlset>\n${locs}\n</urlset>\n`);
+            entries.push(file);
+        }
+        if (missingChild) entries.push(missingChild);
+        const refs = entries
+            .map((f) => `    <sitemap><loc>${BASE_URL}/${f}</loc></sitemap>`)
+            .join('\n');
+        fs.writeFileSync(path.join(dir, 'sitemap.xml'), `<sitemapindex>\n${refs}\n</sitemapindex>\n`);
+        fs.writeFileSync(path.join(dir, 'vercel.json'), '{}');
+        fs.writeFileSync(path.join(dir, 'robots.txt'), 'User-agent: *\nAllow: /\n');
+        return dir;
+    }
+
+    test('expands children into their page URLs', () => {
+        const dir = makeIndexSite({
+            children: {
+                'sitemap-pages.xml': [`${BASE_URL}/a.html`],
+                'sitemap-service-areas.xml': [`${BASE_URL}/service-areas/b.html`],
+            },
+        });
+        expect(readSitemapUrls(dir).sort()).toEqual([
+            `${BASE_URL}/a.html`,
+            `${BASE_URL}/service-areas/b.html`,
+        ]);
+    });
+
+    test('a plain urlset still reads as before', () => {
+        const dir = makeSite({ sitemap: [`${BASE_URL}/a.html`] });
+        expect(readSitemapUrls(dir)).toEqual([`${BASE_URL}/a.html`]);
+    });
+
+    test('a child sitemap missing on disk is surfaced, not skipped', () => {
+        const dir = makeIndexSite({
+            children: { 'sitemap-pages.xml': [] },
+            missingChild: 'sitemap-ghost.xml',
+        });
+        // The unexpandable child comes back as a URL, which the checker then
+        // reports as a sitemap entry with no file behind it.
+        expect(readSitemapUrls(dir)).toEqual([`${BASE_URL}/sitemap-ghost.xml`]);
+        expect(checkIndexingHygiene(dir).join('\n')).toMatch(/sitemap-ghost\.xml.*no file on disk/);
+    });
+
+    test('the real sitemap.xml is an index whose children exist and stay on-origin', () => {
+        const repoRoot = path.join(new URL(import.meta.url).pathname, '..', '..');
+        const xml = fs.readFileSync(path.join(repoRoot, 'sitemap.xml'), 'utf8');
+        expect(xml).toMatch(/<sitemapindex[\s>]/);
+        for (const [, child] of xml.matchAll(/<loc>([^<]+)<\/loc>/g)) {
+            expect(child.startsWith(BASE_URL + '/')).toBe(true);
+        }
+        const urls = readSitemapUrls();
+        expect(urls.length).toBeGreaterThan(300);
+        expect(urls.every((u) => !u.endsWith('.xml'))).toBe(true);
+    });
+});
