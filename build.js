@@ -532,6 +532,7 @@ async function build() {
     { loc: "/roof-insulation-brisbane.html", priority: "0.8", changefreq: "monthly" },
     { loc: "/gutters-downpipes-brisbane.html", priority: "0.8", changefreq: "monthly" },
     { loc: "/skylights-whirlybirds-brisbane.html", priority: "0.8", changefreq: "monthly" },
+    { loc: "/asbestos-roof-replacement-brisbane.html", priority: "0.8", changefreq: "monthly" },
     { loc: "/blog/", priority: "0.7", changefreq: "weekly" },
     { loc: "/blog/tile-vs-metal-roof-brisbane.html", priority: "0.6", changefreq: "monthly" },
     { loc: "/blog/roof-replacement-process-what-to-expect.html", priority: "0.6", changefreq: "monthly" },
