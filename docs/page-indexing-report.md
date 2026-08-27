@@ -77,8 +77,15 @@ Two things not to chase:
 **Use the sitemap filter.** The dropdown above the chart defaults to *All known
 pages*, which includes URLs Google found by other means — old links, scraped
 copies, guessed URLs. Switch to **All submitted pages** to see only the 340 URLs
-this repo actually claims. Most alarming-looking numbers in the default view are
-URLs that were never ours to fix.
+this repo actually claims. Most alarming-looking numbers in the default view
+are URLs that were never ours to fix.
+
+`sitemap.xml` is a sitemap index with one child per page bucket —
+`sitemap-pages.xml` (the 26 root and blog pages) and
+`sitemap-service-areas.xml` (the suburb pages) — so the Sitemaps report also
+shows an indexed count per bucket. That per-bucket count is the cheap way to
+watch the §4 number: the pages bucket should sit at or near fully indexed,
+while the service-areas bucket is capped by the distinct-body count.
 
 ---
 
@@ -319,9 +326,10 @@ fix every instance first — for issues that map to a repo invariant, `npm run
 check:indexing` tells you whether you did.
 
 Google's sitemap trick applies well here: a validation request scoped to a
-smaller sitemap finishes faster than one covering all 340 URLs. If you're
-validating a fix that only affects root pages, a temporary sitemap of just those
-18 URLs will confirm it much sooner than the full set.
+smaller sitemap finishes faster than one covering all 340 URLs. The sitemap
+index makes this permanent — a fix touching only root pages validates against
+`sitemap-pages.xml` (26 URLs) without waiting on the 314 suburb URLs in
+`sitemap-service-areas.xml`.
 
 Note that an issue also counts as "fixed" when the page becomes unavailable —
 removed, noindexed, or auth-walled. Validation passing is not by itself proof

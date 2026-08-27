@@ -560,15 +560,44 @@ async function build() {
         <changefreq>${changefreq}</changefreq>
     </url>`;
 
+  // Two child sitemaps under one index, all served at the same sitemap.xml
+  // URL Search Console already has. The point is the per-sitemap indexed
+  // counts in GSC's report: core pages and the 300+ suburb pages have very
+  // different indexing behaviour (see docs/page-indexing-report.md §4), and
+  // one combined file blends them into a single meaningless number. Smaller
+  // sitemaps also validate faster after a fix (§5).
+  const urlset = (urls) =>
+    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.join("")}\n</urlset>`;
+
+  const children = [
+    { file: "sitemap-pages.xml", body: urlset(STATIC_URLS.map(renderUrl)) },
+    {
+      file: "sitemap-service-areas.xml",
+      body: urlset(
+        sitemapUrls.map((url) => renderUrl({ loc: url, priority: "0.6", changefreq: "monthly" })),
+      ),
+    },
+  ];
+  for (const c of children) {
+    fs.writeFileSync(path.join(__dirname, c.file), c.body);
+  }
+
   const sitemapContent = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${STATIC_URLS.map(renderUrl).join("")}${sitemapUrls
-    .map((url) => renderUrl({ loc: url, priority: "0.6", changefreq: "monthly" }))
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${children
+    .map(
+      (c) => `
+    <sitemap>
+        <loc>${CONFIG.baseUrl}/${c.file}</loc>
+        <lastmod>${siteLastmod}</lastmod>
+    </sitemap>`,
+    )
     .join("")}
-</urlset>`;
+</sitemapindex>`;
 
   fs.writeFileSync(CONFIG.sitemapPath, sitemapContent);
   console.log(
-    `Sitemap generated at ${CONFIG.sitemapPath} with ${STATIC_URLS.length + sitemapUrls.length} URLs (lastmod ${siteLastmod}).`,
+    `Sitemap index at ${CONFIG.sitemapPath}: sitemap-pages.xml (${STATIC_URLS.length} URLs) + ` +
+      `sitemap-service-areas.xml (${sitemapUrls.length} URLs), lastmod ${siteLastmod}.`,
   );
 
   stampAssetVersions();

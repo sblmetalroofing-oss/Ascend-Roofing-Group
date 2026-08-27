@@ -42,9 +42,20 @@ export function urlForPage(relPath) {
   return BASE_URL + p.replace(/\/index\.html$/, "/");
 }
 
-export function readSitemapUrls(root = ROOT) {
-  const xml = fs.readFileSync(path.join(root, "sitemap.xml"), "utf8");
-  return [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+// Reads every page URL the sitemap submits. sitemap.xml is a sitemap index
+// (one child per page bucket, so Search Console reports indexed counts per
+// bucket); a <sitemapindex> root means each <loc> is a child sitemap to
+// expand, while a <urlset> root means the <loc>s are the page URLs
+// themselves. A child that is missing on disk or off-origin is returned
+// as-is so checkIndexingHygiene reports it instead of silently skipping it.
+export function readSitemapUrls(root = ROOT, file = "sitemap.xml") {
+  const xml = fs.readFileSync(path.join(root, file), "utf8");
+  const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+  if (!/<sitemapindex[\s>]/.test(xml)) return locs;
+  return locs.flatMap((child) => {
+    const rel = child.startsWith(BASE_URL + "/") ? child.slice(BASE_URL.length + 1) : null;
+    return rel && fs.existsSync(path.join(root, rel)) ? readSitemapUrls(root, rel) : [child];
+  });
 }
 
 // The file that serves a sitemap URL, or null if nothing on disk does.
