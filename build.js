@@ -136,33 +136,46 @@ async function build() {
   });
   const allRegions = Object.keys(regionMap);
 
-  // Function to get nearby suburbs (same region first, then adjacent)
-  function getNearbySuburbs(currentSuburb, count = 6) {
-    const sameRegion = regionMap[currentSuburb.region].filter(
-      (s) => s.name !== currentSuburb.name,
+  // Nearby suburbs, assigned as a ring so every page is linked as often as it links.
+  //
+  // The previous selection sorted candidates by (firstCharCode * 31 + seed) % 1000
+  // and took the top 6. The seed is constant per source page, so that ordering was
+  // effectively by the candidate's first letter: the same names won every time and
+  // 44 of the 314 suburbs were never chosen by anyone, leaving locations.html as
+  // their only internal inbound link. Pages that thinly linked are the ones that
+  // sit in "Discovered - currently not indexed" (docs/page-indexing-report.md §4),
+  // because Googlebot has little reason to walk to them.
+  //
+  // Ordering each region by postcode then name and walking a ring from each
+  // suburb's own position fixes both halves: neighbours are adjacent in postcode
+  // order, so they are genuinely nearby, and every suburb appears in exactly
+  // `count` other pages' grids. No orphans, no favourites.
+  const regionRing = {};
+  for (const [region, list] of Object.entries(regionMap)) {
+    regionRing[region] = [...list].sort(
+      (a, b) =>
+        (parseInt(a.postcode, 10) || 9999) - (parseInt(b.postcode, 10) || 9999) ||
+        a.name.localeCompare(b.name),
     );
+  }
 
-    // Shuffle same-region suburbs deterministically based on suburb name
-    const seed = currentSuburb.name
-      .split("")
-      .reduce((a, c) => a + c.charCodeAt(0), 0);
-    const shuffled = [...sameRegion].sort((a, b) => {
-      const ha = (a.name.charCodeAt(0) * 31 + seed) % 1000;
-      const hb = (b.name.charCodeAt(0) * 31 + seed) % 1000;
-      return ha - hb;
-    });
+  function getNearbySuburbs(currentSuburb, count = 6) {
+    const ring = regionRing[currentSuburb.region] || [];
+    const i = ring.findIndex((s) => s.name === currentSuburb.name);
+    const nearby = [];
 
-    let nearby = shuffled.slice(0, count);
+    // Walk forward around the ring, skipping self, until we have `count`.
+    for (let step = 1; step < ring.length && nearby.length < count; step++) {
+      nearby.push(ring[(i + step) % ring.length]);
+    }
 
-    // If not enough in same region, pull from other regions
+    // Small regions can't fill the grid from their own ring; top up from other
+    // regions so the page still offers somewhere to go.
     if (nearby.length < count) {
-      const others = suburbs
-        .filter(
-          (s) =>
-            s.name !== currentSuburb.name && s.region !== currentSuburb.region,
-        )
-        .slice(0, count - nearby.length);
-      nearby = nearby.concat(others);
+      const others = suburbs.filter(
+        (s) => s.region !== currentSuburb.region && s.name !== currentSuburb.name,
+      );
+      nearby.push(...others.slice(0, count - nearby.length));
     }
 
     return nearby.slice(0, count);

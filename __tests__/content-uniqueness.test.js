@@ -139,3 +139,51 @@ describe('the real site', () => {
         expect(s.distinct).toBeLessThanOrEqual(s.total);
     });
 });
+
+// Nearby-suburb links are assigned as a ring over each region ordered by
+// postcode, so every suburb page is linked as often as it links. The previous
+// selection sorted by the candidate's first character and left 44 of 314
+// suburbs with locations.html as their only internal inbound link — the
+// thinnest possible crawl path to the pages already sitting in
+// "Discovered - currently not indexed".
+describe('nearby-suburb link distribution', () => {
+    const repoRoot = path.join(new URL(import.meta.url).pathname, '..', '..');
+
+    function nearbyInboundCounts() {
+        const dir = path.join(repoRoot, 'service-areas');
+        const files = fs.readdirSync(dir).filter((f) => /^roofing-.*\.html$/.test(f));
+        const counts = new Map(files.map((f) => [f.replace(/\.html$/, ''), 0]));
+        for (const f of files) {
+            const html = fs.readFileSync(path.join(dir, f), 'utf8');
+            const linked = new Set(
+                [...html.matchAll(/<a href="(roofing-[a-z0-9-]+)\.html" class="nearby-card"/g)].map(
+                    (m) => m[1],
+                ),
+            );
+            for (const slug of linked) {
+                if (counts.has(slug)) counts.set(slug, counts.get(slug) + 1);
+            }
+        }
+        return counts;
+    }
+
+    it('leaves no suburb page unlinked by its neighbours', () => {
+        const counts = nearbyInboundCounts();
+        const orphans = [...counts].filter(([, n]) => n === 0).map(([slug]) => slug);
+        expect(orphans).toEqual([]);
+    });
+
+    it('links every suburb page an equal number of times', () => {
+        const values = [...nearbyInboundCounts().values()];
+        expect(Math.min(...values)).toBe(Math.max(...values));
+    });
+
+    it('gives every page a full grid of outbound neighbour links', () => {
+        const dir = path.join(repoRoot, 'service-areas');
+        for (const f of fs.readdirSync(dir).filter((x) => /^roofing-.*\.html$/.test(x))) {
+            const html = fs.readFileSync(path.join(dir, f), 'utf8');
+            const out = [...html.matchAll(/class="nearby-card"/g)].length;
+            expect(out).toBeGreaterThanOrEqual(6);
+        }
+    });
+});
