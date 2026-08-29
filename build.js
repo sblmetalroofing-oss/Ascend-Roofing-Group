@@ -14,6 +14,7 @@ const CONFIG = {
   outputDir: path.join(__dirname, "service-areas"),
   locationsPath: path.join(__dirname, "locations.html"),
   sitemapPath: path.join(__dirname, "sitemap.xml"),
+  customPath: path.join(__dirname, "service-areas", "custom.json"),
   baseUrl: "https://www.ascendroofinggroup.com.au",
 };
 
@@ -52,6 +53,36 @@ function getSiteLastmod() {
   }
 }
 
+// Pages under service-areas/ that are written by hand instead of generated.
+//
+// docs/page-indexing-report.md §4 names "genuinely local content" as the first
+// thing that lifts indexing, but every page here was regenerated from one
+// template on each build, so hand-written content could not survive. This is
+// the exemption list: build.js leaves these files alone and the enrichment step
+// skips them, while they stay in locations.html and the sitemap exactly as a
+// generated page would.
+//
+// An entry may either override a suburb that exists in suburbs.json (keeping
+// its URL, and any ranking it has already earned) or add a page for a place
+// that is not a suburb at all — a region hub such as Moreton Bay.
+//
+// Shape: [{ "slug": "roofing-ipswich", "name": "Ipswich", "region": "Ipswich" }]
+function readCustomPages() {
+  if (!fs.existsSync(CONFIG.customPath)) return [];
+  const parsed = JSON.parse(fs.readFileSync(CONFIG.customPath, "utf8"));
+  if (!Array.isArray(parsed)) {
+    throw new Error("service-areas/custom.json must be a JSON array.");
+  }
+  for (const entry of parsed) {
+    if (!entry || !entry.slug || !entry.name || !entry.region) {
+      throw new Error(
+        `service-areas/custom.json entries need slug, name and region: ${JSON.stringify(entry)}`,
+      );
+    }
+  }
+  return parsed;
+}
+
 // The review rail reads as a fan: outer cards tilt, the middle one sits
 // flat and forward. The homepage sets these classes by hand; generated
 // pages get them here.
@@ -83,6 +114,20 @@ async function build() {
   const regions = {};
   let sitemapUrls = [];
 
+  // Hand-authored pages are still listed and still submitted; they are just not
+  // overwritten. A missing file would put a <loc> in the sitemap with nothing
+  // behind it, which check:indexing rejects, so fail here with a clearer message.
+  const customPages = readCustomPages();
+  const customBySlug = new Map(customPages.map((c) => [c.slug, c]));
+  for (const c of customPages) {
+    if (!fs.existsSync(path.join(CONFIG.outputDir, `${c.slug}.html`))) {
+      throw new Error(
+        `service-areas/custom.json lists ${c.slug} but service-areas/${c.slug}.html does not exist. ` +
+          `Write the page, or remove the entry.`,
+      );
+    }
+  }
+
   // Pre-build region lookup for nearby suburbs
   const regionMap = {};
   suburbs.forEach((s) => {
@@ -91,33 +136,46 @@ async function build() {
   });
   const allRegions = Object.keys(regionMap);
 
-  // Function to get nearby suburbs (same region first, then adjacent)
-  function getNearbySuburbs(currentSuburb, count = 6) {
-    const sameRegion = regionMap[currentSuburb.region].filter(
-      (s) => s.name !== currentSuburb.name,
+  // Nearby suburbs, assigned as a ring so every page is linked as often as it links.
+  //
+  // The previous selection sorted candidates by (firstCharCode * 31 + seed) % 1000
+  // and took the top 6. The seed is constant per source page, so that ordering was
+  // effectively by the candidate's first letter: the same names won every time and
+  // 44 of the 314 suburbs were never chosen by anyone, leaving locations.html as
+  // their only internal inbound link. Pages that thinly linked are the ones that
+  // sit in "Discovered - currently not indexed" (docs/page-indexing-report.md §4),
+  // because Googlebot has little reason to walk to them.
+  //
+  // Ordering each region by postcode then name and walking a ring from each
+  // suburb's own position fixes both halves: neighbours are adjacent in postcode
+  // order, so they are genuinely nearby, and every suburb appears in exactly
+  // `count` other pages' grids. No orphans, no favourites.
+  const regionRing = {};
+  for (const [region, list] of Object.entries(regionMap)) {
+    regionRing[region] = [...list].sort(
+      (a, b) =>
+        (parseInt(a.postcode, 10) || 9999) - (parseInt(b.postcode, 10) || 9999) ||
+        a.name.localeCompare(b.name),
     );
+  }
 
-    // Shuffle same-region suburbs deterministically based on suburb name
-    const seed = currentSuburb.name
-      .split("")
-      .reduce((a, c) => a + c.charCodeAt(0), 0);
-    const shuffled = [...sameRegion].sort((a, b) => {
-      const ha = (a.name.charCodeAt(0) * 31 + seed) % 1000;
-      const hb = (b.name.charCodeAt(0) * 31 + seed) % 1000;
-      return ha - hb;
-    });
+  function getNearbySuburbs(currentSuburb, count = 6) {
+    const ring = regionRing[currentSuburb.region] || [];
+    const i = ring.findIndex((s) => s.name === currentSuburb.name);
+    const nearby = [];
 
-    let nearby = shuffled.slice(0, count);
+    // Walk forward around the ring, skipping self, until we have `count`.
+    for (let step = 1; step < ring.length && nearby.length < count; step++) {
+      nearby.push(ring[(i + step) % ring.length]);
+    }
 
-    // If not enough in same region, pull from other regions
+    // Small regions can't fill the grid from their own ring; top up from other
+    // regions so the page still offers somewhere to go.
     if (nearby.length < count) {
-      const others = suburbs
-        .filter(
-          (s) =>
-            s.name !== currentSuburb.name && s.region !== currentSuburb.region,
-        )
-        .slice(0, count - nearby.length);
-      nearby = nearby.concat(others);
+      const others = suburbs.filter(
+        (s) => s.region !== currentSuburb.region && s.name !== currentSuburb.name,
+      );
+      nearby.push(...others.slice(0, count - nearby.length));
     }
 
     return nearby.slice(0, count);
@@ -215,6 +273,14 @@ async function build() {
     const filename = `roofing-${slug}.html`;
     const filePath = path.join(CONFIG.outputDir, filename);
 
+    // Hand-authored: leave the file untouched, but list it like any other.
+    if (customBySlug.has(`roofing-${slug}`)) {
+      if (!regions[suburb.region]) regions[suburb.region] = [];
+      regions[suburb.region].push({ name: suburb.name, filename });
+      sitemapUrls.push(`${CONFIG.baseUrl}/service-areas/${filename}`);
+      return;
+    }
+
     // Generate nearby suburbs HTML
     const nearbySuburbs = getNearbySuburbs(suburb, 6);
     const nearbyHtml = generateNearbyHtml(nearbySuburbs);
@@ -281,7 +347,23 @@ async function build() {
     sitemapUrls.push(`${CONFIG.baseUrl}/service-areas/${filename}`);
   });
 
-  console.log("Generated all suburb pages.");
+  // Entries that are not suburbs at all — region hubs — have nothing in the
+  // loop above to list them, so add them here.
+  for (const c of customPages) {
+    const filename = `${c.slug}.html`;
+    const already = Object.values(regions).some((list) =>
+      list.some((item) => item.filename === filename),
+    );
+    if (already) continue;
+    if (!regions[c.region]) regions[c.region] = [];
+    regions[c.region].push({ name: c.name, filename });
+    sitemapUrls.push(`${CONFIG.baseUrl}/service-areas/${filename}`);
+  }
+
+  const generatedCount = sitemapUrls.length - customPages.length;
+  console.log(
+    `Generated ${generatedCount} suburb pages; left ${customPages.length} hand-authored page(s) untouched.`,
+  );
 
   // 4. Generate Locations Index
   let locationsGridHtml = "";
