@@ -328,3 +328,61 @@ describe('readSitemapUrls with a sitemap index', () => {
         expect(urls.every((u) => !u.endsWith('.xml'))).toBe(true);
     });
 });
+
+// service-areas/custom.json exempts hand-authored pages from being regenerated
+// (build.js) and from enrichment (scripts/enrich-service-areas.cjs). Those pages
+// are still listed and still submitted, so the exemption must not quietly drop
+// one out of the sitemap or leave a <loc> with no file behind it.
+describe('hand-authored service-area pages', () => {
+    const repoRoot = path.join(new URL(import.meta.url).pathname, '..', '..');
+    const manifestPath = path.join(repoRoot, 'service-areas', 'custom.json');
+    const manifest = fs.existsSync(manifestPath)
+        ? JSON.parse(fs.readFileSync(manifestPath, 'utf8'))
+        : [];
+
+    test('the manifest is an array of complete entries', () => {
+        expect(Array.isArray(manifest)).toBe(true);
+        for (const entry of manifest) {
+            expect(typeof entry.slug).toBe('string');
+            expect(typeof entry.name).toBe('string');
+            expect(typeof entry.region).toBe('string');
+            expect(entry.slug).toMatch(/^roofing-[a-z0-9-]+$/);
+        }
+    });
+
+    test('every listed page exists on disk', () => {
+        for (const entry of manifest) {
+            const rel = path.join('service-areas', `${entry.slug}.html`);
+            expect(fs.existsSync(path.join(repoRoot, rel))).toBe(true);
+        }
+    });
+
+    test('every listed page is submitted in the sitemap', () => {
+        const urls = new Set(readSitemapUrls());
+        for (const entry of manifest) {
+            expect(urls.has(`${BASE_URL}/service-areas/${entry.slug}.html`)).toBe(true);
+        }
+    });
+
+    test('no listed page carries the generated enrichment block', () => {
+        // The whole point of the exemption: enrichment would overwrite the
+        // hand-written content it exists to protect.
+        for (const entry of manifest) {
+            const html = fs.readFileSync(
+                path.join(repoRoot, 'service-areas', `${entry.slug}.html`),
+                'utf8',
+            );
+            expect(html).not.toContain('ENRICH:START');
+        }
+    });
+
+    test('no listed page still carries template placeholders', () => {
+        for (const entry of manifest) {
+            const html = fs.readFileSync(
+                path.join(repoRoot, 'service-areas', `${entry.slug}.html`),
+                'utf8',
+            );
+            expect(html).not.toMatch(/\{\{[A-Z_]+\}\}/);
+        }
+    });
+});

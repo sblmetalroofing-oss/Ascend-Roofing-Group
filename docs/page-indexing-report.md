@@ -198,6 +198,20 @@ There is no configuration change that makes Google index thin pages.
    and its typical problems (post-war timber vs. 1980s brick veneer), council
    or heritage-overlay specifics, actual project photos. The enrichment step
    already has the right anchor — it needs better material, not more of it.
+
+   Until recently this option was blocked in practice: every page under
+   `service-areas/` was regenerated from `template.html` on each build, so
+   hand-written content did not survive `npm run build`. **`service-areas/custom.json`**
+   is the exemption list that unblocks it — `build.js` leaves those files alone
+   and `scripts/enrich-service-areas.cjs` skips them, while they stay in
+   `locations.html` and the sitemap exactly as a generated page would. An entry
+   can override a suburb that already exists (keeping its URL and whatever
+   ranking it has earned) or add a page for a place that is not a suburb at
+   all, such as a region hub. The build fails if an entry has no file behind
+   it, rather than emitting a `<loc>` that nothing serves.
+
+   Spend it where the search data says it will pay. Write the page, add
+   `{"slug": "roofing-x", "name": "X", "region": "R"}` to the manifest, rebuild.
 2. **Prune.** 314 suburb pages for one roofing business is a lot. Fewer, richer
    pages for the suburbs that actually convert will out-perform 314 thin ones,
    and the pages you drop were mostly not indexed anyway. `npm run

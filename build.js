@@ -14,6 +14,7 @@ const CONFIG = {
   outputDir: path.join(__dirname, "service-areas"),
   locationsPath: path.join(__dirname, "locations.html"),
   sitemapPath: path.join(__dirname, "sitemap.xml"),
+  customPath: path.join(__dirname, "service-areas", "custom.json"),
   baseUrl: "https://www.ascendroofinggroup.com.au",
 };
 
@@ -52,6 +53,36 @@ function getSiteLastmod() {
   }
 }
 
+// Pages under service-areas/ that are written by hand instead of generated.
+//
+// docs/page-indexing-report.md §4 names "genuinely local content" as the first
+// thing that lifts indexing, but every page here was regenerated from one
+// template on each build, so hand-written content could not survive. This is
+// the exemption list: build.js leaves these files alone and the enrichment step
+// skips them, while they stay in locations.html and the sitemap exactly as a
+// generated page would.
+//
+// An entry may either override a suburb that exists in suburbs.json (keeping
+// its URL, and any ranking it has already earned) or add a page for a place
+// that is not a suburb at all — a region hub such as Moreton Bay.
+//
+// Shape: [{ "slug": "roofing-ipswich", "name": "Ipswich", "region": "Ipswich" }]
+function readCustomPages() {
+  if (!fs.existsSync(CONFIG.customPath)) return [];
+  const parsed = JSON.parse(fs.readFileSync(CONFIG.customPath, "utf8"));
+  if (!Array.isArray(parsed)) {
+    throw new Error("service-areas/custom.json must be a JSON array.");
+  }
+  for (const entry of parsed) {
+    if (!entry || !entry.slug || !entry.name || !entry.region) {
+      throw new Error(
+        `service-areas/custom.json entries need slug, name and region: ${JSON.stringify(entry)}`,
+      );
+    }
+  }
+  return parsed;
+}
+
 // The review rail reads as a fan: outer cards tilt, the middle one sits
 // flat and forward. The homepage sets these classes by hand; generated
 // pages get them here.
@@ -82,6 +113,20 @@ async function build() {
 
   const regions = {};
   let sitemapUrls = [];
+
+  // Hand-authored pages are still listed and still submitted; they are just not
+  // overwritten. A missing file would put a <loc> in the sitemap with nothing
+  // behind it, which check:indexing rejects, so fail here with a clearer message.
+  const customPages = readCustomPages();
+  const customBySlug = new Map(customPages.map((c) => [c.slug, c]));
+  for (const c of customPages) {
+    if (!fs.existsSync(path.join(CONFIG.outputDir, `${c.slug}.html`))) {
+      throw new Error(
+        `service-areas/custom.json lists ${c.slug} but service-areas/${c.slug}.html does not exist. ` +
+          `Write the page, or remove the entry.`,
+      );
+    }
+  }
 
   // Pre-build region lookup for nearby suburbs
   const regionMap = {};
@@ -215,6 +260,14 @@ async function build() {
     const filename = `roofing-${slug}.html`;
     const filePath = path.join(CONFIG.outputDir, filename);
 
+    // Hand-authored: leave the file untouched, but list it like any other.
+    if (customBySlug.has(`roofing-${slug}`)) {
+      if (!regions[suburb.region]) regions[suburb.region] = [];
+      regions[suburb.region].push({ name: suburb.name, filename });
+      sitemapUrls.push(`${CONFIG.baseUrl}/service-areas/${filename}`);
+      return;
+    }
+
     // Generate nearby suburbs HTML
     const nearbySuburbs = getNearbySuburbs(suburb, 6);
     const nearbyHtml = generateNearbyHtml(nearbySuburbs);
@@ -281,7 +334,23 @@ async function build() {
     sitemapUrls.push(`${CONFIG.baseUrl}/service-areas/${filename}`);
   });
 
-  console.log("Generated all suburb pages.");
+  // Entries that are not suburbs at all — region hubs — have nothing in the
+  // loop above to list them, so add them here.
+  for (const c of customPages) {
+    const filename = `${c.slug}.html`;
+    const already = Object.values(regions).some((list) =>
+      list.some((item) => item.filename === filename),
+    );
+    if (already) continue;
+    if (!regions[c.region]) regions[c.region] = [];
+    regions[c.region].push({ name: c.name, filename });
+    sitemapUrls.push(`${CONFIG.baseUrl}/service-areas/${filename}`);
+  }
+
+  const generatedCount = sitemapUrls.length - customPages.length;
+  console.log(
+    `Generated ${generatedCount} suburb pages; left ${customPages.length} hand-authored page(s) untouched.`,
+  );
 
   // 4. Generate Locations Index
   let locationsGridHtml = "";

@@ -162,10 +162,25 @@ ${neighbourLinks}
         ${END}`;
 }
 
+// Pages listed in service-areas/custom.json are written by hand and carry
+// content richer than anything this script injects, so enriching them would
+// overwrite the very thing they exist for. build.js skips generating them for
+// the same reason.
+function readCustomSlugs() {
+  const p = path.join(SA_DIR, 'custom.json');
+  if (!fs.existsSync(p)) return new Set();
+  const parsed = JSON.parse(fs.readFileSync(p, 'utf8'));
+  return new Set(parsed.map((c) => c.slug));
+}
+
 function main() {
   const { regions, bySlug } = buildIndex();
-  const files = fs.readdirSync(SA_DIR).filter((f) => /^roofing-.*\.html$/.test(f));
-  const existingFiles = new Set(files);
+  const customSlugs = readCustomSlugs();
+  const files = fs
+    .readdirSync(SA_DIR)
+    .filter((f) => /^roofing-.*\.html$/.test(f))
+    .filter((f) => !customSlugs.has(f.replace(/\.html$/, '')));
+  const existingFiles = new Set(fs.readdirSync(SA_DIR).filter((f) => /^roofing-.*\.html$/.test(f)));
 
   let enriched = 0;
   const skipped = [];
