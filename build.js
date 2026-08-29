@@ -128,6 +128,13 @@ async function build() {
     }
   }
 
+  // A region hub is the page a whole region's suburbs should point up to. Its
+  // members are what give it inbound links: without them the hub is reachable
+  // only from locations.html, which is the same near-orphan state the ring
+  // above exists to prevent.
+  const hubByRegion = {};
+  for (const c of customPages) hubByRegion[c.region] = c;
+
   // Pre-build region lookup for nearby suburbs
   const regionMap = {};
   suburbs.forEach((s) => {
@@ -152,7 +159,11 @@ async function build() {
   // `count` other pages' grids. No orphans, no favourites.
   const regionRing = {};
   for (const [region, list] of Object.entries(regionMap)) {
-    regionRing[region] = [...list].sort(
+    const hub = hubByRegion[region];
+    // A hub that is also a suburb (Ipswich is both) is linked by the hub card
+    // on every page in its region, so it does not belong in the ring as well.
+    const members = hub ? list.filter((s) => `roofing-${getSlug(s.name)}` !== hub.slug) : list;
+    regionRing[region] = [...members].sort(
       (a, b) =>
         (parseInt(a.postcode, 10) || 9999) - (parseInt(b.postcode, 10) || 9999) ||
         a.name.localeCompare(b.name),
@@ -182,12 +193,18 @@ async function build() {
   }
 
   // Function to generate nearby suburbs HTML
-  function generateNearbyHtml(nearbyList) {
-    return nearbyList
+  function generateNearbyHtml(nearbyList, region) {
+    const hub = hubByRegion[region];
+    const hubCard = hub
+      ? [
+          `<a href="${hub.slug}.html" class="nearby-card nearby-card--hub" title="Roofing across ${hub.name}"><span class="nearby-name">All of ${hub.name}</span><span class="nearby-region">Region guide</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17l9.2-9.2M17 17V7.8H7.8"/></svg></a>`,
+        ]
+      : [];
+    return hubCard.concat(nearbyList
       .map((s) => {
         const slug = getSlug(s.name);
         return `<a href="roofing-${slug}.html" class="nearby-card" title="Roofing ${s.name}"><span class="nearby-name">${s.name}</span><span class="nearby-region">${s.region} ${s.postcode}</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17l9.2-9.2M17 17V7.8H7.8"/></svg></a>`;
-      })
+      }))
       .join("\n                ");
   }
 
@@ -283,7 +300,7 @@ async function build() {
 
     // Generate nearby suburbs HTML
     const nearbySuburbs = getNearbySuburbs(suburb, 6);
-    const nearbyHtml = generateNearbyHtml(nearbySuburbs);
+    const nearbyHtml = generateNearbyHtml(nearbySuburbs, suburb.region);
     const metaDesc = getMetaDescription(suburb);
 
     // Build spinning content (deterministic)
