@@ -156,7 +156,7 @@ describe('nearby-suburb link distribution', () => {
         for (const f of files) {
             const html = fs.readFileSync(path.join(dir, f), 'utf8');
             const linked = new Set(
-                [...html.matchAll(/<a href="(roofing-[a-z0-9-]+)\.html" class="nearby-card"/g)].map(
+                [...html.matchAll(/<a href="(roofing-[a-z0-9-]+)\.html" class="nearby-card[ "]/g)].map(
                     (m) => m[1],
                 ),
             );
@@ -167,15 +167,38 @@ describe('nearby-suburb link distribution', () => {
         return counts;
     }
 
+    const HUBS = new Set(
+        (() => {
+            const p = path.join(repoRoot, 'service-areas', 'custom.json');
+            return fs.existsSync(p)
+                ? JSON.parse(fs.readFileSync(p, 'utf8')).map((c) => c.slug)
+                : [];
+        })(),
+    );
+
     it('leaves no suburb page unlinked by its neighbours', () => {
         const counts = nearbyInboundCounts();
         const orphans = [...counts].filter(([, n]) => n === 0).map(([slug]) => slug);
         expect(orphans).toEqual([]);
     });
 
-    it('links every suburb page an equal number of times', () => {
-        const values = [...nearbyInboundCounts().values()];
-        expect(Math.min(...values)).toBe(Math.max(...values));
+    it('links every ordinary suburb page a near-equal number of times', () => {
+        // Hubs are excluded: they are deliberately linked by every page in
+        // their region, not by six ring neighbours.
+        const values = [...nearbyInboundCounts()]
+            .filter(([slug]) => !HUBS.has(slug))
+            .map(([, n]) => n);
+        expect(Math.min(...values)).toBeGreaterThanOrEqual(6);
+        expect(Math.max(...values) - Math.min(...values)).toBeLessThanOrEqual(1);
+    });
+
+    it('links each region hub from every suburb page in its region', () => {
+        // A hub reachable only from locations.html is the same near-orphan
+        // state the ring exists to prevent.
+        const counts = nearbyInboundCounts();
+        for (const hub of HUBS) {
+            expect(counts.get(hub)).toBeGreaterThan(20);
+        }
     });
 
     it('gives every page a full grid of outbound neighbour links', () => {

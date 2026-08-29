@@ -4,7 +4,7 @@
     "description": "Static website for Ascend Roofing Group",
     "type": "module",
     "scripts": {
-        "build": "node build.js && node scripts/enrich-service-areas.cjs",
+        "build": "node scripts/build-region-hubs.cjs && node build.js && node scripts/enrich-service-areas.cjs",
         "check:indexing": "node scripts/check-indexing-hygiene.js",
         "check:uniqueness": "node scripts/content-uniqueness.js",
         "prune:service-areas": "node scripts/prune-service-areas.js",
