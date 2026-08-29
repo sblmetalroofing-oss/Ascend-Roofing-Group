@@ -34,6 +34,11 @@ function escapeAttr(str) {
 // Sitemap lastmod: the last commit date of the content inputs — deterministic
 // per commit, so rebuilding without content changes produces no diff (CI
 // enforces this) and Google isn't told unchanged pages are "new".
+//
+// The path list has to name every input that can change a page's body, or the
+// opposite failure appears: content moves and lastmod does not, so Google is
+// told nothing changed. The region hub content and its builder are inputs in
+// exactly that sense.
 function getSiteLastmod() {
   const FALLBACK = "2026-07-10";
   try {
@@ -44,7 +49,8 @@ function getSiteLastmod() {
     // the author's build wrote. Only real content commits may set it.
     // Requires full history in CI (fetch-depth: 0 in .github/workflows/ci.yml).
     const out = execSync(
-      "git log -1 --no-merges --format=%cs -- template.html suburbs.json build.js scripts/enrich-service-areas.cjs",
+      "git log -1 --no-merges --format=%cs -- template.html suburbs.json build.js " +
+        "scripts/enrich-service-areas.cjs scripts/build-region-hubs.cjs content/regions service-areas/custom.json",
       { cwd: __dirname, encoding: "utf8" },
     ).trim();
     return /^\d{4}-\d{2}-\d{2}$/.test(out) ? out : FALLBACK;
