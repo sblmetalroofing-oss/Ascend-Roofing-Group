@@ -3718,11 +3718,11 @@ textarea:focus-visible,
    chips and the "How It Works" timeline. Everything is CSS-only
    (no JS dependency) and switches off under prefers-reduced-motion,
    where the scene shows its finished state instead.
-   The whole scene runs on one 16s cycle; per-element delays only
+   The whole scene runs on one 22s cycle; per-element delays only
    shift phase, and every keyframe set starts and ends in the same
    state so the loop point never jumps.
    ============================================================ */
-.t-hero--reroof { --t-cycle: 16s; }
+.t-hero--reroof { --t-cycle: 22s; }
 .t-hero--reroof .t-hero-grid { grid-template-columns: 1.05fr 1fr; gap: 48px; }
 
 /* ---- copy entrance ---- */
@@ -3795,32 +3795,43 @@ textarea:focus-visible,
 .t-scene-svg .t-led { stroke: #d0d5dc; stroke-width: 2.4; stroke-linecap: round; }
 .t-scene-svg .t-brace { stroke: #98a2ad; stroke-width: 1.8; stroke-linecap: round; }
 
-/* ---- phase tracker (HTML, synced to the same 16s cycle) ---- */
-.t-hud { position: absolute; top: 0; left: 0; display: flex; flex-direction: column; gap: 8px; pointer-events: none; animation: t-chip-in 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) 0.8s both; }
-.t-phases { list-style: none; margin: 0; padding: 0; display: flex; gap: 6px; }
+/* ---- phase tracker (HTML, synced to the same 22s cycle) ---- */
+.t-hud { position: absolute; top: 0; left: 0; right: 0; display: flex; flex-direction: column; gap: 8px; pointer-events: none; animation: t-chip-in 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) 0.8s both; }
+.t-phases { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; }
 .t-phase {
-  display: flex; align-items: center; gap: 7px; padding: 7px 11px 7px 8px; border-radius: 999px;
+  display: flex; align-items: center; gap: 4px; padding: 5px 7px 5px 4px; border-radius: 999px;
   background: rgba(16, 16, 16, 0.82); border: 1px solid rgba(255, 255, 255, 0.1);
-  font-family: var(--font-heading); font-size: 0.66rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #8d8d8d;
+  font-family: var(--font-heading); font-size: 0.53rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #8d8d8d;
   -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
   animation: t-phase var(--t-cycle) steps(1, end) infinite;
 }
-.t-phase span { display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; background: rgba(255, 255, 255, 0.08); font-size: 0.58rem; color: #cfcfcf; }
+.t-phase span { display: grid; place-items: center; width: 15px; height: 15px; border-radius: 50%; background: rgba(255, 255, 255, 0.08); font-size: 0.55rem; color: #cfcfcf; }
 .t-phase.p1 { animation-name: t-phase-1; }
 .t-phase.p2 { animation-name: t-phase-2; }
 .t-phase.p3 { animation-name: t-phase-3; }
 .t-phase.p4 { animation-name: t-phase-4; }
-@keyframes t-phase-1 { 0%, 17% { color: #fff; border-color: var(--accent-color); box-shadow: 0 0 0 1px var(--accent-color), 0 6px 18px rgba(0, 123, 255, 0.35); } 17.01%, 100% { color: #8d8d8d; } }
-@keyframes t-phase-2 { 17%, 41% { color: #fff; border-color: var(--accent-color); box-shadow: 0 0 0 1px var(--accent-color), 0 6px 18px rgba(0, 123, 255, 0.35); } 0%, 16.99%, 41.01%, 100% { color: #8d8d8d; } }
-@keyframes t-phase-3 { 41%, 70% { color: #fff; border-color: var(--accent-color); box-shadow: 0 0 0 1px var(--accent-color), 0 6px 18px rgba(0, 123, 255, 0.35); } 0%, 40.99%, 70.01%, 100% { color: #8d8d8d; } }
-@keyframes t-phase-4 { 70%, 90% { color: #fff; border-color: var(--accent-color); box-shadow: 0 0 0 1px var(--accent-color), 0 6px 18px rgba(0, 123, 255, 0.35); } 0%, 69.99%, 90.01%, 100% { color: #8d8d8d; } }
+.t-phase.p5 { animation-name: t-phase-5; }
+.t-phase.p6 { animation-name: t-phase-6; }
+.t-phase.p7 { animation-name: t-phase-7; }
+@keyframes t-phase-1 { 0%, 8% { color: #fff; border-color: var(--accent-color); box-shadow: 0 0 0 1px var(--accent-color), 0 6px 18px rgba(0, 123, 255, 0.35); } 8.01%, 100% { color: #8d8d8d; } }
+@keyframes t-phase-2 { 8%, 19% { color: #fff; border-color: var(--accent-color); box-shadow: 0 0 0 1px var(--accent-color), 0 6px 18px rgba(0, 123, 255, 0.35); } 0%, 7.99%, 19.01%, 100% { color: #8d8d8d; } }
+@keyframes t-phase-3 { 19%, 34% { color: #fff; border-color: var(--accent-color); box-shadow: 0 0 0 1px var(--accent-color), 0 6px 18px rgba(0, 123, 255, 0.35); } 0%, 18.99%, 34.01%, 100% { color: #8d8d8d; } }
+@keyframes t-phase-4 { 34%, 46% { color: #fff; border-color: var(--accent-color); box-shadow: 0 0 0 1px var(--accent-color), 0 6px 18px rgba(0, 123, 255, 0.35); } 0%, 33.99%, 46.01%, 100% { color: #8d8d8d; } }
+@keyframes t-phase-5 { 46%, 57% { color: #fff; border-color: var(--accent-color); box-shadow: 0 0 0 1px var(--accent-color), 0 6px 18px rgba(0, 123, 255, 0.35); } 0%, 45.99%, 57.01%, 100% { color: #8d8d8d; } }
+@keyframes t-phase-6 { 57%, 74% { color: #fff; border-color: var(--accent-color); box-shadow: 0 0 0 1px var(--accent-color), 0 6px 18px rgba(0, 123, 255, 0.35); } 0%, 56.99%, 74.01%, 100% { color: #8d8d8d; } }
+@keyframes t-phase-7 { 74%, 94% { color: #fff; border-color: var(--accent-color); box-shadow: 0 0 0 1px var(--accent-color), 0 6px 18px rgba(0, 123, 255, 0.35); } 0%, 73.99%, 94.01%, 100% { color: #8d8d8d; } }
 .t-hud-bar { width: 100%; height: 3px; border-radius: 2px; background: rgba(255, 255, 255, 0.1); overflow: hidden; }
 .t-hud-bar span { display: block; height: 100%; background: linear-gradient(90deg, var(--accent-btn), var(--accent-light)); transform-origin: left; animation: t-hud-bar var(--t-cycle) linear infinite; }
-@keyframes t-hud-bar { 0% { transform: scaleX(0); } 90% { transform: scaleX(1); } 100% { transform: scaleX(1); opacity: 0; } }
+@keyframes t-hud-bar { 0% { transform: scaleX(0); } 94% { transform: scaleX(1); } 100% { transform: scaleX(1); opacity: 0; } }
 
-/* ---- scene: motion (all on the shared 16s cycle) ---- */
+/* ---- scene: motion (all on the shared 22s cycle) ----
+   0–1.8s check measure · 1.8–4s scaffold · 4–7s strip tiles ·
+   7–9.4s battens · 9.4–11.6s insulation · 11.6–15.4s sheets ·
+   15.4–20s ridge, vent, tick · 20–22s teardown and reset. */
 .t-scene-svg .t-tile-old,
 .t-scene-svg .t-sheet,
+.t-scene-svg .t-batten,
+.t-scene-svg .t-insul-run,
 .t-scene-svg .t-std,
 .t-scene-svg .t-plank,
 .t-scene-svg .t-ladder,
@@ -3829,6 +3840,9 @@ textarea:focus-visible,
 .t-scene-svg .t-badge,
 .t-scene-svg .t-badge-ring { transform-box: fill-box; transform-origin: center; }
 .t-scene-svg .t-std { transform-origin: center bottom; }
+/* in roof-plane coordinates the ridge is the bottom edge, so this unrolls
+   the blanket from the ridge down to the gutter */
+.t-scene-svg .t-insul-run { transform-origin: center bottom; }
 
 .t-scene-svg .t-glow { animation: t-glow-pulse 6s ease-in-out infinite alternate; }
 @keyframes t-glow-pulse { from { opacity: 0.55; } to { opacity: 1; } }
@@ -3836,7 +3850,7 @@ textarea:focus-visible,
 .t-scene-svg .t-cloud.c2 { animation: t-drift 18s ease-in-out infinite alternate-reverse; }
 @keyframes t-drift { from { transform: translateX(-14px); } to { transform: translateX(22px); } }
 
-/* scaffold goes up first (0–2.7s), comes down last (14–15.2s) */
+/* scaffold goes up first, comes down last */
 .t-scene-svg .t-std { animation: t-std var(--t-cycle) ease-out infinite both; }
 .t-scene-svg .t-std.d1 { animation-delay: 0.15s; }
 .t-scene-svg .t-std.d2 { animation-delay: 0.3s; }
@@ -3850,10 +3864,10 @@ textarea:focus-visible,
 .t-scene-svg .t-tower.right .t-std.d2 { animation-delay: 1s; }
 .t-scene-svg .t-tower.right .t-std.d3 { animation-delay: 1.15s; }
 @keyframes t-std {
-  0% { transform: scaleY(0); }
-  7% { transform: scaleY(1); }
-  88% { transform: scaleY(1); }
-  94% { transform: scaleY(0); }
+  0%, 8% { transform: scaleY(0); }
+  13.52% { transform: scaleY(1); }
+  90.8% { transform: scaleY(1); }
+  95.4% { transform: scaleY(0); }
   100% { transform: scaleY(0); }
 }
 .t-scene-svg .t-led, .t-scene-svg .t-brace { stroke-dasharray: 1; animation: t-draw-line var(--t-cycle) ease-out infinite both; }
@@ -3869,34 +3883,34 @@ textarea:focus-visible,
 .t-scene-svg .t-tower.right .t-led.l3 { animation-delay: 1.35s; }
 .t-scene-svg .t-tower.right .t-brace { animation-delay: 1.5s; }
 @keyframes t-draw-line {
-  0% { stroke-dashoffset: 1; }
-  5% { stroke-dashoffset: 1; }
-  12% { stroke-dashoffset: 0; }
-  86% { stroke-dashoffset: 0; }
-  92% { stroke-dashoffset: 1; }
+  0%, 8% { stroke-dashoffset: 1; }
+  11.68% { stroke-dashoffset: 1; }
+  17.2% { stroke-dashoffset: 0; }
+  88.96% { stroke-dashoffset: 0; }
+  93.56% { stroke-dashoffset: 1; }
   100% { stroke-dashoffset: 1; }
 }
 .t-scene-svg .t-plank, .t-scene-svg .t-ladder { animation: t-plank var(--t-cycle) ease infinite both; }
 .t-scene-svg .t-tower.right .t-plank { animation-delay: 0.6s; }
 .t-scene-svg .t-ladder { animation-delay: 0.4s; }
 @keyframes t-plank {
-  0% { opacity: 0; transform: translateY(-10px); }
-  13% { opacity: 0; transform: translateY(-10px); }
-  17% { opacity: 1; transform: translateY(0); }
-  84% { opacity: 1; transform: translateY(0); }
-  88% { opacity: 0; transform: translateY(-10px); }
+  0%, 8% { opacity: 0; transform: translateY(-10px); }
+  17.2% { opacity: 0; transform: translateY(-10px); }
+  19.96% { opacity: 1; transform: translateY(0); }
+  88.04% { opacity: 1; transform: translateY(0); }
+  90.8% { opacity: 0; transform: translateY(-10px); }
   100% { opacity: 0; transform: translateY(-10px); }
 }
 .t-scene-svg .t-base { animation: t-fade-hold var(--t-cycle) ease infinite both; }
 @keyframes t-fade-hold {
-  0% { opacity: 0; }
-  2% { opacity: 1; }
-  93% { opacity: 1; }
-  96% { opacity: 0; }
+  0%, 8% { opacity: 0; }
+  9.84% { opacity: 1; }
+  94.48% { opacity: 1; }
+  96.32% { opacity: 0; }
   100% { opacity: 0; }
 }
 
-/* old tiles lift off row by row from the ridge down (3–6.5s) into the skip; fade back at the loop */
+/* old tiles lift off row by row from the ridge down into the skip; fade back at the loop */
 .t-scene-svg .t-tile-old { animation: t-tile-off var(--t-cycle) ease-in infinite both; }
 .t-scene-svg .t-tile-old.r4 { animation-delay: 0.3s; }
 .t-scene-svg .t-tile-old.r3 { animation-delay: 0.6s; }
@@ -3912,32 +3926,61 @@ textarea:focus-visible,
 /* The vectors are in roof-plane coordinates: once projected they read as a
    lift up off the roof, then an arc down and right towards the skip. */
 @keyframes t-tile-off {
-  0% { opacity: 1; transform: none; }
-  18% { opacity: 1; transform: none; }
-  23% { opacity: 1; transform: translate(0px, 53px) rotate(-14deg); }
-  29% { opacity: 0; transform: translate(165px, -71px) rotate(-40deg); }
-  92% { opacity: 0; transform: none; }
+  0%, 8% { opacity: 1; transform: none; }
+  19.96% { opacity: 1; transform: none; }
+  23.64% { opacity: 1; transform: translate(0px, 53px) rotate(-14deg); }
+  28.24% { opacity: 0; transform: translate(165px, -71px) rotate(-40deg); }
+  94.48% { opacity: 0; transform: none; }
   100% { opacity: 1; transform: none; }
 }
 .t-scene-svg .t-plane.back .t-tile-old { animation-name: t-tile-off-back; }
 @keyframes t-tile-off-back {
-  0% { opacity: 1; transform: none; }
-  18% { opacity: 1; transform: none; }
-  28% { opacity: 0; transform: translate(-80px, -120px); }
-  92% { opacity: 0; transform: none; }
+  0%, 8% { opacity: 1; transform: none; }
+  19.96% { opacity: 1; transform: none; }
+  28.24% { opacity: 0; transform: translate(-80px, -120px); }
+  94.48% { opacity: 0; transform: none; }
   100% { opacity: 1; transform: none; }
 }
 .t-scene-svg .t-rubble { animation: t-rubble var(--t-cycle) ease infinite both; }
 @keyframes t-rubble {
-  0% { opacity: 0; }
-  22% { opacity: 0; }
-  34% { opacity: 1; }
-  89% { opacity: 1; }
-  93% { opacity: 0; }
+  0%, 8% { opacity: 0; }
+  22.72% { opacity: 0; }
+  33.76% { opacity: 1; }
+  92.64% { opacity: 1; }
+  95.4% { opacity: 0; }
   100% { opacity: 0; }
 }
 
-/* Colorbond sheets slide down the slope left to right (6.7–9.7s) */
+/* new steel top-hat battens slide in along the eave and get fixed one at a time */
+.t-scene-svg .t-batten { animation: t-batten var(--t-cycle) cubic-bezier(0.2, 0.8, 0.2, 1) infinite both; }
+.t-scene-svg .t-batten.b1 { animation-delay: 0.3s; }
+.t-scene-svg .t-batten.b2 { animation-delay: 0.6s; }
+.t-scene-svg .t-batten.b3 { animation-delay: 0.9s; }
+.t-scene-svg .t-batten.b4 { animation-delay: 1.2s; }
+.t-scene-svg .t-batten.b5 { animation-delay: 1.5s; }
+@keyframes t-batten {
+  0%, 8% { opacity: 0; transform: translateX(240px); }
+  33.76% { opacity: 0; transform: translateX(240px); }
+  35.6% { opacity: 1; }
+  39.28% { opacity: 1; transform: translateX(0); }
+  92.64% { opacity: 1; transform: translateX(0); }
+  95.4% { opacity: 0; transform: translateX(0); }
+  100% { opacity: 0; transform: translateX(240px); }
+}
+/* foil insulation blanket unrolls from the ridge, three runs left to right */
+.t-scene-svg .t-insul-run { animation: t-insul var(--t-cycle) cubic-bezier(0.3, 0.7, 0.3, 1) infinite both; }
+.t-scene-svg .t-insul-run.i1 { animation-delay: 0.45s; }
+.t-scene-svg .t-insul-run.i2 { animation-delay: 0.9s; }
+@keyframes t-insul {
+  0%, 8% { opacity: 1; transform: scaleY(0); }
+  45.72% { opacity: 1; transform: scaleY(0); }
+  52.16% { opacity: 1; transform: scaleY(1); }
+  92.64% { opacity: 1; transform: scaleY(1); }
+  95.4% { opacity: 0; transform: scaleY(1); }
+  100% { opacity: 0; transform: scaleY(0); }
+}
+
+/* Colorbond sheets slide down the slope left to right */
 .t-scene-svg .t-sheet { animation: t-sheet-on var(--t-cycle) cubic-bezier(0.34, 1.3, 0.64, 1) infinite both; }
 .t-scene-svg .t-sheet.n1 { animation-delay: 0.3s; }
 .t-scene-svg .t-sheet.n2 { animation-delay: 0.6s; }
@@ -3947,48 +3990,48 @@ textarea:focus-visible,
 .t-scene-svg .t-sheet.n6 { animation-delay: 1.8s; }
 .t-scene-svg .t-sheet.n7 { animation-delay: 2.1s; }
 @keyframes t-sheet-on {
-  0% { opacity: 0; transform: translateY(150px); }
-  42% { opacity: 0; transform: translateY(150px); }
-  44% { opacity: 1; }
-  49% { opacity: 1; transform: translateY(0); }
-  87% { opacity: 1; transform: translateY(0); }
-  92% { opacity: 0; transform: translateY(0); }
+  0%, 8% { opacity: 0; transform: translateY(150px); }
+  57.68% { opacity: 0; transform: translateY(150px); }
+  59.52% { opacity: 1; }
+  63.2% { opacity: 1; transform: translateY(0); }
+  90.8% { opacity: 1; transform: translateY(0); }
+  94.48% { opacity: 0; transform: translateY(0); }
   100% { opacity: 0; transform: translateY(150px); }
 }
 .t-scene-svg .t-plane.back .t-sheet { animation-name: t-sheet-on-back; }
 @keyframes t-sheet-on-back {
-  0% { opacity: 0; transform: translateY(-120px); }
-  42% { opacity: 0; transform: translateY(-120px); }
-  44% { opacity: 1; }
-  49% { opacity: 1; transform: translateY(0); }
-  87% { opacity: 1; transform: translateY(0); }
-  92% { opacity: 0; transform: translateY(0); }
+  0%, 8% { opacity: 0; transform: translateY(-120px); }
+  57.68% { opacity: 0; transform: translateY(-120px); }
+  59.52% { opacity: 1; }
+  63.2% { opacity: 1; transform: translateY(0); }
+  90.8% { opacity: 1; transform: translateY(0); }
+  94.48% { opacity: 0; transform: translateY(0); }
   100% { opacity: 0; transform: translateY(-120px); }
 }
 .t-scene-svg .t-pack { animation: t-pack var(--t-cycle) ease infinite both; }
 @keyframes t-pack {
-  0% { opacity: 1; transform: none; }
-  44% { opacity: 1; transform: none; }
-  58% { opacity: 0; transform: translateY(-14px); }
-  92% { opacity: 0; transform: translateY(-14px); }
+  0%, 8% { opacity: 1; transform: none; }
+  59.52% { opacity: 1; transform: none; }
+  70.56% { opacity: 0; transform: translateY(-14px); }
+  94.48% { opacity: 0; transform: translateY(-14px); }
   100% { opacity: 1; transform: none; }
 }
 .t-scene-svg .t-ridge { stroke-dasharray: 1; animation: t-ridge var(--t-cycle) ease-out infinite both; }
 @keyframes t-ridge {
-  0% { opacity: 1; stroke-dashoffset: 1; }
-  63% { opacity: 1; stroke-dashoffset: 1; }
-  69% { opacity: 1; stroke-dashoffset: 0; }
-  88% { opacity: 1; stroke-dashoffset: 0; }
-  92% { opacity: 0; stroke-dashoffset: 0; }
+  0%, 8% { opacity: 1; stroke-dashoffset: 1; }
+  73.32% { opacity: 1; stroke-dashoffset: 1; }
+  77.92% { opacity: 1; stroke-dashoffset: 0; }
+  90.8% { opacity: 1; stroke-dashoffset: 0; }
+  94.48% { opacity: 0; stroke-dashoffset: 0; }
   100% { opacity: 0; stroke-dashoffset: 1; }
 }
 .t-scene-svg .t-vent { animation: t-vent var(--t-cycle) cubic-bezier(0.34, 1.56, 0.64, 1) infinite both; }
 @keyframes t-vent {
-  0% { opacity: 0; transform: translateY(-12px); }
-  69% { opacity: 0; transform: translateY(-12px); }
-  73% { opacity: 1; transform: translateY(0); }
-  88% { opacity: 1; transform: translateY(0); }
-  92% { opacity: 0; transform: translateY(0); }
+  0%, 8% { opacity: 0; transform: translateY(-12px); }
+  77.92% { opacity: 0; transform: translateY(-12px); }
+  80.68% { opacity: 1; transform: translateY(0); }
+  90.8% { opacity: 1; transform: translateY(0); }
+  94.48% { opacity: 0; transform: translateY(0); }
   100% { opacity: 0; transform: translateY(-12px); }
 }
 .t-scene-svg .t-vent-ribs { animation: t-spin 1.4s linear infinite; }
@@ -3998,28 +4041,50 @@ textarea:focus-visible,
 .t-scene-svg .t-spark.k3 { animation-delay: 1s; }
 @keyframes t-spark {
   0% { opacity: 0; transform: scale(0.2) rotate(0deg); }
-  74% { opacity: 0; transform: scale(0.2) rotate(0deg); }
-  77% { opacity: 1; transform: scale(1) rotate(45deg); }
-  81% { opacity: 0; transform: scale(0.2) rotate(90deg); }
+  80% { opacity: 0; transform: scale(0.2) rotate(0deg); }
+  83% { opacity: 1; transform: scale(1) rotate(45deg); }
+  87% { opacity: 0; transform: scale(0.2) rotate(90deg); }
   100% { opacity: 0; transform: scale(0.2) rotate(90deg); }
 }
 /* the "done" tick pops once the ridge is on */
 .t-scene-svg .t-badge { animation: t-badge var(--t-cycle) cubic-bezier(0.34, 1.56, 0.64, 1) infinite both; }
 @keyframes t-badge {
-  0% { transform: scale(0); }
-  72% { transform: scale(0); }
-  76% { transform: scale(1); }
-  86% { transform: scale(1); }
-  90% { transform: scale(0); }
+  0%, 8% { transform: scale(0); }
+  79.76% { transform: scale(0); }
+  83.44% { transform: scale(1); }
+  89.88% { transform: scale(1); }
+  93.56% { transform: scale(0); }
   100% { transform: scale(0); }
 }
 .t-scene-svg .t-badge-ring { animation: t-badge-ring var(--t-cycle) ease-out infinite both; }
 @keyframes t-badge-ring {
-  0% { opacity: 0; transform: scale(1); }
-  75% { opacity: 0; transform: scale(1); }
-  76% { opacity: 0.9; transform: scale(1); }
-  83% { opacity: 0; transform: scale(2.1); }
+  0%, 8% { opacity: 0; transform: scale(1); }
+  82.52% { opacity: 0; transform: scale(1); }
+  83.44% { opacity: 0.9; transform: scale(1); }
+  88.96% { opacity: 0; transform: scale(2.1); }
   100% { opacity: 0; transform: scale(2.1); }
+}
+
+/* check measure: tape lines draw along the eave and slope before the scaffold */
+.t-scene-svg .t-tape { animation: t-tape var(--t-cycle) ease-out infinite both; }
+.t-scene-svg .t-tape.t2 { animation-delay: 0.5s; }
+@keyframes t-tape {
+  0% { opacity: 1; stroke-dashoffset: 1; }
+  0.5% { opacity: 1; stroke-dashoffset: 1; }
+  4% { opacity: 1; stroke-dashoffset: 0; }
+  8.5% { opacity: 1; stroke-dashoffset: 0; }
+  10.5% { opacity: 0; stroke-dashoffset: 0; }
+  100% { opacity: 0; stroke-dashoffset: 1; }
+}
+.t-scene-svg .t-tick, .t-scene-svg .t-measure-label { animation: t-measure-pop var(--t-cycle) cubic-bezier(0.34, 1.4, 0.64, 1) infinite both; transform-box: fill-box; transform-origin: center; }
+.t-scene-svg .t-measure-label { animation-delay: 0.6s; }
+@keyframes t-measure-pop {
+  0% { opacity: 0; transform: scale(0.6); }
+  2% { opacity: 0; transform: scale(0.6); }
+  4% { opacity: 1; transform: scale(1); }
+  8.5% { opacity: 1; transform: scale(1); }
+  10.5% { opacity: 0; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.6); }
 }
 
 /* ---- services tiles: shine sweep on hover ---- */
@@ -4096,7 +4161,7 @@ textarea:focus-visible,
   .t-stat-chips { position: static; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 14px; }
   .t-hud { position: static; margin-bottom: 10px; }
   .t-phases { flex-wrap: wrap; }
-  .t-phase { font-size: 0.6rem; padding: 6px 9px 6px 6px; }
+  .t-phase { font-size: 0.58rem; padding: 5px 8px 5px 5px; }
   .t-chip { position: static; min-width: 0; flex: 1 1 140px; padding: 10px 12px; }
   .t-chip strong { font-size: 1.2rem; }
   .t-chip > span { font-size: 0.64rem; }
@@ -4110,16 +4175,16 @@ textarea:focus-visible,
   .t-scene-svg .t-glow, .t-scene-svg .t-cloud, .t-scene-svg .t-std, .t-scene-svg .t-led, .t-scene-svg .t-brace,
   .t-scene-svg .t-plank, .t-scene-svg .t-ladder, .t-scene-svg .t-base, .t-scene-svg .t-tile-old, .t-scene-svg .t-sheet,
   .t-scene-svg .t-ridge, .t-scene-svg .t-pack, .t-scene-svg .t-rubble, .t-scene-svg .t-vent, .t-scene-svg .t-vent-ribs,
-  .t-scene-svg .t-spark, .t-scene-svg .t-badge, .t-scene-svg .t-badge-ring,
+  .t-scene-svg .t-spark, .t-scene-svg .t-badge, .t-scene-svg .t-badge-ring, .t-scene-svg .t-batten, .t-scene-svg .t-insul-run, .t-scene-svg .t-tape, .t-scene-svg .t-tick, .t-scene-svg .t-measure-label,
   .t-tile::before, .t-timeline-fill, .t-step-icon svg path, .t-step-icon svg circle, .t-step.revealed .t-step-marker::after {
     animation: none; transition: none;
   }
   .t-hl::after { transform: none; }
   .t-hud-bar span { transform: none; }
-  .t-phase.p4 { color: #fff; border-color: var(--accent-color); }
-  .t-scene-svg .t-tile-old, .t-scene-svg .t-pack, .t-scene-svg .t-spark, .t-scene-svg .t-badge-ring { opacity: 0; }
+  .t-phase.p7 { color: #fff; border-color: var(--accent-color); }
+  .t-scene-svg .t-tile-old, .t-scene-svg .t-pack, .t-scene-svg .t-spark, .t-scene-svg .t-badge-ring, .t-scene-svg .t-measure { opacity: 0; }
   .t-scene-svg .t-sheet, .t-scene-svg .t-badge, .t-scene-svg .t-brace, .t-scene-svg .t-plank, .t-scene-svg .t-ladder,
-  .t-scene-svg .t-base, .t-scene-svg .t-rubble, .t-scene-svg .t-vent { opacity: 1; transform: none; }
+  .t-scene-svg .t-base, .t-scene-svg .t-rubble, .t-scene-svg .t-vent, .t-scene-svg .t-batten, .t-scene-svg .t-insul-run { opacity: 1; transform: none; }
   .t-scene-svg .t-std { transform: none; }
   .t-scene-svg .t-led, .t-scene-svg .t-brace, .t-scene-svg .t-ridge { stroke-dashoffset: 0; }
   .t-scene-svg .t-ridge { opacity: 1; }
