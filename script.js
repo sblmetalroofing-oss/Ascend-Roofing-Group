@@ -402,6 +402,38 @@ document.addEventListener("DOMContentLoaded", () => {
     );
     ctaObserver.observe(heroSection);
   }
+
+  // ---- HERO SCENE: ROOF-TYPE TOGGLE ----
+  // Swaps the old-roof layer in the re-roof animation (tile / asbestos /
+  // old tin), relabels the strip phase and restarts the cycle so the
+  // visitor sees their roof go through the whole job.
+  const scene = document.querySelector(".t-scene");
+  const roofButtons = document.querySelectorAll(".t-roof-btn");
+  const stripPill = document.querySelector(".t-phase.p3");
+  const STRIP_LABELS = { tile: "Strip tiles", asbestos: "Remove asbestos", tin: "Strip old tin" };
+  if (scene && roofButtons.length) {
+    roofButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const roof = btn.dataset.roof;
+        scene.dataset.roof = roof;
+        roofButtons.forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
+        if (stripPill && stripPill.lastChild) stripPill.lastChild.textContent = STRIP_LABELS[roof] || "Strip roof";
+        if (!prefersReducedMotion && typeof scene.getAnimations === "function") {
+          scene.getAnimations({ subtree: true }).forEach((anim) => { anim.currentTime = 0; });
+        }
+      });
+    });
+  }
+
+  // ---- BEFORE / AFTER COMPARE SLIDER ----
+  const compare = document.getElementById("roofCompare");
+  if (compare) {
+    const range = compare.querySelector(".t-compare-range");
+    const setPos = () => compare.style.setProperty("--pos", range.value + "%");
+    range.addEventListener("input", setPos);
+    setPos();
+  }
+
 });
 
 /* ============================================
