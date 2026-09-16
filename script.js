@@ -261,8 +261,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   };
 
-  // Trigger counter when hero-stats is visible
-  const statsSection = document.querySelector(".hero-stats");
+  // Trigger counter when the stats block is visible: .hero-stats on the
+  // legacy hero, .t-stat-chips on the homepage re-roof scene.
+  const statsSection = document.querySelector(".hero-stats, .t-stat-chips");
   if (statsSection) {
     const statsObserver = new IntersectionObserver(
       (entries) => {
