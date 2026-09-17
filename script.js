@@ -418,8 +418,11 @@ document.addEventListener("DOMContentLoaded", () => {
         scene.dataset.roof = roof;
         roofButtons.forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
         if (stripPill && stripPill.lastChild) stripPill.lastChild.textContent = STRIP_LABELS[roof] || "Strip roof";
-        if (!prefersReducedMotion && typeof scene.getAnimations === "function") {
-          scene.getAnimations({ subtree: true }).forEach((anim) => { anim.currentTime = 0; });
+        if (!prefersReducedMotion) {
+          // Restart every animation in the scene together (see .t-scene--reset).
+          scene.classList.add("t-scene--reset");
+          void scene.offsetWidth;
+          scene.classList.remove("t-scene--reset");
         }
       });
     });
