@@ -4219,14 +4219,21 @@ textarea:focus-visible,
 .t-roof-btn:hover { border-color: rgba(255, 255, 255, 0.35); transform: translateY(-1px); }
 .t-roof-btn[aria-pressed="true"] { background: var(--accent-btn); border-color: var(--accent-color); color: #fff; }
 .t-roof-btn:focus-visible { outline: 2px solid var(--accent-light); outline-offset: 2px; }
-/* which old roof is on the house */
-.t-scene-svg .t-old-tin, .t-scene-svg .t-old-asb, .t-scene-svg .t-asb-load { display: none; }
-.t-scene[data-roof="tin"] .t-tiles, .t-scene[data-roof="asbestos"] .t-tiles { display: none; }
-.t-scene[data-roof="tin"] .t-old-tin, .t-scene[data-roof="asbestos"] .t-old-asb { display: block; }
+/* Which old roof is on the house. All three layers animate all the time,
+   in step with the rest of the scene; the toggle only changes visibility.
+   (display:none would start a fresh, out-of-step animation on switch.) */
+.t-scene-svg .t-old-tin, .t-scene-svg .t-old-asb, .t-scene-svg .t-asb-load { visibility: hidden; }
+.t-scene[data-roof="tin"] .t-tiles, .t-scene[data-roof="asbestos"] .t-tiles { visibility: hidden; }
+.t-scene[data-roof="tin"] .t-old-tin, .t-scene[data-roof="asbestos"] .t-old-asb { visibility: visible; }
 .t-scene[data-roof="tin"] .t-rubble polygon { fill: #8a5a3c; }
 .t-scene[data-roof="tin"] .t-rubble polygon:nth-child(2) { fill: #b07a55; }
-.t-scene[data-roof="asbestos"] .t-rubble { display: none; }
-.t-scene[data-roof="asbestos"] .t-asb-load { display: block; animation: t-rubble var(--t-cycle) ease infinite both; }
+.t-scene[data-roof="asbestos"] .t-rubble { visibility: hidden; }
+.t-scene[data-roof="asbestos"] .t-asb-load { visibility: visible; }
+.t-scene-svg .t-asb-load { animation: t-rubble var(--t-cycle) ease infinite both; }
+/* Restart trick: the toggle adds this class for one frame so every
+   animation in the scene (HTML tracker and SVG alike) recreates at t=0
+   together. Web Animations restarts missed the SVG ones on iOS Safari. */
+.t-scene--reset *, .t-scene--reset *::before, .t-scene--reset *::after { animation: none !important; }
 .t-scene-svg .t-old-sheet { transform-box: fill-box; transform-origin: center; animation: t-tile-off var(--t-cycle) ease-in infinite both; }
 .t-scene-svg .t-plane.back .t-old-sheet { animation-name: t-tile-off-back; }
 .t-scene-svg .t-old-sheet.n1 { animation-delay: 0.22s; }
@@ -4284,7 +4291,7 @@ textarea:focus-visible,
 }
 @media (prefers-reduced-motion: reduce) {
   .t-scene-svg .t-old-sheet { animation: none; opacity: 0; }
-  .t-scene[data-roof="asbestos"] .t-asb-load { animation: none; opacity: 1; }
+  .t-scene-svg .t-asb-load { animation: none; opacity: 1; }
   .t-roof-btn { transition: none; }
 }
 @media (min-width: 768px) {
