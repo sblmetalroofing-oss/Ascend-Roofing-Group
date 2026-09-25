@@ -479,11 +479,11 @@ async function captureLead({ email, firstName, lastName, phone, address, jobType
            <ul style="margin:0; padding-left:20px;">${quote.notes.map((n) => `<li style="padding:4px 0;">${sanitize(n)}</li>`).join("")}</ul>`
         : "";
 
-      await resend.emails.send({
+      const { error } = await resend.emails.send({
         from:
           process.env.FROM_EMAIL || "Ascend Website <onboarding@resend.dev>",
         to: process.env.BUSINESS_EMAIL || "admin@ascendroofinggroup.com.au",
-        replyTo: email,
+        ...(email ? { replyTo: email } : {}),
         subject: `🏠 New Roof Quote Lead: ${sanitize(fullName)} — ${sanitize(address)}`,
         html: `
           <h2>New AI Roof Quote Lead</h2>
@@ -515,6 +515,10 @@ async function captureLead({ email, firstName, lastName, phone, address, jobType
           ${notesHtml}
         `,
       });
+      if (error) {
+        console.error("Resend error sending lead notification:", error);
+        return;
+      }
       console.log("Lead notification email sent successfully");
     } catch (err) {
       console.error("Failed to send lead notification email:", err);
@@ -553,12 +557,12 @@ export default async function handler(req, res) {
     lat: clientLat,
     lng: clientLng,
   } = req.body || {};
-  const cleanAddress = (address || "").trim();
-  const cleanJobType = (jobType || "").trim();
-  const cleanEmail = (email || "").trim();
-  const cleanFirstName = (firstName || "").trim();
-  const cleanLastName = (lastName || "").trim();
-  const cleanPhone = (phone || "").trim();
+  const cleanAddress = (typeof address === "string" ? address : "").trim();
+  const cleanJobType = (typeof jobType === "string" ? jobType : "").trim();
+  const cleanEmail = (typeof email === "string" ? email : "").trim();
+  const cleanFirstName = (typeof firstName === "string" ? firstName : "").trim();
+  const cleanLastName = (typeof lastName === "string" ? lastName : "").trim();
+  const cleanPhone = (typeof phone === "string" ? phone : "").trim();
 
   // Validate
   const validationError = validateInputs(

@@ -825,7 +825,7 @@
                         body: JSON.stringify(data)
                     });
 
-                    const result = await response.json();
+                    const result = await response.json().catch(() => ({}));
 
                     if (response.ok && result.success) {
                         // Show success message

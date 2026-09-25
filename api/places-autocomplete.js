@@ -21,7 +21,7 @@ export default async function handler(req, res) {
 
   const { input } = req.query;
 
-  if (!input || input.trim().length < 3) {
+  if (typeof input !== "string" || input.trim().length < 3) {
     return res.status(400).json({ predictions: [] });
   }
 

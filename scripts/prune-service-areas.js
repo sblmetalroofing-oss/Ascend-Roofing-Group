@@ -34,8 +34,8 @@ export const slugOf = (name) =>
   "roofing-" +
   name
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+    .replace(/ /g, "-")
+    .replace(/[^a-z0-9-]/g, ""); // must match build.js getSlug
 
 // Accepts "ascot", "roofing-ascot" or "service-areas/roofing-ascot.html", so a
 // keep-list pasted out of Search Console does not need reformatting first.

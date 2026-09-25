@@ -21,7 +21,7 @@ export default async function handler(req, res) {
     return res.status(429).json({ success: false, message: "Too many requests. Please wait a few minutes and try again." });
   }
 
-  const { name, email, phone, address, roof_type, service, message } = req.body;
+  const { name, email, phone, address, roof_type, service, message } = req.body || {};
 
   // Each service page asks one tailored qualifying question under its own field
   // name. Listing them here keeps the answer in the lead instead of dropping it —
@@ -92,7 +92,7 @@ export default async function handler(req, res) {
     const { data, error } = await resend.emails.send({
       from: process.env.FROM_EMAIL || "Ascend Website <onboarding@resend.dev>",
       to: process.env.BUSINESS_EMAIL || "admin@ascendroofinggroup.com.au",
-      reply_to: email,
+      replyTo: email,
       subject: `New Quote Request: ${safeName}`,
       html: `
         <h2>New Quote Request</h2>
