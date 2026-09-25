@@ -80,8 +80,8 @@ export default async function handler(req, res) {
                      ELSE 90
                    END
                  < CASE
-                     WHEN (i.expiry_date - i.reminded_at::date) <= 30 THEN 30
-                     WHEN (i.expiry_date - i.reminded_at::date) <= 60 THEN 60
+                     WHEN (i.expiry_date - (i.reminded_at AT TIME ZONE 'UTC' AT TIME ZONE 'Australia/Brisbane')::date) <= 30 THEN 30
+                     WHEN (i.expiry_date - (i.reminded_at AT TIME ZONE 'UTC' AT TIME ZONE 'Australia/Brisbane')::date) <= 60 THEN 60
                      ELSE 90
                    END
               )

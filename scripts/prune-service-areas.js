@@ -34,8 +34,8 @@ export const slugOf = (name) =>
   "roofing-" +
   name
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+    .replace(/ /g, "-")
+    .replace(/[^a-z0-9-]/g, ""); // must match build.js getSlug
 
 // Accepts "ascot", "roofing-ascot" or "service-areas/roofing-ascot.html", so a
 // keep-list pasted out of Search Console does not need reformatting first.
@@ -79,8 +79,15 @@ export function planPrune(root = ROOT) {
   const known = new Set(suburbs.map((s) => slugOf(s.name)));
   const unknown = [...kept].filter((s) => !known.has(s)).sort();
 
+  // Hand-written hub pages (custom.json) are never pruned: deleting one
+  // breaks the build and it can't be regenerated.
+  const customPath = path.join(root, "service-areas", "custom.json");
+  const protectedSlugs = new Set(
+    fs.existsSync(customPath) ? JSON.parse(fs.readFileSync(customPath, "utf8")).map((c) => c.slug) : [],
+  );
+
   const removals = suburbs
-    .filter((s) => !kept.has(slugOf(s.name)))
+    .filter((s) => !kept.has(slugOf(s.name)) && !protectedSlugs.has(slugOf(s.name)))
     .map((s) => ({
       slug: slugOf(s.name),
       name: s.name,

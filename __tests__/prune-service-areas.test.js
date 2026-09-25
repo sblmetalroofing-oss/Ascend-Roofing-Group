@@ -37,8 +37,8 @@ describe('slugOf', () => {
         expect(slugOf('Mount Gravatt East')).toBe('roofing-mount-gravatt-east');
     });
 
-    it('collapses punctuation rather than emitting it', () => {
-        expect(slugOf("O'Connell  Park")).toBe('roofing-o-connell-park');
+    it('drops punctuation the same way build.js getSlug does', () => {
+        expect(slugOf("D'Aguilar")).toBe('roofing-daguilar');
     });
 });
 

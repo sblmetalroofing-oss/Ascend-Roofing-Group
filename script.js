@@ -494,13 +494,6 @@ function attachAddressAutocomplete(input) {
   let seq = 0;
   let debounceId = null;
 
-  function clearQuoteCoords() {
-    if (isQuote) {
-      window.__quoteAutoLat = null;
-      window.__quoteAutoLng = null;
-    }
-  }
-
   function hide() {
     list.hidden = true;
     list.innerHTML = "";
@@ -524,7 +517,6 @@ function attachAddressAutocomplete(input) {
     const p = predictions[idx];
     if (!p) return;
     input.value = p.description;
-    clearQuoteCoords();
     hide();
     input.focus();
   }
@@ -579,7 +571,6 @@ function attachAddressAutocomplete(input) {
   }
 
   input.addEventListener("input", () => {
-    clearQuoteCoords();
     const value = input.value.trim();
     clearTimeout(debounceId);
     if (value.length < 3) {

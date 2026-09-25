@@ -111,15 +111,17 @@ function parseClientCoords(rawLat, rawLng) {
 
 // Extract a QLD postcode (4xxx) from a free-text address. Prefer the code that
 // follows a state token ("… QLD 4125"), since the real postcode trails the
-// address; otherwise fall back to the LAST 4xxx token. Never take the first
+// address; otherwise accept only a trailing 4xxx token. Never take the first
 // match — that is frequently a street/unit number (e.g. "4115 Mount Lindesay
 // Hwy, Park Ridge QLD 4125" must resolve to 4125, not 4115).
 function extractPostcode(address) {
   const str = String(address || "");
   const stateMatch = str.match(/(?:QLD|Queensland)[,\s]+(4\d{3})\b/i);
   if (stateMatch) return stateMatch[1];
-  const all = str.match(/\b4\d{3}\b/g);
-  return all && all.length ? all[all.length - 1] : "";
+  // Without a state token only trust a postcode at the very end; a leading
+  // "4217 Beaudesert Rd" is a street number, not a postcode.
+  const trailing = str.match(/\b(4\d{3})\s*(?:,?\s*Australia)?\s*$/i);
+  return trailing ? trailing[1] : "";
 }
 
 // ─── Input Validation ─────────────────────────────────────
@@ -479,11 +481,11 @@ async function captureLead({ email, firstName, lastName, phone, address, jobType
            <ul style="margin:0; padding-left:20px;">${quote.notes.map((n) => `<li style="padding:4px 0;">${sanitize(n)}</li>`).join("")}</ul>`
         : "";
 
-      await resend.emails.send({
+      const { error } = await resend.emails.send({
         from:
           process.env.FROM_EMAIL || "Ascend Website <onboarding@resend.dev>",
         to: process.env.BUSINESS_EMAIL || "admin@ascendroofinggroup.com.au",
-        replyTo: email,
+        ...(email ? { replyTo: email } : {}),
         subject: `🏠 New Roof Quote Lead: ${sanitize(fullName)} — ${sanitize(address)}`,
         html: `
           <h2>New AI Roof Quote Lead</h2>
@@ -515,6 +517,10 @@ async function captureLead({ email, firstName, lastName, phone, address, jobType
           ${notesHtml}
         `,
       });
+      if (error) {
+        console.error("Resend error sending lead notification:", error);
+        return;
+      }
       console.log("Lead notification email sent successfully");
     } catch (err) {
       console.error("Failed to send lead notification email:", err);
@@ -533,15 +539,6 @@ export default async function handler(req, res) {
     return res.status(403).json({ error: "Forbidden" });
   }
 
-  // Server-side rate limit by IP (durable when Upstash is configured);
-  // limits cost exposure on Google Solar API + Resend.
-  const rl = await rateLimit(req, { name: "roof-quote", limit: 1, windowMs: 5 * 60 * 1000 });
-  if (rl.limited) {
-    res.setHeader("Retry-After", String(rl.retryAfter));
-    return res.status(429).json({
-      error: "Too many quote requests. Please wait before trying again.",
-    });
-  }
 
   const {
     address,
@@ -553,12 +550,12 @@ export default async function handler(req, res) {
     lat: clientLat,
     lng: clientLng,
   } = req.body || {};
-  const cleanAddress = (address || "").trim();
-  const cleanJobType = (jobType || "").trim();
-  const cleanEmail = (email || "").trim();
-  const cleanFirstName = (firstName || "").trim();
-  const cleanLastName = (lastName || "").trim();
-  const cleanPhone = (phone || "").trim();
+  const cleanAddress = (typeof address === "string" ? address : "").trim();
+  const cleanJobType = (typeof jobType === "string" ? jobType : "").trim();
+  const cleanEmail = (typeof email === "string" ? email : "").trim();
+  const cleanFirstName = (typeof firstName === "string" ? firstName : "").trim();
+  const cleanLastName = (typeof lastName === "string" ? lastName : "").trim();
+  const cleanPhone = (typeof phone === "string" ? phone : "").trim();
 
   // Validate
   const validationError = validateInputs(
@@ -621,6 +618,17 @@ export default async function handler(req, res) {
   if (!isSEQPostcode(postcode)) {
     return res.status(422).json({
       error: `Postcode ${postcode} is outside our primary service area. We service Brisbane, Gold Coast, Logan, Ipswich, and Moreton Bay regions.`,
+    });
+  }
+
+  // Server-side rate limit by IP (durable when Upstash is configured);
+  // counted only once input is valid, so a typo or missing
+  // postcode doesn't burn the one allowed attempt. Limits cost exposure on Google Solar API + Resend.
+  const rl = await rateLimit(req, { name: "roof-quote", limit: 1, windowMs: 5 * 60 * 1000 });
+  if (rl.limited) {
+    res.setHeader("Retry-After", String(rl.retryAfter));
+    return res.status(429).json({
+      error: "Too many quote requests. Please wait before trying again.",
     });
   }
 
