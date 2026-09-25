@@ -1,8 +1,8 @@
 import { Resend } from 'resend';
-import { sql } from '@vercel/postgres';
+import { db } from '@vercel/postgres';
 import { extractInsuranceData } from '../lib/extract-insurance-data.js';
 import { verifyOrigin } from '../lib/verify-origin.js';
-import { sanitize, validateUpload } from '../lib/sanitize.js';
+import { sanitize, validateUpload, cleanText, digitsOnly, findTooLong } from '../lib/sanitize.js';
 import { rateLimit } from '../lib/rate-limit.js';
 import { encryptField, maskTail } from '../lib/crypto.js';
 
@@ -25,7 +25,7 @@ export default async function handler(req, res) {
     }
 
     try {
-        const { firstName, lastName, email, phone, businessName, abn, businessAddress, bsb, accountNumber, accountName, files } = req.body;
+        const { firstName, lastName, email, phone, businessName, abn, businessAddress, bsb, accountNumber, accountName, files } = req.body || {};
 
         // Validate required fields
         if (!firstName || !lastName || !email || !phone || !businessName || !abn || !bsb || !accountNumber || !accountName) {
@@ -37,7 +37,34 @@ export default async function handler(req, res) {
             return res.status(400).json({ success: false, message: 'Public Liability and Workers Comp insurance are required' });
         }
 
-        // Sanitize inputs
+        // Raw values for storage (escaped only when rendered into HTML).
+        const raw = {
+            firstName: cleanText(firstName),
+            lastName: cleanText(lastName),
+            email: cleanText(email),
+            phone: cleanText(phone),
+            businessName: cleanText(businessName),
+            abn: cleanText(abn) || null,
+            businessAddress: cleanText(businessAddress) || null,
+            bsb: digitsOnly(bsb),
+            accountNumber: digitsOnly(accountNumber),
+            accountName: cleanText(accountName)
+        };
+        if (!/^\d{6}$/.test(raw.bsb)) {
+            return res.status(400).json({ success: false, message: 'BSB must be 6 digits.' });
+        }
+        if (!/^\d{6,10}$/.test(raw.accountNumber)) {
+            return res.status(400).json({ success: false, message: 'Account number must be 6 to 10 digits.' });
+        }
+        const tooLong = findTooLong(raw, {
+            firstName: 100, lastName: 100, email: 255, phone: 20,
+            businessName: 255, abn: 20, accountName: 255
+        });
+        if (tooLong) {
+            return res.status(400).json({ success: false, message: `${tooLong} is too long.` });
+        }
+
+        // Escaped copies for the notification email
         const safeData = {
             firstName: sanitize(firstName),
             lastName: sanitize(lastName),
@@ -46,8 +73,8 @@ export default async function handler(req, res) {
             businessName: sanitize(businessName),
             abn: sanitize(abn) || null,
             businessAddress: sanitize(businessAddress) || null,
-            bsb: sanitize(bsb),
-            accountNumber: sanitize(accountNumber),
+            bsb: raw.bsb,
+            accountNumber: raw.accountNumber,
             accountName: sanitize(accountName)
         };
 
@@ -94,58 +121,68 @@ export default async function handler(req, res) {
         let existingRecord = false;
         if (process.env.POSTGRES_URL) {
             try {
-                // Insert or update subcontractor
-                const subResult = await sql`
-                    INSERT INTO subcontractors (
-                        first_name, last_name, email, phone, business_name, 
-                        abn, business_address, bsb, account_number, account_name
-                    )
-                    VALUES (
-                        ${safeData.firstName}, ${safeData.lastName}, ${safeData.email},
-                        ${safeData.phone}, ${safeData.businessName}, ${safeData.abn},
-                        ${safeData.businessAddress}, ${encryptField(safeData.bsb)},
-                        ${encryptField(safeData.accountNumber)}, ${safeData.accountName}
-                    )
-                    -- Never overwrite an existing record from this public form: anyone
-                    -- could submit a known email with their own bank details.
-                    ON CONFLICT (email) DO NOTHING
-                    RETURNING id
-                `;
-
-                if (subResult.rows.length === 0) {
-                    existingRecord = true;
-                    console.warn('Submission for an existing email — stored record left unchanged');
-                } else {
-                    subcontractorId = subResult.rows[0].id;
-                }
-
-                // Insert insurance documents. Replace any existing rows for this
-                // subcontractor + document type so re-submissions don't accumulate
-                // duplicates. A row is recorded even when extraction failed so the
-                // error is tracked. AI-extracted text is sanitized before storage
-                // (matches the subcontractor fields) so it's safe wherever it's
-                // later rendered into email HTML.
-                for (const { key, type } of (subcontractorId ? fileTypes : [])) {
-                    if (!insuranceData[key]) continue; // no file uploaded for this slot
-                    const ext = insuranceData[key].extraction;
-                    await sql`
-                        DELETE FROM insurance_documents
-                        WHERE subcontractor_id = ${subcontractorId} AND document_type = ${type}
-                    `;
-                    await sql`
-                        INSERT INTO insurance_documents (
-                            subcontractor_id, document_type, expiry_date,
-                            policy_number, insurer_name, extraction_confidence, extraction_error
+                const client = await db.connect();
+                try {
+                    await client.query('BEGIN');
+                    // Insert or update subcontractor
+                    const subResult = await client.sql`
+                        INSERT INTO subcontractors (
+                            first_name, last_name, email, phone, business_name, 
+                            abn, business_address, bsb, account_number, account_name
                         )
                         VALUES (
-                            ${subcontractorId}, ${type}, ${ext ? ext.expiry_date : null},
-                            ${ext && ext.policy_number ? sanitize(ext.policy_number) : null},
-                            ${ext && ext.insurer_name ? sanitize(ext.insurer_name) : null},
-                            ${ext ? ext.confidence : null}, ${insuranceData[key].error}
+                            ${raw.firstName}, ${raw.lastName}, ${raw.email},
+                            ${raw.phone}, ${raw.businessName}, ${raw.abn},
+                            ${raw.businessAddress}, ${encryptField(raw.bsb)},
+                            ${encryptField(raw.accountNumber)}, ${raw.accountName}
                         )
+                        -- Never overwrite an existing record from this public form: anyone
+                        -- could submit a known email with their own bank details.
+                        ON CONFLICT (email) DO NOTHING
+                        RETURNING id
                     `;
+    
+                    if (subResult.rows.length === 0) {
+                        existingRecord = true;
+                        console.warn('Submission for an existing email — stored record left unchanged');
+                    } else {
+                        subcontractorId = subResult.rows[0].id;
+                    }
+    
+                    // Insert insurance documents. Replace any existing rows for this
+                    // subcontractor + document type so re-submissions don't accumulate
+                    // duplicates. A row is recorded even when extraction failed so the
+                    // error is tracked. AI-extracted text is sanitized before storage
+                    // (matches the subcontractor fields) so it's safe wherever it's
+                    // later rendered into email HTML.
+                    for (const { key, type } of (subcontractorId ? fileTypes : [])) {
+                        if (!insuranceData[key]) continue; // no file uploaded for this slot
+                        const ext = insuranceData[key].extraction;
+                        await client.sql`
+                            DELETE FROM insurance_documents
+                            WHERE subcontractor_id = ${subcontractorId} AND document_type = ${type}
+                        `;
+                        await client.sql`
+                            INSERT INTO insurance_documents (
+                                subcontractor_id, document_type, expiry_date,
+                                policy_number, insurer_name, extraction_confidence, extraction_error
+                            )
+                            VALUES (
+                                ${subcontractorId}, ${type}, ${ext ? ext.expiry_date : null},
+                                ${ext && ext.policy_number ? cleanText(ext.policy_number).slice(0, 100) : null},
+                                ${ext && ext.insurer_name ? cleanText(ext.insurer_name).slice(0, 255) : null},
+                                ${ext ? ext.confidence : null}, ${insuranceData[key].error}
+                            )
+                        `;
+                    }
+    
+                    await client.query('COMMIT');
+                } catch (txErr) {
+                    await client.query('ROLLBACK').catch(() => {});
+                    throw txErr;
+                } finally {
+                    client.release();
                 }
-
                 console.log(`Stored subcontractor data in database (ID: ${subcontractorId})`);
             } catch (dbError) {
                 console.error('Database error — subcontractor data NOT saved to DB:', dbError);

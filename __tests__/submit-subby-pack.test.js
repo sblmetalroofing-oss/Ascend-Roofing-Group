@@ -8,7 +8,8 @@ jest.unstable_mockModule('resend', () => ({
 
 const mockSql = jest.fn();
 jest.unstable_mockModule('@vercel/postgres', () => ({
-    sql: mockSql
+    sql: mockSql,
+    db: { connect: async () => ({ sql: mockSql, query: async () => ({}), release: () => {} }) }
 }));
 
 const mockExtractInsuranceData = jest.fn();

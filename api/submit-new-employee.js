@@ -1,7 +1,7 @@
 import { Resend } from 'resend';
-import { sql } from '@vercel/postgres';
+import { db } from '@vercel/postgres';
 import { verifyOrigin } from '../lib/verify-origin.js';
-import { sanitize, validateUpload } from '../lib/sanitize.js';
+import { sanitize, validateUpload, cleanText, digitsOnly, findTooLong } from '../lib/sanitize.js';
 import { rateLimit } from '../lib/rate-limit.js';
 import { encryptField, maskTail } from '../lib/crypto.js';
 
@@ -65,6 +65,47 @@ export default async function handler(req, res) {
             return res.status(400).json({ success: false, message: 'TFN must be 8 or 9 digits.' });
         }
 
+        // Raw values for storage (escaped only when rendered into HTML).
+        const raw = {
+            firstName: cleanText(firstName),
+            lastName: cleanText(lastName),
+            dateOfBirth: cleanText(dateOfBirth),
+            email: cleanText(email),
+            phone: cleanText(phone),
+            streetAddress: cleanText(streetAddress),
+            suburb: cleanText(suburb),
+            state: cleanText(state),
+            postcode: cleanText(postcode),
+            emergencyName: cleanText(emergencyName),
+            emergencyRelationship: cleanText(emergencyRelationship),
+            emergencyPhone: cleanText(emergencyPhone),
+            position: cleanText(position),
+            employmentType: cleanText(employmentType),
+            startDate: cleanText(startDate),
+            superFundName: cleanText(superFundName) || null,
+            superMemberNumber: cleanText(superMemberNumber) || null,
+            superUsi: cleanText(superUsi) || null,
+            bsb: digitsOnly(bsb),
+            accountNumber: digitsOnly(accountNumber),
+            accountName: cleanText(accountName)
+        };
+        if (!/^\d{6}$/.test(raw.bsb)) {
+            return res.status(400).json({ success: false, message: 'BSB must be 6 digits.' });
+        }
+        if (!/^\d{6,10}$/.test(raw.accountNumber)) {
+            return res.status(400).json({ success: false, message: 'Account number must be 6 to 10 digits.' });
+        }
+        const tooLong = findTooLong(raw, {
+            firstName: 100, lastName: 100, email: 255, phone: 20, suburb: 100,
+            state: 10, postcode: 10, emergencyName: 255, emergencyRelationship: 100,
+            emergencyPhone: 20, position: 255, employmentType: 50,
+            superFundName: 255, superMemberNumber: 100, superUsi: 50, accountName: 255
+        });
+        if (tooLong) {
+            return res.status(400).json({ success: false, message: `${tooLong} is too long.` });
+        }
+
+        // Escaped copies for the notification email
         const safe = {
             firstName: sanitize(firstName),
             lastName: sanitize(lastName),
@@ -88,8 +129,8 @@ export default async function handler(req, res) {
             superFundName: sanitize(superFundName) || null,
             superMemberNumber: sanitize(superMemberNumber) || null,
             superUsi: sanitize(superUsi) || null,
-            bsb: sanitize(bsb),
-            accountNumber: sanitize(accountNumber),
+            bsb: raw.bsb,
+            accountNumber: raw.accountNumber,
             accountName: sanitize(accountName)
         };
 
@@ -115,44 +156,54 @@ export default async function handler(req, res) {
         let existingRecord = false;
         if (process.env.POSTGRES_URL) {
             try {
-                const result = await sql`
-                    INSERT INTO employees (
-                        first_name, last_name, date_of_birth, email, phone,
-                        street_address, suburb, state, postcode,
-                        emergency_name, emergency_relationship, emergency_phone,
-                        position, employment_type, start_date,
-                        tfn, tax_free_threshold, australian_resident, has_help_debt,
-                        super_fund_name, super_member_number, super_usi,
-                        bsb, account_number, account_name
-                    )
-                    VALUES (
-                        ${safe.firstName}, ${safe.lastName}, ${safe.dateOfBirth}, ${safe.email}, ${safe.phone},
-                        ${safe.streetAddress}, ${safe.suburb}, ${safe.state}, ${safe.postcode},
-                        ${safe.emergencyName}, ${safe.emergencyRelationship}, ${safe.emergencyPhone},
-                        ${safe.position}, ${safe.employmentType}, ${safe.startDate},
-                        ${encryptField(safe.tfn)}, ${safe.taxFreeThreshold}, ${safe.australianResident}, ${safe.hasHelpDebt},
-                        ${safe.superFundName}, ${safe.superMemberNumber}, ${safe.superUsi},
-                        ${encryptField(safe.bsb)}, ${encryptField(safe.accountNumber)}, ${safe.accountName}
-                    )
-                    -- Never overwrite an existing record from this public form: anyone
-                    -- could submit a known email with their own bank details.
-                    ON CONFLICT (email) DO NOTHING
-                    RETURNING id
-                `;
-                if (result.rows.length === 0) {
-                    existingRecord = true;
-                    console.warn('Submission for an existing email — stored record left unchanged');
-                } else {
-                    employeeId = result.rows[0].id;
-                }
-
-                for (const { key, type } of (employeeId ? fileTypes : [])) {
-                    if (validatedFiles[key]) {
-                        await sql`
-                            INSERT INTO employee_documents (employee_id, document_type, filename)
-                            VALUES (${employeeId}, ${type}, ${validatedFiles[key].filename})
-                        `;
+                const client = await db.connect();
+                try {
+                    await client.query('BEGIN');
+                    const result = await client.sql`
+                        INSERT INTO employees (
+                            first_name, last_name, date_of_birth, email, phone,
+                            street_address, suburb, state, postcode,
+                            emergency_name, emergency_relationship, emergency_phone,
+                            position, employment_type, start_date,
+                            tfn, tax_free_threshold, australian_resident, has_help_debt,
+                            super_fund_name, super_member_number, super_usi,
+                            bsb, account_number, account_name
+                        )
+                        VALUES (
+                            ${raw.firstName}, ${raw.lastName}, ${raw.dateOfBirth}, ${raw.email}, ${raw.phone},
+                            ${raw.streetAddress}, ${raw.suburb}, ${raw.state}, ${raw.postcode},
+                            ${raw.emergencyName}, ${raw.emergencyRelationship}, ${raw.emergencyPhone},
+                            ${raw.position}, ${raw.employmentType}, ${raw.startDate},
+                            ${encryptField(safe.tfn)}, ${safe.taxFreeThreshold}, ${safe.australianResident}, ${safe.hasHelpDebt},
+                            ${raw.superFundName}, ${raw.superMemberNumber}, ${raw.superUsi},
+                            ${encryptField(raw.bsb)}, ${encryptField(raw.accountNumber)}, ${raw.accountName}
+                        )
+                        -- Never overwrite an existing record from this public form: anyone
+                        -- could submit a known email with their own bank details.
+                        ON CONFLICT (email) DO NOTHING
+                        RETURNING id
+                    `;
+                    if (result.rows.length === 0) {
+                        existingRecord = true;
+                        console.warn('Submission for an existing email — stored record left unchanged');
+                    } else {
+                        employeeId = result.rows[0].id;
                     }
+    
+                    for (const { key, type } of (employeeId ? fileTypes : [])) {
+                        if (validatedFiles[key]) {
+                            await client.sql`
+                                INSERT INTO employee_documents (employee_id, document_type, filename)
+                                VALUES (${employeeId}, ${type}, ${validatedFiles[key].filename})
+                            `;
+                        }
+                    }
+                    await client.query('COMMIT');
+                } catch (txErr) {
+                    await client.query('ROLLBACK').catch(() => {});
+                    throw txErr;
+                } finally {
+                    client.release();
                 }
                 console.log(`Stored employee data in database (ID: ${employeeId})`);
             } catch (dbError) {
