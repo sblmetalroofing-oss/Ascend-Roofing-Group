@@ -111,15 +111,17 @@ function parseClientCoords(rawLat, rawLng) {
 
 // Extract a QLD postcode (4xxx) from a free-text address. Prefer the code that
 // follows a state token ("… QLD 4125"), since the real postcode trails the
-// address; otherwise fall back to the LAST 4xxx token. Never take the first
+// address; otherwise accept only a trailing 4xxx token. Never take the first
 // match — that is frequently a street/unit number (e.g. "4115 Mount Lindesay
 // Hwy, Park Ridge QLD 4125" must resolve to 4125, not 4115).
 function extractPostcode(address) {
   const str = String(address || "");
   const stateMatch = str.match(/(?:QLD|Queensland)[,\s]+(4\d{3})\b/i);
   if (stateMatch) return stateMatch[1];
-  const all = str.match(/\b4\d{3}\b/g);
-  return all && all.length ? all[all.length - 1] : "";
+  // Without a state token only trust a postcode at the very end; a leading
+  // "4217 Beaudesert Rd" is a street number, not a postcode.
+  const trailing = str.match(/\b(4\d{3})\s*(?:,?\s*Australia)?\s*$/i);
+  return trailing ? trailing[1] : "";
 }
 
 // ─── Input Validation ─────────────────────────────────────
@@ -537,15 +539,6 @@ export default async function handler(req, res) {
     return res.status(403).json({ error: "Forbidden" });
   }
 
-  // Server-side rate limit by IP (durable when Upstash is configured);
-  // limits cost exposure on Google Solar API + Resend.
-  const rl = await rateLimit(req, { name: "roof-quote", limit: 1, windowMs: 5 * 60 * 1000 });
-  if (rl.limited) {
-    res.setHeader("Retry-After", String(rl.retryAfter));
-    return res.status(429).json({
-      error: "Too many quote requests. Please wait before trying again.",
-    });
-  }
 
   const {
     address,
@@ -625,6 +618,17 @@ export default async function handler(req, res) {
   if (!isSEQPostcode(postcode)) {
     return res.status(422).json({
       error: `Postcode ${postcode} is outside our primary service area. We service Brisbane, Gold Coast, Logan, Ipswich, and Moreton Bay regions.`,
+    });
+  }
+
+  // Server-side rate limit by IP (durable when Upstash is configured);
+  // counted only once input is valid, so a typo or missing
+  // postcode doesn't burn the one allowed attempt. Limits cost exposure on Google Solar API + Resend.
+  const rl = await rateLimit(req, { name: "roof-quote", limit: 1, windowMs: 5 * 60 * 1000 });
+  if (rl.limited) {
+    res.setHeader("Retry-After", String(rl.retryAfter));
+    return res.status(429).json({
+      error: "Too many quote requests. Please wait before trying again.",
     });
   }
 

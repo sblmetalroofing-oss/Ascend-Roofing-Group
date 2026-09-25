@@ -302,6 +302,18 @@ describe('submit-subby-pack handler', () => {
         expect(texts.some(t => /DELETE FROM insurance_documents/i.test(t))).toBe(true);
     });
 
+    test('never overwrites an existing record (bank-detail takeover)', async () => {
+        process.env.POSTGRES_URL = 'postgres://test';
+        mockSql.mockResolvedValue({ rows: [] }); // ON CONFLICT DO NOTHING → no id
+        const res = makeRes();
+        await handler(makeReq(validBody), res);
+        const texts = mockSql.mock.calls.map(sqlText);
+        expect(texts.some(t => /DO UPDATE/i.test(t))).toBe(false);
+        expect(texts.some(t => /insurance_documents/i.test(t))).toBe(false);
+        expect(mockEmailSend.mock.calls[0][0].html).toContain('already exists');
+        expect(res.status).toHaveBeenCalledWith(200);
+    });
+
     test('records a row with extraction_error when extraction fails', async () => {
         process.env.POSTGRES_URL = 'postgres://test';
         mockExtractInsuranceData.mockResolvedValue({ success: false, error: 'AI timeout', data: null });

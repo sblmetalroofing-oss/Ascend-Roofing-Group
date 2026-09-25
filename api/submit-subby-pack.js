@@ -91,6 +91,7 @@ export default async function handler(req, res) {
 
         // Store in database if configured
         let subcontractorId = null;
+        let existingRecord = false;
         if (process.env.POSTGRES_URL) {
             try {
                 // Insert or update subcontractor
@@ -105,22 +106,18 @@ export default async function handler(req, res) {
                         ${safeData.businessAddress}, ${encryptField(safeData.bsb)},
                         ${encryptField(safeData.accountNumber)}, ${safeData.accountName}
                     )
-                    ON CONFLICT (email) 
-                    DO UPDATE SET
-                        first_name = EXCLUDED.first_name,
-                        last_name = EXCLUDED.last_name,
-                        phone = EXCLUDED.phone,
-                        business_name = EXCLUDED.business_name,
-                        abn = EXCLUDED.abn,
-                        business_address = EXCLUDED.business_address,
-                        bsb = EXCLUDED.bsb,
-                        account_number = EXCLUDED.account_number,
-                        account_name = EXCLUDED.account_name,
-                        updated_at = CURRENT_TIMESTAMP
+                    -- Never overwrite an existing record from this public form: anyone
+                    -- could submit a known email with their own bank details.
+                    ON CONFLICT (email) DO NOTHING
                     RETURNING id
                 `;
 
-                subcontractorId = subResult.rows[0].id;
+                if (subResult.rows.length === 0) {
+                    existingRecord = true;
+                    console.warn('Submission for an existing email — stored record left unchanged');
+                } else {
+                    subcontractorId = subResult.rows[0].id;
+                }
 
                 // Insert insurance documents. Replace any existing rows for this
                 // subcontractor + document type so re-submissions don't accumulate
@@ -128,7 +125,7 @@ export default async function handler(req, res) {
                 // error is tracked. AI-extracted text is sanitized before storage
                 // (matches the subcontractor fields) so it's safe wherever it's
                 // later rendered into email HTML.
-                for (const { key, type } of fileTypes) {
+                for (const { key, type } of (subcontractorId ? fileTypes : [])) {
                     if (!insuranceData[key]) continue; // no file uploaded for this slot
                     const ext = insuranceData[key].extraction;
                     await sql`
@@ -235,6 +232,8 @@ export default async function handler(req, res) {
             attachments: attachments,
             html: `
                 <h2>Subcontractor Pack Submission</h2>
+                ${existingRecord ? `<p style="background:#fdecea; border:1px solid #e74c3c; padding:12px; color:#a94442;"><strong>⚠ A record with this email already exists. Stored details (including bank details) were NOT changed.</strong> Anyone can submit this form with any email address — confirm by phone, using the number you already have on file, before updating payment details.</p>` : ''}
+
                 
                 ${expiryWarnings}
 
@@ -291,7 +290,7 @@ export default async function handler(req, res) {
                 </table>
                 <p style="color:#666; font-size:12px;">
                     <em>Bank numbers are masked — the full details are stored securely in the database
-                    ${subcontractorId ? `(subcontractor record ID ${subcontractorId})` : '(⚠ database was unavailable for this submission — contact the subcontractor to re-collect payment details)'}.</em>
+                    ${subcontractorId ? `(subcontractor record ID ${subcontractorId})` : existingRecord ? '(existing record — NOT updated, see warning above)' : '(⚠ database was unavailable for this submission — contact the subcontractor to re-collect payment details)'}.</em>
                 </p>
 
                 <h3>🤖 AI-Extracted Insurance Information</h3>

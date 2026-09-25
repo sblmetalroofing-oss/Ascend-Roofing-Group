@@ -112,6 +112,7 @@ export default async function handler(req, res) {
         }
 
         let employeeId = null;
+        let existingRecord = false;
         if (process.env.POSTGRES_URL) {
             try {
                 const result = await sql`
@@ -133,38 +134,19 @@ export default async function handler(req, res) {
                         ${safe.superFundName}, ${safe.superMemberNumber}, ${safe.superUsi},
                         ${encryptField(safe.bsb)}, ${encryptField(safe.accountNumber)}, ${safe.accountName}
                     )
-                    ON CONFLICT (email)
-                    DO UPDATE SET
-                        first_name = EXCLUDED.first_name,
-                        last_name = EXCLUDED.last_name,
-                        date_of_birth = EXCLUDED.date_of_birth,
-                        phone = EXCLUDED.phone,
-                        street_address = EXCLUDED.street_address,
-                        suburb = EXCLUDED.suburb,
-                        state = EXCLUDED.state,
-                        postcode = EXCLUDED.postcode,
-                        emergency_name = EXCLUDED.emergency_name,
-                        emergency_relationship = EXCLUDED.emergency_relationship,
-                        emergency_phone = EXCLUDED.emergency_phone,
-                        position = EXCLUDED.position,
-                        employment_type = EXCLUDED.employment_type,
-                        start_date = EXCLUDED.start_date,
-                        tfn = EXCLUDED.tfn,
-                        tax_free_threshold = EXCLUDED.tax_free_threshold,
-                        australian_resident = EXCLUDED.australian_resident,
-                        has_help_debt = EXCLUDED.has_help_debt,
-                        super_fund_name = EXCLUDED.super_fund_name,
-                        super_member_number = EXCLUDED.super_member_number,
-                        super_usi = EXCLUDED.super_usi,
-                        bsb = EXCLUDED.bsb,
-                        account_number = EXCLUDED.account_number,
-                        account_name = EXCLUDED.account_name,
-                        updated_at = CURRENT_TIMESTAMP
+                    -- Never overwrite an existing record from this public form: anyone
+                    -- could submit a known email with their own bank details.
+                    ON CONFLICT (email) DO NOTHING
                     RETURNING id
                 `;
-                employeeId = result.rows[0].id;
+                if (result.rows.length === 0) {
+                    existingRecord = true;
+                    console.warn('Submission for an existing email — stored record left unchanged');
+                } else {
+                    employeeId = result.rows[0].id;
+                }
 
-                for (const { key, type } of fileTypes) {
+                for (const { key, type } of (employeeId ? fileTypes : [])) {
                     if (validatedFiles[key]) {
                         await sql`
                             INSERT INTO employee_documents (employee_id, document_type, filename)
@@ -208,6 +190,8 @@ export default async function handler(req, res) {
             attachments,
             html: `
                 <h2>New Employee Onboarding Submission</h2>
+                ${existingRecord ? `<p style="background:#fdecea; border:1px solid #e74c3c; padding:12px; color:#a94442;"><strong>⚠ A record with this email already exists. Stored details (including bank details) were NOT changed.</strong> Anyone can submit this form with any email address — confirm by phone, using the number you already have on file, before updating payment details.</p>` : ''}
+
 
                 <h3>Personal Details</h3>
                 <table style="border-collapse:collapse; width:100%; max-width:600px; margin-bottom:24px;">
@@ -257,7 +241,7 @@ export default async function handler(req, res) {
                 <p style="color:#666; font-size:12px; margin-top:24px;">
                     <em>Photo ID, White Card, and any additional certifications are attached to this email.
                     TFN and bank numbers are masked — the full details are stored securely in the database
-                    ${employeeId ? `(employee record ID ${employeeId})` : '(⚠ database was unavailable for this submission — contact the employee to re-collect payment details)'}.</em>
+                    ${employeeId ? `(employee record ID ${employeeId})` : existingRecord ? '(existing record — NOT updated, see warning above)' : '(⚠ database was unavailable for this submission — contact the employee to re-collect payment details)'}.</em>
                 </p>
             `
         });

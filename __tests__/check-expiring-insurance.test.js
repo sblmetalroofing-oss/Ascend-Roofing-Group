@@ -212,7 +212,7 @@ describe('check-expiring-insurance handler', () => {
         expect(selectSql).toMatch(/reminded_at IS NULL\s*\n\s*OR/);
         // Both sides of the band comparison must be present: the band today,
         // and the band the document was in when it was last reminded.
-        expect(selectSql).toContain('i.reminded_at::date');
+        expect(selectSql).toContain("(i.reminded_at AT TIME ZONE 'UTC' AT TIME ZONE 'Australia/Brisbane')::date");
         expect(selectSql.match(/<= 30 THEN 30/g)).toHaveLength(2);
         expect(selectSql.match(/<= 60 THEN 60/g)).toHaveLength(2);
     });
