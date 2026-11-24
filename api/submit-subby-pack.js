@@ -122,6 +122,10 @@ export default async function handler(req, res) {
         if (process.env.POSTGRES_URL) {
             try {
                 const client = await db.connect();
+                // Encrypted bank values overflow the original VARCHAR widths.
+                await client.query(`ALTER TABLE subcontractors
+                    ALTER COLUMN bsb TYPE TEXT,
+                    ALTER COLUMN account_number TYPE TEXT`).catch(e => console.error('Subcontractor column widen failed:', e));
                 try {
                     await client.query('BEGIN');
                     // Insert or update subcontractor
