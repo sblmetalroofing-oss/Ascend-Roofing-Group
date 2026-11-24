@@ -675,7 +675,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="whiteCard">White Card (Construction Induction) *</label>
+                        <label for="whiteCard">White Card (Construction Induction) (Optional)</label>
                         <div class="file-upload-wrapper">
                             <label for="whiteCard" class="file-upload-label">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
@@ -687,7 +687,7 @@
                                 Choose File
                             </label>
                             <input type="file" id="whiteCard" name="whiteCard" class="file-upload-input"
-                                accept=".pdf,.jpg,.jpeg,.png" aria-required="true">
+                                accept=".pdf,.jpg,.jpeg,.png">
                             <div class="file-upload-items" id="whiteCard-items"></div>
                         </div>
                         <div class="error-message" id="whiteCard-error"></div>
@@ -802,10 +802,36 @@
         (function () {
             const fileInputs = document.querySelectorAll('.file-upload-input');
 
+            // Shrink phone photos client-side so they fit the upload cap.
+            async function compressImage(file) {
+                if (!/^image\/(jpe?g|png)$/.test(file.type) || file.size < 500 * 1024) return file;
+                try {
+                    const bmp = await createImageBitmap(file);
+                    const scale = Math.min(1, 1600 / Math.max(bmp.width, bmp.height));
+                    const canvas = document.createElement('canvas');
+                    canvas.width = Math.round(bmp.width * scale);
+                    canvas.height = Math.round(bmp.height * scale);
+                    canvas.getContext('2d').drawImage(bmp, 0, 0, canvas.width, canvas.height);
+                    const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.75));
+                    if (!blob || blob.size >= file.size) return file;
+                    const name = file.name.replace(/\.\w+$/, '') + '.jpg';
+                    return new File([blob], name, { type: 'image/jpeg' });
+                } catch (_) { return file; }
+            }
+
             fileInputs.forEach(input => {
-                input.addEventListener('change', function (e) {
-                    const file = e.target.files[0];
+                input.addEventListener('change', async function (e) {
+                    let file = e.target.files[0];
                     if (!file) return;
+                    const compressed = await compressImage(file);
+                    if (compressed !== file) {
+                        try {
+                            const dt = new DataTransfer();
+                            dt.items.add(compressed);
+                            input.files = dt.files;
+                            file = compressed;
+                        } catch (_) {}
+                    }
 
                     const maxSize = 3 * 1024 * 1024; // 3MB — base64 must fit Vercel's ~4.5MB body cap
                     const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
@@ -902,8 +928,7 @@
 
                 // JS validation for required file inputs (hidden inputs can't use HTML5 required)
                 const requiredFiles = [
-                    { id: 'photoId', label: 'Photo ID' },
-                    { id: 'whiteCard', label: 'White Card' }
+                    { id: 'photoId', label: 'Photo ID' }
                 ];
                 let hasFileError = false;
                 for (const { id, label } of requiredFiles) {
