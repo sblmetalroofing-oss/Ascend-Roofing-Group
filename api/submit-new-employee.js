@@ -55,8 +55,8 @@ export default async function handler(req, res) {
             return res.status(400).json({ success: false, message: 'You must accept the declaration to submit.' });
         }
 
-        if (!files?.photoId || !files?.whiteCard) {
-            return res.status(400).json({ success: false, message: 'Photo ID and White Card are required.' });
+        if (!files?.photoId) {
+            return res.status(400).json({ success: false, message: 'Photo ID is required.' });
         }
 
         // TFN: 8-9 digits after stripping spaces. Don't echo the TFN in error messages.
@@ -290,7 +290,7 @@ export default async function handler(req, res) {
                 </table>
 
                 <p style="color:#666; font-size:12px; margin-top:24px;">
-                    <em>Photo ID, White Card, and any additional certifications are attached to this email.
+                    <em>Photo ID and any White Card or additional certifications provided are attached to this email.
                     TFN and bank numbers are masked — the full details are stored securely in the database
                     ${employeeId ? `(employee record ID ${employeeId})` : existingRecord ? '(existing record — NOT updated, see warning above)' : '(⚠ database was unavailable for this submission — contact the employee to re-collect payment details)'}.</em>
                 </p>

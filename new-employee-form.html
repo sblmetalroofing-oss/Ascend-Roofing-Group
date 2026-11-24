@@ -675,7 +675,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="whiteCard">White Card (Construction Induction) *</label>
+                        <label for="whiteCard">White Card (Construction Induction) (Optional)</label>
                         <div class="file-upload-wrapper">
                             <label for="whiteCard" class="file-upload-label">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
@@ -687,7 +687,7 @@
                                 Choose File
                             </label>
                             <input type="file" id="whiteCard" name="whiteCard" class="file-upload-input"
-                                accept=".pdf,.jpg,.jpeg,.png" aria-required="true">
+                                accept=".pdf,.jpg,.jpeg,.png">
                             <div class="file-upload-items" id="whiteCard-items"></div>
                         </div>
                         <div class="error-message" id="whiteCard-error"></div>
@@ -928,8 +928,7 @@
 
                 // JS validation for required file inputs (hidden inputs can't use HTML5 required)
                 const requiredFiles = [
-                    { id: 'photoId', label: 'Photo ID' },
-                    { id: 'whiteCard', label: 'White Card' }
+                    { id: 'photoId', label: 'Photo ID' }
                 ];
                 let hasFileError = false;
                 for (const { id, label } of requiredFiles) {
