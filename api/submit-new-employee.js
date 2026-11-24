@@ -7,6 +7,43 @@ import { encryptField, maskTail } from '../lib/crypto.js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+// Make sure the tables exist and are wide enough for encrypted values
+// (AES-GCM ciphertext overflows the original VARCHAR(7/11/20) columns).
+// Idempotent; runs once per cold start.
+let schemaReady = null;
+async function ensureSchema(client) {
+    if (!schemaReady) {
+        schemaReady = (async () => {
+            await client.query(`CREATE TABLE IF NOT EXISTS employees (
+                id SERIAL PRIMARY KEY,
+                first_name VARCHAR(100) NOT NULL, last_name VARCHAR(100) NOT NULL,
+                date_of_birth DATE NOT NULL, email VARCHAR(255) UNIQUE NOT NULL,
+                phone VARCHAR(20) NOT NULL, street_address TEXT NOT NULL,
+                suburb VARCHAR(100) NOT NULL, state VARCHAR(10) NOT NULL, postcode VARCHAR(10) NOT NULL,
+                emergency_name VARCHAR(255) NOT NULL, emergency_relationship VARCHAR(100) NOT NULL,
+                emergency_phone VARCHAR(20) NOT NULL, position VARCHAR(255) NOT NULL,
+                employment_type VARCHAR(50) NOT NULL, start_date DATE NOT NULL,
+                tfn TEXT NOT NULL, tax_free_threshold BOOLEAN DEFAULT FALSE,
+                australian_resident BOOLEAN DEFAULT FALSE, has_help_debt BOOLEAN DEFAULT FALSE,
+                super_fund_name VARCHAR(255), super_member_number VARCHAR(100), super_usi VARCHAR(50),
+                bsb TEXT NOT NULL, account_number TEXT NOT NULL, account_name VARCHAR(255) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )`);
+            await client.query(`CREATE TABLE IF NOT EXISTS employee_documents (
+                id SERIAL PRIMARY KEY,
+                employee_id INTEGER REFERENCES employees(id) ON DELETE CASCADE,
+                document_type VARCHAR(100) NOT NULL, filename VARCHAR(500),
+                uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )`);
+            await client.query(`ALTER TABLE employees
+                ALTER COLUMN tfn TYPE TEXT,
+                ALTER COLUMN bsb TYPE TEXT,
+                ALTER COLUMN account_number TYPE TEXT`);
+        })().catch(err => { schemaReady = null; throw err; });
+    }
+    return schemaReady;
+}
+
 function yesNo(bool) {
     return bool ? 'Yes' : 'No';
 }
@@ -158,6 +195,7 @@ export default async function handler(req, res) {
             try {
                 const client = await db.connect();
                 try {
+                    await ensureSchema(client);
                     await client.query('BEGIN');
                     const result = await client.sql`
                         INSERT INTO employees (
